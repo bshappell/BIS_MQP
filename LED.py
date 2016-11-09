@@ -1,5 +1,6 @@
 # LED Class 
 import RPi.GPIO as GPIO
+import time
 
 class LED(object):
 
@@ -31,3 +32,11 @@ class LED(object):
 
 
 
+if __name__ == "__main__":
+
+        # for LED testing purposes
+        led = LED(12)
+        led.turnOn()
+        time.sleep(5)
+        led.turnOff()
+        

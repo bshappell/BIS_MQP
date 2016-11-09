@@ -1,7 +1,7 @@
 
 import numpy as np
 import cv2
-
+import LED
 
 def simpleImage():
 
@@ -47,7 +47,10 @@ def camTest():
 
 def captureImage():
 
-	cap = cv2.VideoCapture(1)
+        led = LED.LED(12)
+        led.turnOn()
+
+	cap = cv2.VideoCapture(0)
 	imageCount = 0 # used to increment picture counts 
 
 	while(True):
@@ -71,6 +74,8 @@ def captureImage():
 	cap.release()
 	cv2.destroyAllWindows()
 	cap.release()
+
+	led.turnOff()
 
 if __name__=="__main__":
 
