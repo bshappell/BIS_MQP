@@ -6,6 +6,6 @@ class ImageProcessor(object):
 
 		pass
 
-	def inspectImage(self):
+	def inspectImage(self, currStage, sizeBB):
 
 		pass

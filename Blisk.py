@@ -2,9 +2,8 @@
 
 class Blisk(object):
 
-	def __init__(self, firstStage, secondStage, heightBetweenStages, inspectionTime):
+	def __init__(self, stages, heightBetweenStages, inspectionTime):
 
-		self.firstStage = firstStage
-		self.secondStage = secondStage
+		self.stages = stages
 		self.heightBetweenStages = heightBetweenStages
 		self.inspectionTime = inspectionTime
