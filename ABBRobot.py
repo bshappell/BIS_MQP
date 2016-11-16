@@ -18,13 +18,23 @@ class ABBRobot(object):
 		pass
 
 
-	""" Traverse the blade moving upwards until a stop signal is sent """
-	def traverseUpBlade(self, currBlisk):
+	""" Traverse the blade moving upwards on the inside edge until a stop signal is sent """
+	def traverseUpInsideBlade(self, currBlisk):
 
 		pass
 
-	""" Traverse the blade moving downwards until a stop signal is sent """
-	def traverseDownBlade(self, currBlisk):
+	""" Traverse the blade moving downwards on the inside edge until a stop signal is sent """
+	def traverseDownInsideBlade(self, currBlisk):
+
+		pass
+
+	""" Traverse the blade moving upwards on the outside edge until a stop signal is sent """
+	def traverseUpOutsideBlade(self, currBlisk):
+
+		pass
+
+	""" Traverse the blade moving downwards on the outside edge until a stop signal is sent """
+	def traverseDownOutsideBlade(self, currBlisk):
 
 		pass
 

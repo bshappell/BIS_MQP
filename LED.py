@@ -31,7 +31,7 @@ class LED(object):
 		GPIO.output(self.pinNumber, GPIO.LOW)
 
 
-
+""" Used for testing purposes """
 if __name__ == "__main__":
 
         # for LED testing purposes

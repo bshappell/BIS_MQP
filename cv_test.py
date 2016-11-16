@@ -1,7 +1,7 @@
 
 import numpy as np
 import cv2
-import LED
+#import LED
 
 def simpleImage():
 
@@ -46,10 +46,8 @@ def camTest():
 	cv2.destroyAllWindows()
 
 def captureImage():
-
-        led = LED.LED(12)
-        led.turnOn()
-
+	led = LED.LED(12)
+	led.turnOn()
 	cap = cv2.VideoCapture(0)
 	imageCount = 0 # used to increment picture counts 
 
@@ -77,9 +75,41 @@ def captureImage():
 
 	led.turnOff()
 
+
+def detectCircle():
+
+	img_filt = cv2.medianBlur(cv2.imread('pictures\\capture5.png',0), 5)
+	img_th = cv2.adaptiveThreshold(img_filt,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,11,2)
+	contours, hierarchy = cv2.findContours(img_th, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+
+	#cnt = contours[4]
+	#cv2.drawContours(img_th, [cnt], 0, (0,255,0), 3)
+	cv2.drawContours(img_th, contours, -1, (0,255,0), 3)
+
+	"""im = cv2.imread('pictures\\testPic.png')
+	imgray = cv2.cvtColor(im,cv2.COLOR_BGR2GRAY)
+	ret,thresh = cv2.threshold(imgray,127,255,0)
+	contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)"""
+
+	imageCount = 0 # used to increment picture counts
+
+	while 1:
+
+		key = cv2.waitKey(1) & 0xFF
+		if key == ord('q'):
+			break
+		# Save the Image if we receive an s key press
+		elif key == ord('s'):
+			imageCount += 1 # increment the image count variable
+			cv2.imwrite('img_threshold' + str(imageCount) + '.png',img_th)
+
+		cv2.imshow('filt', img_th)
+
+
 if __name__=="__main__":
 
 	#simpleImage()
 	#catPic()
 	#camTest()
-	captureImage()
+	#captureImage()
+	detectCircle()
