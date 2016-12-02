@@ -84,7 +84,7 @@ def detectCircle():
 
 	#cnt = contours[4]
 	#cv2.drawContours(img_th, [cnt], 0, (0,255,0), 3)
-	cv2.drawContours(img_th, contours, -1, (0,255,0), 3)
+	#cv2.drawContours(img_th, contours, -1, (0,255,0), 3)
 
 	"""im = cv2.imread('pictures\\testPic.png')
 	imgray = cv2.cvtColor(im,cv2.COLOR_BGR2GRAY)
