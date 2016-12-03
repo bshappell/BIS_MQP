@@ -35,6 +35,7 @@ class InstructionsController(object):
     def buttonPress(self):
 
         print 'instructions button controller'
+        self.bisApp.instructionsView.run()
 
 
 """ Used when a blisk is selected """
@@ -193,6 +194,7 @@ class BisApp(object):
         self.startInspectionView = StartInspectionView(self.bis,self)
         self.inspectionProgressView = InspectionProgressView(self.bis,self)
         self.inspectionResultsView = InspectionResultsView(self.bis,self)
+        self.instructionsView = InstructionsView(self.bis,self)
 
         """ Current View Screen (Initially set at opening screen) """
         self.currentView = 0 
@@ -230,7 +232,7 @@ class StartScreenView(object):
 
         """ Instructions Button """
         self.instructionsButton = Button(self.frame, text = 'Instructions', command = InstructionsController(bis,bisApp).buttonPress)
-        self.instructionsButton.pack()
+        self.instructionsButton.pack(pady=20, padx = 20)
 
     def run(self):
 
@@ -325,7 +327,7 @@ class ArmPositionView(object):
 
         """ Instructions Button """
         self.instructionsButton = Button(self.frame, text = 'Instructions', command = InstructionsController(bis,bisApp).buttonPress)
-        self.instructionsButton.pack()
+        self.instructionsButton.pack(side=RIGHT))
 
         """ Back Button """
         self.backButton = Button(self.frame, text = 'Back', command = BackController(bis,bisApp).buttonPress)
@@ -358,7 +360,7 @@ class TurnBliskView(object):
 
         """ Instructions Button """
         self.instructionsButton = Button(self.frame, text = 'Instructions', command = InstructionsController(bis,bisApp).buttonPress)
-        self.instructionsButton.pack()
+        self.instructionsButton.pack(side=RIGHT))
 
         """ Back Button """
         self.backButton = Button(self.frame, text = 'Back', command = BackController(bis,bisApp).buttonPress)
@@ -391,11 +393,32 @@ class StartInspectionView(object):
 
         """ Instructions Button """
         self.instructionsButton = Button(self.frame, text = 'Instructions', command = InstructionsController(bis,bisApp).buttonPress)
-        self.instructionsButton.pack()
+        self.instructionsButton.pack(side=RIGHT))
 
         """ Back Button """
         self.backButton = Button(self.frame, text = 'Back', command = BackController(bis,bisApp).buttonPress)
         self.backButton.pack()
+
+
+""" Screen to show the instrucitons on how to use the system """
+class InstructionsView(object):
+
+    def __init__(self, bis, bisApp):
+
+        """ Blisk Inspection System Entity Class """
+        self.bis = bis
+
+        """ BIS Application Top Level Boundary Class """
+        self.bisApp = bisApp
+
+        """ Make a new frame """
+        self.frame = Frame(self.bisApp.root)
+        self.frame.grid(row=0, column=0, sticky='news')
+
+        """ Back Button """
+        self.backButton = Button(self.frame, text = 'Back', command = BackController(bis,bisApp).buttonPress)
+        self.backButton.pack()
+
 
     def run(self):
 
@@ -424,7 +447,7 @@ class InspectionProgressView(object):
 
         """ Instructions Button """
         self.instructionsButton = Button(self.frame, text = 'Instructions', command = InstructionsController(bis,bisApp).buttonPress)
-        self.instructionsButton.pack()
+        self.instructionsButton.pack(side=RIGHT))
 
         """ Back Button """
         self.backButton = Button(self.frame, text = 'Back', command = BackController(bis,bisApp).buttonPress)
@@ -453,13 +476,15 @@ class InspectionResultsView(object):
 
         """ Instructions Button """
         self.instructionsButton = Button(self.frame, text = 'Instructions', command = InstructionsController(bis,bisApp).buttonPress)
-        self.instructionsButton.pack()
+        self.instructionsButton.pack(side=RIGHT))
 
         """ Back Button """
         self.backButton = Button(self.frame, text = 'Back', command = BackController(bis,bisApp).buttonPress)
         self.backButton.pack()
 
         """ Display the inspection results """
+        explanation = "In order to use the system please follow these steps:\n 1.) Blah\n 2.) Blah\n 3.) etc.\n"
+        Label(self.frame, compound = CENTER, text=explanation, fg = "blue",font = "Helvetica 16 bold").pack()
 
     def run(self):
 
