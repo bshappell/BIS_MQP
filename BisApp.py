@@ -181,7 +181,8 @@ class BisApp(object):
 
         """ Root Application Screen """
         self.root = Tk()
-        self.root.geometry('100x110+350+70')
+        self.root.geometry('800x610+350+70')
+        self.root.title("Blisk Inspection System Application")
 
         """ Copy of all of the View Classes """
         self.startScreenView = StartScreenView(self.bis,self)
@@ -195,10 +196,6 @@ class BisApp(object):
 
         """ Current View Screen (Initially set at opening screen) """
         self.currentView = 0 
-
-        """ Root Application Screen """
-        self.root = Tk()
-        self.root.geometry('100x110+350+70')
 
     """ Run the Blisk Inspection System Application """
     def run(self):
@@ -219,9 +216,13 @@ class StartScreenView(object):
         """ BIS Application Top Level Boundary Class """
         self.bisApp = bisApp
 
+        """ Screen Text Explanation """
+        explanation = "Welcome to the Blisk Inspection System Application\n Instructions on how to use the application can be found below"
+
         """ Make a new frame """
-        self.frame = Frame(self.bisApp.root)
+        self.frame = Frame(self.bisApp.root, bg="light blue")
         self.frame.grid(row=0, column=0, sticky='news')
+        Label(self.frame, compound = CENTER, text=explanation, fg = "blue",font = "Helvetica 16 bold").pack()
 
         """ Start Application Button """
         self.startButton = Button(self.frame, text = 'Start', command = StartAppController(bis,bisApp).buttonPress)
@@ -471,24 +472,4 @@ class InspectionResultsView(object):
 if __name__=="__main__":
     BisApp().run()
 
-"""
-    root = Tk()
 
-    f1 = Frame(root)
-
-
-    f1.grid(row=0, column=0, sticky='news')
-
-    Button(f1, text='Go to frame 2', command=raise_frame).pack()
-    Label(f1, text='FRAME 1').pack()
-
-    raise_frame(f1)
-    root.mainloop()
-
-    def raise_frame():
-
-        f2 = Frame(root)
-        Label(f2, text='FRAME 2').pack()
-        f2.tkraise()
-        print "raise_frame"
-        """
