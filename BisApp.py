@@ -68,7 +68,7 @@ class BackController(object):
 
     def buttonPress(self):
 
-        print "back button press"
+        print "back button press, current view = " + str(self.bisApp.currentView)
         
         """ Send the view to the screen before """
         if self.bisApp.currentView == 1:
@@ -85,6 +85,8 @@ class BackController(object):
             self.bisApp.startInspectionView.run()
         elif self.bisApp.currentView == 7:
             self.bisApp.inspectionProgressView.run()
+        elif self.bisApp.currentView == 8:
+            self.bisApp.inspectionResultsView.run()
 
 
 """ Used when the user select to position the arm outside of the blisk radius """
@@ -327,11 +329,11 @@ class ArmPositionView(object):
 
         """ Instructions Button """
         self.instructionsButton = Button(self.frame, text = 'Instructions', command = InstructionsController(bis,bisApp).buttonPress)
-        self.instructionsButton.pack(side=RIGHT))
+        self.instructionsButton.pack(side=RIGHT)
 
         """ Back Button """
         self.backButton = Button(self.frame, text = 'Back', command = BackController(bis,bisApp).buttonPress)
-        self.backButton.pack()
+        self.backButton.pack(side=LEFT)
 
     def run(self):
 
@@ -360,11 +362,11 @@ class TurnBliskView(object):
 
         """ Instructions Button """
         self.instructionsButton = Button(self.frame, text = 'Instructions', command = InstructionsController(bis,bisApp).buttonPress)
-        self.instructionsButton.pack(side=RIGHT))
+        self.instructionsButton.pack(side=RIGHT)
 
         """ Back Button """
         self.backButton = Button(self.frame, text = 'Back', command = BackController(bis,bisApp).buttonPress)
-        self.backButton.pack()
+        self.backButton.pack(side=LEFT)
 
     def run(self):
 
@@ -393,11 +395,16 @@ class StartInspectionView(object):
 
         """ Instructions Button """
         self.instructionsButton = Button(self.frame, text = 'Instructions', command = InstructionsController(bis,bisApp).buttonPress)
-        self.instructionsButton.pack(side=RIGHT))
+        self.instructionsButton.pack(side=RIGHT)
 
         """ Back Button """
         self.backButton = Button(self.frame, text = 'Back', command = BackController(bis,bisApp).buttonPress)
-        self.backButton.pack()
+        self.backButton.pack(side=LEFT)
+
+    def run(self):
+
+        self.bisApp.currentView += 1
+        self.frame.tkraise()
 
 
 """ Screen to show the instrucitons on how to use the system """
@@ -417,12 +424,17 @@ class InstructionsView(object):
 
         """ Back Button """
         self.backButton = Button(self.frame, text = 'Back', command = BackController(bis,bisApp).buttonPress)
-        self.backButton.pack()
+        self.backButton.pack(side=LEFT)
+
+        """ Display the Instructions """
+        explanation = "In order to use the system please follow these steps:\n 1.) Blah\n 2.) Blah\n 3.) etc.\n"
+        Label(self.frame, compound = CENTER, text=explanation, fg = "blue",font = "Helvetica 16 bold").pack()
 
 
     def run(self):
 
-        self.bisApp.currentView = 5
+        print "in instructions run function, current view = " + str(self.bisApp.currentView)
+        self.bisApp.currentView += 1
         self.frame.tkraise()
 
 
@@ -447,15 +459,15 @@ class InspectionProgressView(object):
 
         """ Instructions Button """
         self.instructionsButton = Button(self.frame, text = 'Instructions', command = InstructionsController(bis,bisApp).buttonPress)
-        self.instructionsButton.pack(side=RIGHT))
+        self.instructionsButton.pack(side=RIGHT)
 
         """ Back Button """
         self.backButton = Button(self.frame, text = 'Back', command = BackController(bis,bisApp).buttonPress)
-        self.backButton.pack()
+        self.backButton.pack(side=LEFT)
 
     def run(self):
 
-        self.bisApp.currentView = 6
+        self.bisApp.currentView = 7
         self.frame.tkraise()
 
 
@@ -476,19 +488,17 @@ class InspectionResultsView(object):
 
         """ Instructions Button """
         self.instructionsButton = Button(self.frame, text = 'Instructions', command = InstructionsController(bis,bisApp).buttonPress)
-        self.instructionsButton.pack(side=RIGHT))
+        self.instructionsButton.pack(side=RIGHT)
 
         """ Back Button """
         self.backButton = Button(self.frame, text = 'Back', command = BackController(bis,bisApp).buttonPress)
-        self.backButton.pack()
+        self.backButton.pack(side=LEFT)
 
         """ Display the inspection results """
-        explanation = "In order to use the system please follow these steps:\n 1.) Blah\n 2.) Blah\n 3.) etc.\n"
-        Label(self.frame, compound = CENTER, text=explanation, fg = "blue",font = "Helvetica 16 bold").pack()
 
     def run(self):
 
-        self.bisApp.currentView = 7
+        self.bisApp.currentView = 8
         self.frame.tkraise()
 
 
