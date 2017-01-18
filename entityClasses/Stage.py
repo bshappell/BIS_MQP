@@ -10,10 +10,10 @@ class Stage(object):
 		self.smallBBRadius = smallBBRadius
 
 	def getNumberBlades(self):
-                return self.numberBlades
+        return self.numberBlades
 
-        def getLargeBBRadius(self):
-                return self.largeBBRadius
+    def getLargeBBRadius(self):
+        return self.largeBBRadius
 
-        def getSmallBBRadius(self):
+    def getSmallBBRadius(self):
 		return self.smallBBRadius

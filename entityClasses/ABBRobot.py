@@ -8,42 +8,31 @@ class ABBRobot(object):
 		pass
 
 	""" position the arm for inspection for the current blisk """
-	def positionArm(self, currBlisk):
+	def positionArmFar(self, currBlisk):
+
+		pass
+
+	""" position the arm for inspection for the current blisk """
+	def positionArmClose(self, currBlisk):
 
 		pass
 
 	""" Positon the arm in the center of the current blade """
-	def centerInBlade(self, currBlisk, currStage):
-
-		pass
-
-
-	""" Traverse the blade moving upwards on the inside edge until a stop signal is sent """
-	def traverseUpInsideBlade(self, currBlisk):
-
-		pass
-
-	""" Traverse the blade moving downwards on the inside edge until a stop signal is sent """
-	def traverseDownInsideBlade(self, currBlisk):
-
-		pass
-
-	""" Traverse the blade moving upwards on the outside edge until a stop signal is sent """
-	def traverseUpOutsideBlade(self, currBlisk):
-
-		pass
-
-	""" Traverse the blade moving downwards on the outside edge until a stop signal is sent """
-	def traverseDownOutsideBlade(self, currBlisk):
-
-		pass
-
-	""" Stop the blade traversal """
-	def stopBladeTraversal(self):
+	def inspectBlade(self, currBlisk, currStage):
 
 		pass
 
 	""" Move the arm back away from the blisk """
 	def pullArmBack(self):
+
+		pass
+
+	""" Send the current force sensing measurement to the controller """
+	def sendForceMeasurement(self, measurement):
+
+		pass
+
+	""" Handle a message received from the IRC5 controller """
+	def handleMessage(self):
 
 		pass

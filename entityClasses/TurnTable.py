@@ -15,7 +15,7 @@ class TurnTable(object):
 	""" Increment the turntable one step """
 	def increment(self):
 
-		# set the pin high and then low again
+		""" set the pin high and then low again """
 		GPIO.output(self.stepPin, GPIO.HIGH)
 		GPIO.output(self.stepPin, GPIO.LOW)
 
