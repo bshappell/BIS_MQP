@@ -2,6 +2,7 @@
 
 from Tkinter import *
 import ttk
+import BIS
 
 """ **************************************** Controller Classes **************************************** """
 
@@ -185,7 +186,7 @@ class BisApp(object):
     def __init__(self):
 
         """ BIS Entity Class """
-        self.bis = None # TO DO: set correctly
+        self.bis = BIS.BIS()
 
         """ Root Application Screen """
         self.root = Tk()
