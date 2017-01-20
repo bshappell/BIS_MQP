@@ -65,23 +65,32 @@ class BIS(object):
 
 		self.currBlisk = self.blisks[currBlisk]
 
-	""" Position the arm for the current blisk """
-	def positionArm(self):
+	""" Position the arm far from the turntable for the current blisk """
+	def positionArmFar(self):
 
-		self.abbRobot.positionArm(currBlisk)
+		self.abbRobot.positionArmFar(currBlisk)
 
+	""" Position the arm in between the blades of the current blisk """
+	def positionArmClose(self):
 
+		self.abbRobot.positionArmClose(currBlisk)
+
+	""" Position the blisk on the turntable by turning until contact is made """
 	def positionBlisk(self):
 
 		""" Increment the stepper motor until contact is made with the arm """
-		while(not self.circuitCompletor.getContact):
+		while(not self.circuitCompletor.getContact()):
 
 			self.turntable.increment()
 
+	""" Start the inspection of the current blisk """
 	def inspectBlisk(self):
 
 		""" turn on the LED for inspection """
 		self.led.turnOn()
+
+		""" Begin sending the force sensing readings to the abb robot """
+		
 
 		""" Use the small BB size first """
 		self.abbRobot.pullArmBack()
@@ -97,20 +106,8 @@ class BIS(object):
 				""" Increment over every blade """
 				for blade in range(self.stage.numberBlades):
 
-					""" Center the robot arm in the blade """
-					self.abbRobot.centerInBlade(currBlisk, stage)
-
-					""" Inspect the top half of the blade """
+					""" Inspect the blade """
 					self.inspectBlade()
-
-					""" Re center the robot arm in the blade """
-					self.abbRobot.centerInBlade(currBlisk, stage)
-
-					""" Inspect the bottom half of the blade """
-					self.inspectBlade()
-
-					""" Pull the arm back to be able to turn the blisk """
-					self.abbRobot.pullArmBack()
 
 					""" Increment the turntable by one blade """
 					self.turntable.incrementBlade(currStage)
@@ -122,18 +119,5 @@ class BIS(object):
 
 		""" Turn off the led when the inspection is complete """
 		self.led.turnOff()
-
-
-	""" Helper function to handle inspecting the blade from the center """
-	def inspectBlade(self):
-
-		""" Continue moving along the blade inspecting until the edge of the blade is reached """
-		while(not self.circuitCompletor.getContact):
-
-			""" Store the results from inspecting the image """
-			self.imageProcessor.inspectImage(currStage, sizeBB)
-
-		""" Stop the arm when the edge of the blade has been reached """
-		self.abbRobot.stopBladeTraversal()
 	
 
