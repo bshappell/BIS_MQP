@@ -1,4 +1,6 @@
 # CircuitCompletor Class
+import RPi.GPIO as GPIO
+import time
 
 class CircuitCompletor(object):
 

@@ -10,9 +10,9 @@ class ImageProcessor(object):
 	def inspectImage(self, currStage, sizeBB):
 
 		""" Capture frame-by-frame """
-	    ret, frame = cap.read()
+                ret, frame = cap.read()
 
-	    cv2.imshow('frame',frame)
+                cv2.imshow('frame',frame)
 
 	def shutdown(self):
 

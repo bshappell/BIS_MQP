@@ -5,21 +5,20 @@ import TurnTable
 import Blisk
 import CircuitCompletor
 import ABBRobot
-import ImageProcessor
+"""import ImageProcessor """
+import time
 
 # BIS (Blisk Inspection System) Class
 
 # Define the Rasp Pinout
-PIN_LED = 1
-PIN_CLK = 2
-PIN_DOUT = 3
-PIN_DIN = 4
-PIN_CS = 5
-PIN_TOOL_SWITCH = 6
-PIN_MOTOR_STEP = 7
-PIN_MOTOR_DIR = 8
-PIN_CC = 9
-
+PIN_LED = 1 # LED Pin
+PIN_CLK = 2 # Force Sensor Clock Pin
+PIN_DATA = 3 # Force Sensor Data Pin
+PIN_MOTOR_STEP = 7 # Turntable Step Pin
+PIN_CC = 9 # Circuit Completor Pin
+PIN_SERVO = 10 # Tool Switch Servo
+PIN_EM1 = 11 # First Electromagnet
+PIN_EM2 = 12 # Second Electromagnet
 
 class BIS(object):
 
@@ -42,13 +41,13 @@ class BIS(object):
 		self.led = LED.LED(PIN_LED)
 
 		""" set up the force sensor """
-		self.forceSensor = ForceSensor.ForceSensor(PIN_CLK, PIN_DOUT, PIN_DIN, PIN_CS)
+		self.forceSensor = ForceSensor.ForceSensor(PIN_CLK, PIN_DATA)
 
 		""" set up the tool switch """
-		self.toolSwitch = ToolSwitch.ToolSwitch(PIN_TOOL_SWITCH)
+		self.toolSwitch = ToolSwitch.ToolSwitch(PIN_SERVO, PIN_EM1, PIN_EM2)
 
 		""" set up the turntable stepper motor """
-		self.turntable = TurnTable.TurnTable(PIN_MOTOR_STEP, PIN_MOTOR_DIR)
+		self.turntable = TurnTable.TurnTable(PIN_MOTOR_STEP)
 
 		""" set up the circuit completor """
 		self.circuitCompletor = CircuitCompletor.CircuitCompletor(PIN_CC)
@@ -57,7 +56,7 @@ class BIS(object):
 		self.abbRobot = ABBRobot.ABBRobot()
 
 		""" set up the ImageProcessor class """
-		self.imageProcessor = ImageProcessor.ImageProcessor()
+		# self.imageProcessor = ImageProcessor.ImageProcessor()
 
 
 	""" Selects the blisk that will be used for inspection """
@@ -82,6 +81,7 @@ class BIS(object):
 		while(not self.circuitCompletor.getContact()):
 
 			self.turntable.increment()
+			time.sleep(0.007)
 
 	""" Start the inspection of the current blisk """
 	def inspectBlisk(self):
@@ -107,7 +107,7 @@ class BIS(object):
 				for blade in range(self.stage.numberBlades):
 
 					""" Inspect the blade """
-					self.inspectBlade()
+					# self.inspectBlade()
 
 					""" Increment the turntable by one blade """
 					self.turntable.incrementBlade(currStage)
@@ -120,4 +120,20 @@ class BIS(object):
 		""" Turn off the led when the inspection is complete """
 		self.led.turnOff()
 	
+""" Run the Blisk Application """
+if __name__ == "__main__":
 
+        bis = BIS()
+        
+
+
+
+
+
+
+
+
+
+
+
+        
