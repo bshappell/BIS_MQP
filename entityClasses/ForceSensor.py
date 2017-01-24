@@ -1,4 +1,5 @@
 # ForceSensor Class
+import csv
 
 CH_A_GAIN_64  = 0 # Channel A gain 64
 CH_A_GAIN_128 = 1 # Channel A gain 128
@@ -28,11 +29,16 @@ class ForceSensor(object):
         """ Initialize the HX117 ADC chip """
         self.hx117 = HX711(self.pi, DATA=self.dataPin, CLOCK=self.clkPin, mode=self.mode, callback=self.forceReadingCallback)
 
+        """ Set up the csv writer for testing purposes """
+        self.csvwriter =  open('data.csv', 'w')
+
 
     """ Callback for when a new reading is recieved from the force sensor """
     def forceReadingCallback(self, count, mode, reading):
 
         print(count, mode, reading)
+        writer = csv.writer(csvfile)
+        writer.writerow([count, reading])
 
         """ Send the values to the IRC5 Controller """
         # TODO: add communication to IRC5
@@ -225,6 +231,6 @@ class HX711:
 if __name__=="__main__":
 
     fs = ForceSensor(9,11)
-    time.sleep(10)
+    time.sleep(60) # number of seconds of testing, increase as needed
     fs.end()
 

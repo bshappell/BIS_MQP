@@ -2,7 +2,7 @@
 
 from Tkinter import *
 import ttk
-import BIS
+#import BIS
 
 """ **************************************** Controller Classes **************************************** """
 
@@ -186,7 +186,7 @@ class BisApp(object):
     def __init__(self):
 
         """ BIS Entity Class """
-        self.bis = BIS.BIS()
+        self.bis = None #BIS.BIS()
 
         """ Root Application Screen """
         self.root = Tk()
@@ -316,9 +316,15 @@ class SelectBliskView(object):
         self.backButton = Button(self.lowerFrame, text = 'Back', command = BackController(bis,bisApp).buttonPress)
         self.backButton.grid(row=1, column=0, sticky=('N', 'S', 'E', 'W'), padx=10, pady=10)
 
-
         self.frame = Frame(self.bisApp.root)
         self.frame.grid(row=0, column=0, sticky='news')
+
+        """ Drop Down Menu """
+        var = StringVar(self.frame)
+        var.set("Blisk 1") # initial value
+
+        option = OptionMenu(self.frame, var, "Blisk 1", "Blisk 2", "Blisk 3")
+        option.pack()
 
         """ Select Blisk Button """
         self.selectButton = Button(self.frame, text = 'Select Blisk', command = SelectBliskController(bis,bisApp).buttonPress)
@@ -327,7 +333,6 @@ class SelectBliskView(object):
         """ Instructions Button """
         self.instructionsButton = Button(self.frame, text = 'Instructions', command = InstructionsController(bis,bisApp).buttonPress)
         self.instructionsButton.pack()
-
         
         self.backButton.pack()
 
@@ -396,6 +401,10 @@ class ArmPositionView(object):
         """ Back Button """
         self.backButton = Button(self.frame, text = 'Back', command = BackController(bis,bisApp).buttonPress)
         self.backButton.pack(side=LEFT)
+
+        self.progressbar = ttk.Progressbar(self.frame, orient=HORIZONTAL, length=200, mode='determinate')
+        self.progressbar.pack(side="bottom")
+        self.progressbar.start()
 
     def run(self):
 
