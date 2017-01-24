@@ -1,13 +1,13 @@
 # ForceSensor Class
-import csv
 
 CH_A_GAIN_64  = 0 # Channel A gain 64
 CH_A_GAIN_128 = 1 # Channel A gain 128
 CH_B_GAIN_32  = 2 # Channel B gain 32
-COUNT_TO_GRAMS = 0.00236
+READING_TO_GRAMS = 0.00236
 
 import time
 import RPi.GPIO as GPIO
+import numpy
 import pigpio # http://abyz.co.uk/rpi/pigpio/python.html
 
 class ForceSensor(object):
@@ -20,6 +20,9 @@ class ForceSensor(object):
 
       	""" Use a gain of 128 """
       	self.mode = CH_A_GAIN_128
+
+      	""" Used to store the initial y intercept """
+      	self.y_init = 0 
                     
         """ Set up the Rasp GPIO """
       	self.pi = pigpio.pi()
@@ -30,20 +33,35 @@ class ForceSensor(object):
         """ Initialize the HX117 ADC chip """
         self.hx117 = HX711(self.pi, DATA=self.dataPin, CLOCK=self.clkPin, mode=self.mode, callback=self.forceReadingCallback)
 
-        """ Set up the csv writer for testing purposes """
-        self.csvfile =  open('data.csv', 'w')
-
 
     """ Callback for when a new reading is recieved from the force sensor """
     def forceReadingCallback(self, count, mode, reading):
 
-        gramsReading = reading * COUNT_TO_GRAMS
+        gramsReading = reading * READING_TO_GRAMS - self.y_init
         print(count, mode, round(gramsReading, 2))
-        writer = csv.writer(self.csvfile)
-        writer.writerow([count, round(gramsReading, 2)])
 
         """ Send the values to the IRC5 Controller """
         # TODO: add communication to IRC5
+
+    """ Zero the sensor by polling it over a time frame """
+    def zeroSensor(self):
+
+        """ List to store the average reading values """
+        averages = numpy.array([])
+
+        """ Collect multiple readings to be averaged """
+        for i in range(100):
+
+            count, mode, reading = self.hx117.get_reading()
+            averages.append(reading)
+            time.sleep(0.07)
+
+        """ Remove the outliers """
+        """ TODO Remove Outliers """
+
+        """ Take the average of the array """
+        self.y_init = numpy.mean(averages)
+        
 
     def end(self):
                   
