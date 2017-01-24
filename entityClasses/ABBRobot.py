@@ -1,5 +1,5 @@
 # ABBRobot Class
-import Blisk
+#import Blisk
 import socket
 import time
 
@@ -26,6 +26,7 @@ MT_FORCE_MEASUREMENT = 0x05
 MT_POS_UPDATE = 0x06
 MT_MOVEMENT_COMPLETE = 0x07
 MT_CONNECTION_GOOD = 0x08
+MT_INSPECTION_COMPLETE = 0x09
 
 class ABBRobot(object):
 
@@ -42,19 +43,25 @@ class ABBRobot(object):
 	""" Check that the arm is up and running, and the connection between the Pi and IRC5 is good """
 	def checkConnection(self):
 
-		pass
+		""" Return whether the connection was successful of not """
+		return True 
 
-	""" position the arm for inspection for the current blisk """
+	""" Position the arm for inspection for the current blisk """
 	def positionArmFar(self, currBlisk):
 
 		""" Message Format: (MT_ARM_FAR, BLISK_X, STAGE_X) """
 
 		pass
 
-	""" position the arm for inspection for the current blisk """
+	""" Position the arm for inspection for the current blisk """
 	def positionArmClose(self, currBlisk):
 
 		""" Message Format: (MT_ARM_CLOSE, BLISK_X, STAGE_X) """
+
+		pass
+
+	""" Position arm for inspection of the blade """
+	def posArmForInspection(self, currBlisk, currStage):
 
 		pass
 
@@ -84,13 +91,23 @@ class ABBRobot(object):
 
 		pass
 
+def UdpRecvTest():
+
+	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
+	sock.bind((UDP_IP, UDP_PORT))
+	while True:
+		data, addr = sock.recvfrom(1024) # buffer size is 1024 bytes
+		print "received message:", data
+
 
 """ Used for testing purposes """
 if __name__ == "__main__":
 
-	abb = ABBRobot()
+	"""abb = ABBRobot()
 
 	for i in range(100):
 
 		abb.sendPacket()
-		time.sleep(0.5)
+		time.sleep(0.5)"""
+
+	UdpRecvTest()

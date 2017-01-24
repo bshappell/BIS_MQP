@@ -9,8 +9,17 @@ class TurnTable(object):
 
 		self.stepPin = stepPin
 		GPIO.setmode(GPIO.BCM)
-		#GPIO.setwarnings(False)
 		GPIO.setup(self.stepPin, GPIO.OUT)
+
+	""" Increment the current stage by one blade """
+	def incrementBlade(currStage, blade):
+
+		""" Iterate over each step needed to transition the curr blade """
+		for step in range(currStage.getStepsForBlade(blade)):
+
+			myTurn.increment()
+			sleep(0.007)
+
 
 	""" Increment the turntable one step """
 	def increment(self):
@@ -18,13 +27,6 @@ class TurnTable(object):
 		""" set the pin high and then low again """
 		GPIO.output(self.stepPin, GPIO.HIGH)
 		GPIO.output(self.stepPin, GPIO.LOW)
-
-	""" Increment the turntable one blade """
-	def incrementBlade(self, currStage):
-
-		pass
-
-
 
 
 if __name__=="__main__":
