@@ -33,26 +33,56 @@ class ForceSensor(object):
         """ Initialize the HX117 ADC chip """
         self.hx117 = HX711(self.pi, DATA=self.dataPin, CLOCK=self.clkPin, mode=self.mode, callback=self.forceReadingCallback)
 
+        """ Pause the sensor readings until it has been zeroed """
+        #self.hx117.pause()
 
     """ Callback for when a new reading is recieved from the force sensor """
     def forceReadingCallback(self, count, mode, reading):
 
-        gramsReading = reading * READING_TO_GRAMS - self.y_init
+        gramsReading = READING_TO_GRAMS  * (reading - self.y_init)
         print(count, mode, round(gramsReading, 2))
 
         """ Send the values to the IRC5 Controller """
         # TODO: add communication to IRC5
 
+    """ Pause the readings from the sensor """
+    def pauseReadings(self):
+
+        self.hx117.pause()
+
+    """ Start running the sensor """
+    def startReadings(self):
+
+        self.hx117.start()
+
     """ Zero the sensor by polling it over a time frame """
     def zeroSensor(self):
 
+        print "Starting Zeroing Function """
+
+        """ Start gettings readings """
+        self.startReadings()
+        time.sleep(1)
+
         """ List to store the average reading values """
-        averages = numpy.array([])
+        averages = []
+
+        """ Check that the reading isnt currently None """
+        count, mode, reading = self.hx117.get_reading()
+        while(reading == None):
+
+            """ Start gettings readings """
+            self.pauseReadings()
+            time.sleep(1)
+            self.startReadings()
+            time.sleep(1)
+            count, mode, reading = self.hx117.get_reading()
 
         """ Collect multiple readings to be averaged """
-        for i in range(100):
+        for i in range(50):
 
             count, mode, reading = self.hx117.get_reading()
+            print "Reading = " + str(reading)
             averages.append(reading)
             time.sleep(0.07)
 
@@ -60,7 +90,12 @@ class ForceSensor(object):
         """ TODO Remove Outliers """
 
         """ Take the average of the array """
-        self.y_init = numpy.mean(averages)
+        self.y_init = numpy.mean(numpy.array(averages))
+
+        """ Pause the readings """
+        self.pauseReadings()
+
+        print "Zeroing Function Complete"
         
 
     def end(self):
@@ -251,6 +286,11 @@ class HX711:
 if __name__=="__main__":
 
     fs = ForceSensor(9,11)
-    time.sleep(60) # number of seconds of testing, increase as needed
+
+    fs.zeroSensor()
+    time.sleep(1) # number of seconds of testing, increase as needed
+    print "Start"
+    fs.startReadings()
+    time.sleep(10)
     fs.end()
 
