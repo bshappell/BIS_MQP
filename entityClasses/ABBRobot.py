@@ -84,13 +84,23 @@ class ABBRobot(object):
 
 		pass
 
+def UdpRecvTest():
+
+	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
+	sock.bind((UDP_IP, UDP_PORT))
+	while True:
+		data, addr = sock.recvfrom(1024) # buffer size is 1024 bytes
+		print "received message:", data
+
 
 """ Used for testing purposes """
 if __name__ == "__main__":
 
-	abb = ABBRobot()
+	"""abb = ABBRobot()
 
 	for i in range(100):
 
 		abb.sendPacket()
-		time.sleep(0.5)
+		time.sleep(0.5)"""
+
+	UdpRecvTest()
