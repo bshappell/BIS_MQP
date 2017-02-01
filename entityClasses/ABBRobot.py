@@ -1,5 +1,5 @@
 # ABBRobot Class
-import Blisk
+#import Blisk
 import socket
 import time
 
@@ -26,6 +26,7 @@ MT_FORCE_MEASUREMENT = 0x05
 MT_POS_UPDATE = 0x06
 MT_MOVEMENT_COMPLETE = 0x07
 MT_CONNECTION_GOOD = 0x08
+MT_INSPECTION_COMPLETE = 0x09
 
 class ABBRobot(object):
 
@@ -42,19 +43,25 @@ class ABBRobot(object):
 	""" Check that the arm is up and running, and the connection between the Pi and IRC5 is good """
 	def checkConnection(self):
 
-		pass
+		""" Return whether the connection was successful of not """
+		return True 
 
-	""" position the arm for inspection for the current blisk """
+	""" Position the arm for inspection for the current blisk """
 	def positionArmFar(self, currBlisk):
 
 		""" Message Format: (MT_ARM_FAR, BLISK_X, STAGE_X) """
 
 		pass
 
-	""" position the arm for inspection for the current blisk """
+	""" Position the arm for inspection for the current blisk """
 	def positionArmClose(self, currBlisk):
 
 		""" Message Format: (MT_ARM_CLOSE, BLISK_X, STAGE_X) """
+
+		pass
+
+	""" Position arm for inspection of the blade """
+	def posArmForInspection(self, currBlisk, currStage):
 
 		pass
 
