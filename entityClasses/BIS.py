@@ -68,7 +68,7 @@ class BIS(object):
 		blisk_G02 = (ID_BLISK_G02, IT_BLISK_G02, stage_G02_1, stage_G02_2)
 
 		""" Array to store blisks """
-		self.blisks = [blisk_P01, blisk_P02, blisk_G020]
+		self.blisks = [blisk_P01, blisk_P02, blisk_G02]
 
 		""" set up an LED """
 		self.led = LED.LED(PIN_LED)
@@ -106,6 +106,10 @@ class BIS(object):
 
 	""" Selects the blisk that will be used for inspection """
 	def selectBlisk(self, currBlisk):
+
+		if(currBlisk > 2 || currBlisk < 0):
+			print "ERROR INCORRECT BLISK NUMBER RECIEVED"
+			return
 
 		self.currBlisk = self.blisks[currBlisk]
 
