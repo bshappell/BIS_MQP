@@ -22,6 +22,9 @@ class ToolSwitch(object):
 		GPIO.setup(electro1Pin,GPIO.OUT) # set the pin as an output
 		GPIO.setup(electro2Pin,GPIO.OUT) # set the pin as an output
 
+
+        
+
 	def smallBB(self):
 
 		""" Turn off the electromagnet to unlock the tool """

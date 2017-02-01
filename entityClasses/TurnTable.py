@@ -35,4 +35,4 @@ if __name__=="__main__":
 
 	while(1):
 		myTurn.increment()
-		sleep(0.007)
+		sleep(0.002)
