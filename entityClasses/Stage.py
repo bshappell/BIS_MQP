@@ -3,7 +3,7 @@
 
 class Stage(object):
 
-	def __init__(self, numberBlades, smallBBRadius, largeBBRadius, stepsArray):
+        def __init__(self, numberBlades, smallBBRadius, largeBBRadius, stepsArray):
 
 		""" The number of blades on the stage """
 		self.numberBlades = numberBlades
@@ -16,15 +16,15 @@ class Stage(object):
 		self.stepsArray = stepsArray
 
 	def getNumberBlades(self):
-        return self.numberBlades
+                return self.numberBlades
 
-    def getLargeBBRadius(self):
-        return self.largeBBRadius
+        def getLargeBBRadius(self):
+                return self.largeBBRadius
 
-    def getSmallBBRadius(self):
-		return self.smallBBRadius
+        def getSmallBBRadius(self):
+                return self.smallBBRadius
 
-	def getStepsForBlade(self, blade):
+        def getStepsForBlade(self, blade):
 
 		""" TODO change to use the correct amount!!! """
 		return self.stepsArray[0]
