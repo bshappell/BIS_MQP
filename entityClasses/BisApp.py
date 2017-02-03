@@ -1,9 +1,17 @@
-
+RASP_PI = 0 # used to toggle between working on the pi and on a PC
 
 from Tkinter import *
 import ttk
 import time
-#import BIS
+
+if RASP_PI:
+    import BIS
+
+BUTTON_COLOR = '#BFBFBF'
+FONT_COLOR = "black"
+BLISK_ID_P01 = "2468M19P01"
+BLISK_ID_P02 = "2468M17P02"
+BLISK_ID_G02 "2468M18G02"
 
 """ **************************************** Controller Classes **************************************** """
 
@@ -19,6 +27,9 @@ class StartAppController(object):
         self.bisApp = bisApp
 
     def buttonPress(self):
+
+        if RASP_PI:
+            self.bis.start()
 
         self.bisApp.selectBliskView.run()
         print 'start app controller ' + str(self.bisApp.currentView)
@@ -53,6 +64,22 @@ class SelectBliskController(object):
         self.bisApp = bisApp
 
     def buttonPress(self):
+
+        blisk = self.bisApp.selectBliskView.blisk.get()
+        print "blisk: " + blisk
+
+        bliskNum = -1
+        if blisk == BLISK_ID_P01:
+            bliskNum = 0
+        elif blisk == BLISK_ID_P02:
+            bliskNum = 1
+        elif blisk == BLISK_ID_G02:
+            bliskNum = 2
+        else:
+            print "ERROR INCORRECT BLISK NUMBER RECEIVED"
+
+        if RASP_PI:
+            self.bis.selectBlisk(blisk)
 
         self.bisApp.roughArmPositionView.run()
         print "select blisk controller " + str(self.bisApp.currentView)
@@ -107,6 +134,9 @@ class RoughArmPositionController(object):
 
     def buttonPress(self):
 
+        if RASP_PI:
+            self.bis.positionArmFar()
+
         self.bisApp.armPositionView.run()
         print "rough arm position button press " + str(self.bisApp.currentView)
 
@@ -124,8 +154,15 @@ class ArmPositionController(object):
 
     def buttonPress(self):
 
-        self.bisApp.armPositionView.load()
-        time.sleep(10)
+        #self.bisApp.armPositionView.load()
+        #print "Arm Move Button press"
+        #cont = LoadingScreenController(self.bis, self.bisApp)
+        #cont.run()
+
+        if RASP_PI:
+            self.bis.positionArmClose()
+
+        time.sleep(5)
         self.bisApp.turnBliskView.run()
         print "arm position button press " + str(self.bisApp.currentView)
 
@@ -142,6 +179,9 @@ class TurnBliskController(object):
         self.bisApp = bisApp
 
     def buttonPress(self):
+
+        if RASP_PI:
+            self.bis.positionBlisk()
 
         self.bisApp.startInspectionView.run()
         print "turn blisk button press " + str(self.bisApp.currentView)
@@ -160,7 +200,12 @@ class StartInspectionController(object):
 
     def buttonPress(self):
 
-        self.bisApp.inspectionProgressView.run()
+        if RASP_PI:
+            self.bisApp.inspectBlisk()
+
+        # REPLACED PROGRESS VIEW WITH INSPECTION VIEW
+        #self.bisApp.inspectionProgressView.run()
+        self.bisApp.inspectionResultsView.run()
         print "start inspection button press " + str(self.bisApp.currentView)
 
 
@@ -179,6 +224,24 @@ class InspectionResultsController(object):
 
         self.bisApp.inspectionResultsView.run()
         print "view inspection results button press " + str(self.bisApp.currentView)
+
+""" Controller to handle the loading screens """
+class LoadingScreenController(object):
+
+    def __init__(self, bis, bisApp):
+
+        """ Blisk Inspection System Entity Class """
+        self.bis = bis
+
+        """ BIS Application Top Level Boundary Class """
+        self.bisApp = bisApp
+
+    def run(self):
+
+        print "Loading Screen Controller Running"
+
+        """ Handle which controller to call based on ... """
+        self.bisApp.loadingScreenView.run()
 
 
 """ ********************************************** BIS App ********************************************** """
@@ -210,6 +273,7 @@ class BisApp(object):
         self.inspectionProgressView = InspectionProgressView(self.bis,self)
         self.inspectionResultsView = InspectionResultsView(self.bis,self)
         self.instructionsView = InstructionsView(self.bis,self)
+        self.loadingScreenView = LoadingScreenView(self.bis,self)
 
         """ Current View Screen (Initially set at opening screen) """
         self.currentView = 0 
@@ -293,24 +357,28 @@ class SelectBliskView(object):
         self.frame = Frame(self.bisApp.root)
         self.frame.grid(row=0, column=0, sticky='news')
 
+        explanation = "Select a Blisk Part Number to Inspect"
+        Label(self.frame, compound = CENTER, text=explanation, fg = "black",font = 16).pack(pady=20)
+
         """ Drop Down Menu """
-        var = StringVar(self.frame)
-        var.set("Blisk 1") # initial value
+        self.blisk = StringVar(self.frame)
+        self.blisk.set(BLISK_ID_P01) # initial value
 
         """ Add Blisk Selection Drop Down Menu """
-        option = OptionMenu(self.frame, var, "Blisk 1", "Blisk 2", "Blisk 3")
-        option.pack(pady=20, padx = 20)
+        option = OptionMenu(self.frame, self.blisk, BLISK_ID_P01, BLISK_ID_P02, BLISK_ID_G02)
+        option.config(bg='#BFBFBF')
+        option.pack(pady=20, padx =20)
 
         """ Select Blisk Button """
-        self.selectButton = Button(self.frame, text = 'Select Blisk', command = SelectBliskController(bis,bisApp).buttonPress)
+        self.selectButton = Button(self.frame, text = 'Select Blisk', bg=BUTTON_COLOR,command = SelectBliskController(bis,bisApp).buttonPress)
         self.selectButton.pack(pady=10, padx = 20)
 
         """ Instructions Button """
-        self.instructionsButton = Button(self.frame, text = 'Instructions', command = InstructionsController(bis,bisApp).buttonPress)
+        self.instructionsButton = Button(self.frame, text = 'Instructions', bg=BUTTON_COLOR,command = InstructionsController(bis,bisApp).buttonPress)
         self.instructionsButton.pack(side=RIGHT, pady=20, padx = 20)
 
         """ Back Button """
-        self.backButton = Button(self.frame, text = 'Back', command = BackController(bis,bisApp).buttonPress)
+        self.backButton = Button(self.frame, text = 'Back', bg=BUTTON_COLOR, command = BackController(bis,bisApp).buttonPress)
         self.backButton.pack(side=LEFT, pady=20, padx = 20)
 
     def run(self):
@@ -335,20 +403,45 @@ class RoughArmPositionView(object):
         self.frame.grid(row=0, column=0, sticky='news')
 
         """ Position Arm Button """
-        self.posArmButton = Button(self.frame, text = 'Position Arm', command = RoughArmPositionController(bis,bisApp).buttonPress)
+        self.posArmButton = Button(self.frame, text = 'Position Arm', bg=BUTTON_COLOR,command = RoughArmPositionController(bis,bisApp).buttonPress)
         self.posArmButton.pack(pady=20, padx = 20)
 
         """ Instructions Button """
-        self.instructionsButton = Button(self.frame, text = 'Instructions', command = InstructionsController(bis,bisApp).buttonPress)
+        self.instructionsButton = Button(self.frame, text = 'Instructions', bg=BUTTON_COLOR,command = InstructionsController(bis,bisApp).buttonPress)
         self.instructionsButton.pack(side=RIGHT, pady=20, padx = 20)
 
         """ Back Button """
-        self.backButton = Button(self.frame, text = 'Back', command = BackController(bis,bisApp).buttonPress)
+        self.backButton = Button(self.frame, text = 'Back', bg=BUTTON_COLOR,command = BackController(bis,bisApp).buttonPress)
         self.backButton.pack(side=LEFT, pady=20, padx = 20)
 
     def run(self):
 
         self.bisApp.currentView = 2
+        self.frame.tkraise()
+
+""" Loading Screen """
+class LoadingScreenView(object):
+
+    def __init__(self, bis, bisApp):
+
+        """ Blisk Inspection System Entity Class """
+        self.bis = bis
+
+        """ BIS Application Top Level Boundary Class """
+        self.bisApp = bisApp
+
+        """ Make a new frame """
+        self.frame = Frame(self.bisApp.root)
+        self.frame.grid(row=0, column=0, sticky='news')
+
+        """ Loading Progress Bar """
+        self.progressbar = ttk.Progressbar(self.frame, orient=HORIZONTAL, length=200, mode='determinate')
+        self.progressbar.pack(padx=20, pady=20) #side="bottom")
+        self.progressbar.start()
+
+    """ Run the page """
+    def run(self):
+
         self.frame.tkraise()
 
 
@@ -368,19 +461,19 @@ class ArmPositionView(object):
         self.frame.grid(row=0, column=0, sticky='news')
 
         """ Position Arm Button """
-        self.posArmButton = Button(self.frame, text = 'Position Arm', command = ArmPositionController(bis,bisApp).buttonPress)
+        self.posArmButton = Button(self.frame, text = 'Position Arm', bg=BUTTON_COLOR,command = ArmPositionController(bis,bisApp).buttonPress)
         self.posArmButton.pack(pady=20, padx = 20)
 
         """ Instructions Button """
-        self.instructionsButton = Button(self.frame, text = 'Instructions', command = InstructionsController(bis,bisApp).buttonPress)
+        self.instructionsButton = Button(self.frame, text = 'Instructions', bg=BUTTON_COLOR,command = InstructionsController(bis,bisApp).buttonPress)
         self.instructionsButton.pack(side=RIGHT, pady=20, padx = 20)
 
         """ Loading Progress Bar """
-        self.progressbar = ttk.Progressbar(self.frame, orient=HORIZONTAL, length=200, mode='determinate')
-        self.progressbar.pack(padx=20) #side="bottom")
+        #self.progressbar = ttk.Progressbar(self.frame, orient=HORIZONTAL, length=200, mode='determinate')
+        #self.progressbar.pack(padx=20) #side="bottom")
         
         """ Back Button """
-        self.backButton = Button(self.frame, text = 'Back', command = BackController(bis,bisApp).buttonPress)
+        self.backButton = Button(self.frame, text = 'Back', bg=BUTTON_COLOR,command = BackController(bis,bisApp).buttonPress)
         self.backButton.pack(side=LEFT, pady=20, padx = 20)
 
     """ Run the page """
@@ -388,13 +481,6 @@ class ArmPositionView(object):
 
         self.bisApp.currentView = 3
         self.frame.tkraise()
-
-    """ Display and load the status bar """
-    def load(self):
-
-        self.progressbar.start()
-        self.frame.update_idletasks()
-        #self.frame.tkraise()
 
 
 """ Screen where the user selects to turn the blisk until contact with the EOAT is made """
@@ -413,15 +499,15 @@ class TurnBliskView(object):
         self.frame.grid(row=0, column=0, sticky='news')
 
         """ Turn Blisk Button """
-        self.turnBliskButton = Button(self.frame, text = 'Turn Blisk', command = TurnBliskController(bis,bisApp).buttonPress)
+        self.turnBliskButton = Button(self.frame, text = 'Turn Blisk', bg=BUTTON_COLOR,command = TurnBliskController(bis,bisApp).buttonPress)
         self.turnBliskButton.pack(pady=20, padx = 20)
 
         """ Instructions Button """
-        self.instructionsButton = Button(self.frame, text = 'Instructions', command = InstructionsController(bis,bisApp).buttonPress)
+        self.instructionsButton = Button(self.frame, text = 'Instructions', bg=BUTTON_COLOR,command = InstructionsController(bis,bisApp).buttonPress)
         self.instructionsButton.pack(side=RIGHT, pady=20, padx = 20)
 
         """ Back Button """
-        self.backButton = Button(self.frame, text = 'Back', command = BackController(bis,bisApp).buttonPress)
+        self.backButton = Button(self.frame, text = 'Back', bg=BUTTON_COLOR,command = BackController(bis,bisApp).buttonPress)
         self.backButton.pack(side=LEFT, pady=20, padx = 20)
 
     def run(self):
@@ -446,15 +532,15 @@ class StartInspectionView(object):
         self.frame.grid(row=0, column=0, sticky='news')
 
         """ Start Inspection Button """
-        self.startButton = Button(self.frame, text = 'Start Inspection', command = StartInspectionController(bis,bisApp).buttonPress)
+        self.startButton = Button(self.frame, text = 'Start Inspection', bg=BUTTON_COLOR,command = StartInspectionController(bis,bisApp).buttonPress)
         self.startButton.pack(pady=20, padx = 20)
 
         """ Instructions Button """
-        self.instructionsButton = Button(self.frame, text = 'Instructions', command = InstructionsController(bis,bisApp).buttonPress)
+        self.instructionsButton = Button(self.frame, text = 'Instructions', bg=BUTTON_COLOR,command = InstructionsController(bis,bisApp).buttonPress)
         self.instructionsButton.pack(side=RIGHT, pady=20, padx = 20)
 
         """ Back Button """
-        self.backButton = Button(self.frame, text = 'Back', command = BackController(bis,bisApp).buttonPress)
+        self.backButton = Button(self.frame, text = 'Back', bg=BUTTON_COLOR,command = BackController(bis,bisApp).buttonPress)
         self.backButton.pack(side=LEFT, pady=20, padx = 20)
 
     def run(self):
@@ -479,7 +565,7 @@ class InstructionsView(object):
         self.frame.grid(row=0, column=0, sticky='news')
 
         """ Back Button """
-        self.backButton = Button(self.frame, text = 'Back', command = BackController(bis,bisApp).buttonPress)
+        self.backButton = Button(self.frame, text = 'Back', bg=BUTTON_COLOR,command = BackController(bis,bisApp).buttonPress)
         self.backButton.pack(side=LEFT, pady=20, padx = 20)
 
         """ Display the Instructions """
@@ -510,15 +596,15 @@ class InspectionProgressView(object):
         self.frame.grid(row=0, column=0, sticky='news')
 
         """ View Inspection Results Button """
-        self.resultsButton = Button(self.frame, text = 'View Results', command = InspectionResultsController(bis,bisApp).buttonPress)
+        self.resultsButton = Button(self.frame, text = 'View Results', bg=BUTTON_COLOR,command = InspectionResultsController(bis,bisApp).buttonPress)
         self.resultsButton.pack(pady=20, padx = 20)
 
         """ Instructions Button """
-        self.instructionsButton = Button(self.frame, text = 'Instructions', command = InstructionsController(bis,bisApp).buttonPress)
+        self.instructionsButton = Button(self.frame, text = 'Instructions', bg=BUTTON_COLOR,command = InstructionsController(bis,bisApp).buttonPress)
         self.instructionsButton.pack(side=RIGHT, pady=20, padx = 20)
 
         """ Back Button """
-        self.backButton = Button(self.frame, text = 'Back', command = BackController(bis,bisApp).buttonPress)
+        self.backButton = Button(self.frame, text = 'Back', bg=BUTTON_COLOR,command = BackController(bis,bisApp).buttonPress)
         self.backButton.pack(side=LEFT, pady=20, padx = 20)
 
     def run(self):
@@ -543,14 +629,20 @@ class InspectionResultsView(object):
         self.frame.grid(row=0, column=0, sticky='news')
 
         """ Instructions Button """
-        self.instructionsButton = Button(self.frame, text = 'Instructions', command = InstructionsController(bis,bisApp).buttonPress)
+        self.instructionsButton = Button(self.frame, text = 'Instructions', bg=BUTTON_COLOR,command = InstructionsController(bis,bisApp).buttonPress)
         self.instructionsButton.pack(side=RIGHT, pady=20, padx = 20)
 
         """ Back Button """
-        self.backButton = Button(self.frame, text = 'Back', command = BackController(bis,bisApp).buttonPress)
+        self.backButton = Button(self.frame, text = 'Back', bg=BUTTON_COLOR,command = BackController(bis,bisApp).buttonPress)
         self.backButton.pack(side=LEFT, pady=20, padx = 20)
 
-        """ Display the inspection results """
+        """ Button to start a new inspection """
+        self.resultsButton = Button(self.frame, text = 'Finish', bg=BUTTON_COLOR,command = StartAppController(bis,bisApp).buttonPress)
+        self.resultsButton.pack(pady=20, padx = 20)
+
+        """ Button to Quit the application """
+        self.resultsButton = Button(self.frame, text = 'Quit Application', bg=BUTTON_COLOR,command = self.bisApp.root.destroy)
+        self.resultsButton.pack(pady=20, padx = 20)
 
     def run(self):
 
