@@ -103,11 +103,21 @@ def detectSWs():
 		M = cv2.moments(c)
 		if M["m00"] == 0:
 			print "Zero denominator found for contour " + str(c)
-			cX = 0
-			cY = 0
+			area = 0.000001
+			print str(M["m10"])
+			print str(M["m01"])
+			#cX = 0
+			#cY = 0
 		else:
-			cX = int(M["m10"] / M["m00"])
-			cY = int(M["m01"] / M["m00"])
+			#cX = int(M["m10"] / M["m00"])
+			#cY = int(M["m01"] / M["m00"])
+			area = M["m00"]
+
+		cX = int(M["m10"] / area)
+		cY = int(M["m01"] / area)
+
+		print "Contour Area: " + str(area)
+		print "Contour cx: " + str(cX) + " cy: " + str(cY)
 	 
 		# draw the contour and center of the shape on the image
 		cv2.drawContours(frame, [c], -1, (0, 255, 0), 2)
