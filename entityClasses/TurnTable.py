@@ -18,9 +18,10 @@ IT_BLISK_G02 = 20
 
 class TurnTable(object):
 
-	def __init__(self, stepPin):
+	def __init__(self, stepPin, dirPin):
 
 		self.stepPin = stepPin
+		self.dirPin = dirPin
 		GPIO.setmode(GPIO.BCM)
 		GPIO.setup(self.stepPin, GPIO.OUT)
 

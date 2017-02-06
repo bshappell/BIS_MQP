@@ -8,44 +8,93 @@ import time
 """ 0-255 pwm to control Servo turns it, electromagnets holds it in place, two different electromagnets, high signal to turn """
 class ToolSwitch(object):
 
-	def __init__(self, servoPin, electro1Pin, electro2Pin):
+	def __init__(self, servoPin, em1_s1, em1_s2, em1_s3, em1_s4, em2_s1, em2_s2, em2_s3, em2_s4):
 
 		""" set the pin numbers """
 		self.servoPin = servoPin
-		self.electro1Pin = electro1Pin
-		self.electro2Pin = electro2Pin
+
+		""" Set up the Electromagnets """
+		self.em1 = Electromagnet(em1_s1, em1_s2, em1_s3, em1_s4)
+		self.em2 = Electromagnet(em2_s1, em2_s2, em2_s3, em2_s4)
+		self.em1_s1 = em1_s1
+		self.em1_s1 = em1_s2
+		self.em1_s1 = em1_s3
+		self.em1_s1 = em1_s4
+		self.em2_s1 = em2_s1
+		self.em2_s2 = em2_s2
+		self.em2_s3 = em2_s3
+		self.em2_s4 = em2_s4
 
 		""" set up the pins as outputs """
 		GPIO.setmode(GPIO.BCM) # specify naming convention to use
 		GPIO.setwarnings(False) # discard GPIO warnings
 		GPIO.setup(servoPin,GPIO.OUT) # set the pin as an output
-		GPIO.setup(electro1Pin,GPIO.OUT) # set the pin as an output
-		GPIO.setup(electro2Pin,GPIO.OUT) # set the pin as an output
 
+	""" Function to comtrol running the servo """
+	def runServo(self):
 
-        
+		# TO DO add servo functionality!!!!
+		pass
 
+	""" Switch to the Small Ball Bearing """
 	def smallBB(self):
 
 		""" Turn off the electromagnet to unlock the tool """
-		GPIO.output(self.electro1Pin, GPIO.LOW)
-		GPIO.output(self.electro2Pin, GPIO.LOW)
+		#self.em1.turnOff()
+		#self.em2.turnOn()
 
 		""" Use the servo to switch tools """
+		self.runServo()
 
 		""" Use the other electromagnet to lock the tool in place """
-		GPIO.output(self.electro2Pin, GPIO.HIGH)
+		#self.em1.turnOff()
+		#self.em2.turnOn()
 
+	""" Switch to the Large ball bearing """
 	def largeBB(self):
 
 		""" Turn off the electromagnet to unlock the tool """
-		GPIO.output(self.electro1Pin, GPIO.LOW)
-		GPIO.output(self.electro2Pin, GPIO.LOW)
+		#self.em1.turnOff()
+		#self.em2.turnOn()
 
 		""" Use the servo to switch tools """
+		self.runServo()
 
 		""" Use the other electromagnet to lock the tool in place """
-		GPIO.output(self.electro1Pin, GPIO.HIGH)
+		#self.em1.turnOff()
+		#self.em2.turnOn()
+
+
+""" Class for Electromagnet """
+class Electromagnet(object):
+
+	def __init__(self, s1, s2, s3, s4):
+
+		""" Store the pin numbers """
+		self.s1 = s1
+		self.s2 = s2
+		self.s3 = s3
+		self.s4 = s4
+
+		""" Set the pins as outputs """
+		GPIO.setmode(GPIO.BCM) # specify naming convention to use
+		GPIO.setwarnings(False) # discard GPIO warnings
+		GPIO.setup(self.s1,GPIO.OUT) 
+		GPIO.setup(self.s2,GPIO.OUT) 
+		GPIO.setup(self.s3,GPIO.OUT) 
+		GPIO.setup(self.s4,GPIO.OUT) 
+
+	""" Function to turn on the electromagnet """
+	def turnOn(self):
+
+		# TODO Add turn on functionality
+		pass
+
+	""" Function to turn off the electromagnet """
+	def turnOff(self):
+
+		# TODO add turn off functionality
+		pass
 		
 
 """ Used for testing purposes """
