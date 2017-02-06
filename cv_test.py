@@ -1,7 +1,7 @@
 
 import numpy as np
 import cv2
-#import LED
+
 
 def simpleImage():
 
@@ -46,9 +46,8 @@ def camTest():
 	cv2.destroyAllWindows()
 
 def captureImage():
-	led = LED.LED(12)
-	led.turnOn()
-	cap = cv2.VideoCapture(0)
+
+	cap = cv2.VideoCapture(1)
 	imageCount = 0 # used to increment picture counts 
 
 	while(True):
@@ -73,43 +72,62 @@ def captureImage():
 	cv2.destroyAllWindows()
 	cap.release()
 
-	led.turnOff()
 
+def detectSWs():
 
-def detectCircle():
+	frame = cv2.imread('better_pics\\Up2Covered.jpg',-1)
+	frame_init = frame.copy()
 
-	img_filt = cv2.medianBlur(cv2.imread('pictures\\capture5.png',0), 5)
-	img_th = cv2.adaptiveThreshold(img_filt,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,11,2)
-	contours, hierarchy = cv2.findContours(img_th, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+	# Convert BGR to HSV
+	hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
-	#cnt = contours[4]
-	#cv2.drawContours(img_th, [cnt], 0, (0,255,0), 3)
-	#cv2.drawContours(img_th, contours, -1, (0,255,0), 3)
+	# define range of blue color in HSV
+	lower_green = np.array([26,105,116])
+	upper_green = np.array([71,255,255])
 
-	"""im = cv2.imread('pictures\\testPic.png')
-	imgray = cv2.cvtColor(im,cv2.COLOR_BGR2GRAY)
-	ret,thresh = cv2.threshold(imgray,127,255,0)
-	contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)"""
+	# Threshold the HSV image to get only blue colors
+	mask = cv2.inRange(hsv, lower_green, upper_green)
 
-	imageCount = 0 # used to increment picture counts
+	# Bitwise-AND mask and original image
+	res = cv2.bitwise_and(frame,frame, mask= mask)
 
-	while 1:
+	# find the contours in the mask
+	(cnts, _) = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL,
+		cv2.CHAIN_APPROX_SIMPLE)
+	print "I found %d green shapes" % (len(cnts))
+	 
+	# loop over the contours
+	for c in cnts:
 
+		# compute the center of the contour
+		M = cv2.moments(c)
+		if M["m00"] == 0:
+			print "Zero denominator found for contour " + str(c)
+			cX = 0
+			cY = 0
+		else:
+			cX = int(M["m10"] / M["m00"])
+			cY = int(M["m01"] / M["m00"])
+	 
+		# draw the contour and center of the shape on the image
+		cv2.drawContours(frame, [c], -1, (0, 255, 0), 2)
+		cv2.circle(frame, (cX, cY), 7, (0, 0, 0), -1)
+		cv2.putText(frame, "center", (cX - 20, cY - 20),
+			cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+
+	while(True):
+		cv2.imshow('Outlined Shapes',frame)
+		cv2.imshow('Result',res)
+		cv2.imshow('Shape Mask',mask)
+		cv2.imshow('Initial Frame',frame_init)
 		key = cv2.waitKey(1) & 0xFF
 		if key == ord('q'):
 			break
-		# Save the Image if we receive an s key press
-		elif key == ord('s'):
-			imageCount += 1 # increment the image count variable
-			cv2.imwrite('img_threshold' + str(imageCount) + '.png',img_th)
-
-		cv2.imshow('filt', img_th)
+	
+	# Close all windows currently open
+	cv2.destroyAllWindows()	
 
 
 if __name__=="__main__":
 
-	#simpleImage()
-	#catPic()
-	#camTest()
-	#captureImage()
-	detectCircle()
+	detectSWs()
