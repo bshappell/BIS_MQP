@@ -14,9 +14,8 @@ class ImageProcessor(object):
 
                 cv2.imshow('frame',frame)
 
+    """ When everything done, release the capture """
 	def shutdown(self):
-
-		""" When everything done, release the capture """
 		self.capture.release()
 		cv2.destroyAllWindows()
 		self.capture.release()
