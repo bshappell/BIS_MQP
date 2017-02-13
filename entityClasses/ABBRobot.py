@@ -4,7 +4,7 @@ import socket
 import time
 
 UDP_IP = "192.168.125.1"
-UDP_PORT = 1025
+UDP_PORT = 5515
 MESSAGE = "Hello, World!"
 
 """ BLISK IDS """

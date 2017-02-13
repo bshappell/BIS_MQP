@@ -42,6 +42,26 @@ class ImageProcessor(object):
 		frame8 = cv2.imread('..\\better_pics\\Up1Covered.jpg',-1)
 		self.frames = [frame1,frame2,frame3,frame4,frame5,frame6,frame7,frame8]
 
+	def findBB(self, image):
+
+		img = cv2.imread(image,0)
+		img = cv2.medianBlur(img,5)
+		cimg = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+
+		circles = cv2.HoughCircles(img, cv2.cv.CV_HOUGH_GRADIENT,1,20,
+		                            param1=50,param2=45,minRadius=80,maxRadius=0)
+
+		circles = np.uint16(np.around(circles))
+		for i in circles[0,:]:
+		    # draw the outer circle
+		    cv2.circle(cimg,(i[0],i[1]),i[2],(0,255,0),2)
+		    # draw the center of the circle
+		    cv2.circle(cimg,(i[0],i[1]),2,(0,0,255),3)
+
+		cv2.imshow('detected circles',cimg)
+		cv2.waitKey(0)
+		cv2.destroyAllWindows()
+
 	""" Inspect the test array of images """
 	def inspectArray(self):
 
@@ -209,4 +229,8 @@ class Box(object):
 if __name__ == "__main__":
 
 	ip = ImageProcessor()
-	ip.inspectArray()
+	#ip.inspectArray()
+	ip.findBB('..\\better_pics\\Up2Covered.jpg')
+	ip.findBB('..\\better_pics\\Up2Uncovered.jpg')
+	ip.findBB('..\\better_pics\\Up1Uncovered.jpg')
+	ip.findBB('..\\better_pics\\Up1Covered.jpg')
