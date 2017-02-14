@@ -11,7 +11,7 @@ BUTTON_COLOR = '#BFBFBF'
 FONT_COLOR = "black"
 BLISK_ID_P01 = "2468M19P01"
 BLISK_ID_P02 = "2468M17P02"
-BLISK_ID_G02 "2468M18G02"
+BLISK_ID_G02 = "2468M18G02"
 
 """ **************************************** Controller Classes **************************************** """
 
@@ -402,6 +402,10 @@ class RoughArmPositionView(object):
         self.frame = Frame(self.bisApp.root)
         self.frame.grid(row=0, column=0, sticky='news')
 
+        """ Page Instructions """
+        explanation = "Place the selected blisk on the turntable before proceeding.\n When ready select the Position Arm Button and the arm will move outside of the blisk"
+        Label(self.frame, compound = CENTER, text=explanation, fg = "black",font = 16).pack(pady=20)
+
         """ Position Arm Button """
         self.posArmButton = Button(self.frame, text = 'Position Arm', bg=BUTTON_COLOR,command = RoughArmPositionController(bis,bisApp).buttonPress)
         self.posArmButton.pack(pady=20, padx = 20)
@@ -460,6 +464,10 @@ class ArmPositionView(object):
         self.frame = Frame(self.bisApp.root)
         self.frame.grid(row=0, column=0, sticky='news')
 
+        """ Page Instructions """
+        explanation = "Ensure that the end of arm tooling is centered between the blades on the blisk.\n When ready select the Position Arm Button and the arm will move between the blades on the blisk"
+        Label(self.frame, compound = CENTER, text=explanation, fg = "black",font = 16).pack(pady=20)
+
         """ Position Arm Button """
         self.posArmButton = Button(self.frame, text = 'Position Arm', bg=BUTTON_COLOR,command = ArmPositionController(bis,bisApp).buttonPress)
         self.posArmButton.pack(pady=20, padx = 20)
@@ -498,6 +506,10 @@ class TurnBliskView(object):
         self.frame = Frame(self.bisApp.root)
         self.frame.grid(row=0, column=0, sticky='news')
 
+        """ Page Instructions """
+        explanation = "Select the Turn Blisk Button to have the turntable increment until contact is sensed with the blisk"
+        Label(self.frame, compound = CENTER, text=explanation, fg = "black",font = 16).pack(pady=20)
+
         """ Turn Blisk Button """
         self.turnBliskButton = Button(self.frame, text = 'Turn Blisk', bg=BUTTON_COLOR,command = TurnBliskController(bis,bisApp).buttonPress)
         self.turnBliskButton.pack(pady=20, padx = 20)
@@ -530,6 +542,10 @@ class StartInspectionView(object):
         """ Make a new frame """
         self.frame = Frame(self.bisApp.root)
         self.frame.grid(row=0, column=0, sticky='news')
+
+        """ Page Instructions """
+        explanation = "Select the Start Inspection Button to initiate the inspection process"
+        Label(self.frame, compound = CENTER, text=explanation, fg = "black",font = 16).pack(pady=20)
 
         """ Start Inspection Button """
         self.startButton = Button(self.frame, text = 'Start Inspection', bg=BUTTON_COLOR,command = StartInspectionController(bis,bisApp).buttonPress)
@@ -627,6 +643,10 @@ class InspectionResultsView(object):
         """ Make a new frame """
         self.frame = Frame(self.bisApp.root)
         self.frame.grid(row=0, column=0, sticky='news')
+
+        """ Page Instructions """
+        explanation = "The inspection results can be found in results.csv \nSelect the Finish Button to start a new inspection, otherwise select the Quit Application Button"
+        Label(self.frame, compound = CENTER, text=explanation, fg = "black",font = 16).pack(pady=20)
 
         """ Instructions Button """
         self.instructionsButton = Button(self.frame, text = 'Instructions', bg=BUTTON_COLOR,command = InstructionsController(bis,bisApp).buttonPress)

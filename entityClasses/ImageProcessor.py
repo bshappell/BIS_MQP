@@ -42,6 +42,7 @@ class ImageProcessor(object):
 		frame8 = cv2.imread('..\\better_pics\\Up1Covered.jpg',-1)
 		self.frames = [frame1,frame2,frame3,frame4,frame5,frame6,frame7,frame8]
 
+	""" Find the Ball Bearing and locate the centroid """
 	def findBB(self, image):
 
 		img = cv2.imread(image,0)
@@ -62,6 +63,7 @@ class ImageProcessor(object):
 		cv2.waitKey(0)
 		cv2.destroyAllWindows()
 
+
 	""" Inspect the test array of images """
 	def inspectArray(self):
 
@@ -80,6 +82,7 @@ class ImageProcessor(object):
 		
 		""" Close all windows currently open """
 		self.shutdown()
+
 
 	""" Inspect the current image to see if it passes """
 	def inspectImage(self, isSmallBB, frame): #, currStage, sizeBB):
@@ -229,8 +232,8 @@ class Box(object):
 if __name__ == "__main__":
 
 	ip = ImageProcessor()
-	#ip.inspectArray()
-	ip.findBB('..\\better_pics\\Up2Covered.jpg')
+	ip.inspectArray()
+	"""ip.findBB('..\\better_pics\\Up2Covered.jpg')
 	ip.findBB('..\\better_pics\\Up2Uncovered.jpg')
 	ip.findBB('..\\better_pics\\Up1Uncovered.jpg')
-	ip.findBB('..\\better_pics\\Up1Covered.jpg')
+	ip.findBB('..\\better_pics\\Up1Covered.jpg')"""
