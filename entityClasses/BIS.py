@@ -77,22 +77,6 @@ class BIS(object):
 		""" Array to store blisks """
 		self.blisks = [blisk_P01, blisk_P02, blisk_G02]
 
-		PIN_MOTOR_STEP = 23 # Stepper Motor Step Signal
-PIN_MOTOR_DIR = 24 # Stepper Motor Direction Signal
-PIN_SERVO_SIG = 18 # Tool Switch Servo Signal
-PIN_LED_SIG = 25 # LED Signal
-PIN_CC = 12 # Circuit Completor Pin
-PIN_FS_DATA = 16 # Force Sensor Data Pin
-PIN_FS_CLK = 20 # Force Sensor Clock Pin
-PIN_EM1_S1 = 4 # Electromagnet 1 S1
-PIN_EM1_S2 = 17 # Electromagnet 1 S2
-PIN_EM1_S3 = 27 # Electromagnet 1 S3
-PIN_EM1_S4 = 22 # Electromagnet 1 S4
-PIN_EM2_S1 = 5 # Electromagnet 2 S1
-PIN_EM2_S2 = 6 # Electromagnet 2 S2
-PIN_EM2_S3 = 13 # Electromagnet 2 S3
-PIN_EM2_S4 = 19 # Electromagnet 2 S4
-
 		""" set up an LED """
 		self.led = LED.LED(PIN_LED_SIG)
 
@@ -130,6 +114,7 @@ PIN_EM2_S4 = 19 # Electromagnet 2 S4
 	""" Selects the blisk that will be used for inspection """
 	def selectBlisk(self, currBlisk):
 
+		""" Check that the blisk number is either 0,1,2 """
 		if(currBlisk > 2 || currBlisk < 0):
 			print "ERROR INCORRECT BLISK NUMBER RECIEVED"
 			return
@@ -146,8 +131,9 @@ PIN_EM2_S4 = 19 # Electromagnet 2 S4
 
 		self.abbRobot.positionArmClose(currBlisk)
 
-		""" Zero the Force Sensor """
-		# TODO Add Force Sensor Zeroing function and check that there is no contact with blisk 
+		""" Check that there is no contact with the blisk and zero the Force Sensor """
+
+		self.forceSensor.zeroSensor()
 
 	""" Position the blisk on the turntable by turning until contact is made """
 	def positionBlisk(self):

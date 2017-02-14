@@ -580,14 +580,13 @@ class InstructionsView(object):
         self.frame = Frame(self.bisApp.root)
         self.frame.grid(row=0, column=0, sticky='news')
 
+        """ Display the Instructions """
+        explanation = "The Blisk Inspection System Application is used to inspect parts numbers 2468M19P01, 2468M17P02, and 2468M18G02"
+        Label(self.frame, compound = CENTER, text=explanation, fg = "black",font = 16).pack(pady=20)
+
         """ Back Button """
         self.backButton = Button(self.frame, text = 'Back', bg=BUTTON_COLOR,command = BackController(bis,bisApp).buttonPress)
-        self.backButton.pack(side=LEFT, pady=20, padx = 20)
-
-        """ Display the Instructions """
-        explanation = "In order to use the system please follow these steps:\n 1.) Blah\n 2.) Blah\n 3.) etc.\n"
-        Label(self.frame, compound = CENTER, text=explanation, fg = "blue",font = "Helvetica 16 bold").pack()
-
+        self.backButton.pack(pady=20, padx = 20)
 
     def run(self):
 
