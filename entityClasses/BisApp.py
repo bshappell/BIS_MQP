@@ -32,7 +32,7 @@ class StartAppController(object):
             self.bis.start()
 
         self.bisApp.selectBliskView.run()
-        print 'start app controller ' + str(self.bisApp.currentView)
+        #print 'start app controller ' + str(self.bisApp.currentView)
 
 
 """ Used when the instruction button is clicked """
@@ -49,7 +49,7 @@ class InstructionsController(object):
     def buttonPress(self):
 
         self.bisApp.instructionsView.run()
-        print 'instructions button controller' + str(self.bisApp.currentView)
+        #print 'instructions button controller' + str(self.bisApp.currentView)
 
 
 """ Used when a blisk is selected """
@@ -66,7 +66,7 @@ class SelectBliskController(object):
     def buttonPress(self):
 
         blisk = self.bisApp.selectBliskView.blisk.get()
-        print "blisk: " + blisk
+        #print "blisk: " + blisk
 
         bliskNum = -1
         if blisk == BLISK_ID_P01:
@@ -82,7 +82,7 @@ class SelectBliskController(object):
             self.bis.selectBlisk(blisk)
 
         self.bisApp.roughArmPositionView.run()
-        print "select blisk controller " + str(self.bisApp.currentView)
+        #print "select blisk controller " + str(self.bisApp.currentView)
 
 
 """ Used when the back button is clicked """
@@ -98,7 +98,7 @@ class BackController(object):
 
     def buttonPress(self):
 
-        print "back button press, current view = " + str(self.bisApp.currentView)
+        #print "back button press, current view = " + str(self.bisApp.currentView)
         
         """ Send the view to the screen before """
         if self.bisApp.currentView == 1:
@@ -118,7 +118,7 @@ class BackController(object):
         elif self.bisApp.currentView == 8:
             self.bisApp.inspectionResultsView.run()
 
-        print "new current view: " + str(self.bisApp.currentView)
+        #print "new current view: " + str(self.bisApp.currentView)
 
 
 """ Used when the user select to position the arm outside of the blisk radius """
@@ -138,7 +138,7 @@ class RoughArmPositionController(object):
             self.bis.positionArmFar()
 
         self.bisApp.armPositionView.run()
-        print "rough arm position button press " + str(self.bisApp.currentView)
+        #print "rough arm position button press " + str(self.bisApp.currentView)
 
 
 """ Used when the user select to position the arm inside the blisk radius """
@@ -164,7 +164,7 @@ class ArmPositionController(object):
 
         time.sleep(5)
         self.bisApp.turnBliskView.run()
-        print "arm position button press " + str(self.bisApp.currentView)
+        #print "arm position button press " + str(self.bisApp.currentView)
 
 
 """ Used when the user select to position the arm inside the blisk radius """
@@ -184,7 +184,7 @@ class TurnBliskController(object):
             self.bis.positionBlisk()
 
         self.bisApp.startInspectionView.run()
-        print "turn blisk button press " + str(self.bisApp.currentView)
+        #print "turn blisk button press " + str(self.bisApp.currentView)
 
 
 """ Used when the user chooses to start the blisk inspection """
@@ -206,7 +206,7 @@ class StartInspectionController(object):
         # REPLACED PROGRESS VIEW WITH INSPECTION VIEW
         #self.bisApp.inspectionProgressView.run()
         self.bisApp.inspectionResultsView.run()
-        print "start inspection button press " + str(self.bisApp.currentView)
+        #print "start inspection button press " + str(self.bisApp.currentView)
 
 
 """ Controller for when the user chooses to view the inspection results """
@@ -223,7 +223,7 @@ class InspectionResultsController(object):
     def buttonPress(self):
 
         self.bisApp.inspectionResultsView.run()
-        print "view inspection results button press " + str(self.bisApp.currentView)
+        #print "view inspection results button press " + str(self.bisApp.currentView)
 
 """ Controller to handle the loading screens """
 class LoadingScreenController(object):
@@ -238,7 +238,7 @@ class LoadingScreenController(object):
 
     def run(self):
 
-        print "Loading Screen Controller Running"
+        #print "Loading Screen Controller Running"
 
         """ Handle which controller to call based on ... """
         self.bisApp.loadingScreenView.run()
@@ -590,7 +590,7 @@ class InstructionsView(object):
 
     def run(self):
 
-        print "in instructions run function, current view = " + str(self.bisApp.currentView)
+        #print "in instructions run function, current view = " + str(self.bisApp.currentView)
         self.bisApp.currentView += 1
         self.frame.tkraise()
 

@@ -1,6 +1,7 @@
 # ImageProcessor Class
 import cv2
 import numpy as np
+import InspectionResults
 
 DEBUG = 1 # Toggle to get debug features
 RASP_PI = 0 # Indicates whether 
@@ -21,6 +22,8 @@ class ImageProcessor(object):
 			self.frame = cv2.VideoCapture(0)
 		else:
 			self.frame = cv2.imread('better_pics\\Up2Covered.jpg',-1)
+
+		""" Inspection Results Class """
 
 		""" Define the range of green to mask """
 		self.lower_green = np.array([HUE_LOW,SATURATION_LOW,VALUE_LOW])
@@ -62,7 +65,6 @@ class ImageProcessor(object):
 		cv2.imshow('detected circles',cimg)
 		cv2.waitKey(0)
 		cv2.destroyAllWindows()
-
 
 	""" Inspect the test array of images """
 	def inspectArray(self):
@@ -225,48 +227,6 @@ class Box(object):
 		cv2.line(frame, self.p11(), self.p01(), self.color)
 		cv2.line(frame, self.p11(), self.p10(), self.color)
 
-import csv
-import datetime
-
-""" Class to handle saving the inspection results """
-class InspectionResults(object):
-
-	def __init__(self, bliskID):
-
-		self.filename = None
-		self.file = None
-		self.bliskID = bliskID
-		self.csvWriter = None
-
-		self.openNewFile(bliskID)
-
-	""" Make a new file to store the inspection results for the blisk """
-	def openNewFile(self, bliskID):
-
-		""" See if a file was already open, if so close it """
-		if(self.filename):
-			self.closeFile()
-
-		""" Open the file and create a csv writer """
-		self.filename = datetime.datetime.now().strftime("Blisk" + bliskID + "_%B_%d_%Y_%I%M%p" + ".csv")
-		self.file = open(self.filename, 'wb')
-		print self.filename
-		self.csvWriter = csv.writer(self.file)
-		self.bliskID = bliskID	
-
-		""" Write the Header Row """
-		self.csvWriter.writerow(("Stage", "Blade", "Blade Side", "Position", "Result"))
-
-	""" Add a new line to the csv file """
-	def addResult(self, stage, bladeNumber, bladeSide, position, passValue):
-
-		self.csvWriter.writerow((stage, bladeNumber, bladeSide, position, passValue))
-
-	""" Close the current file """
-	def closeFile(self):
-
-		self.file.close()
-
 
 """ Used for testing purposes """
 if __name__ == "__main__":
@@ -278,6 +238,7 @@ if __name__ == "__main__":
 	ip.findBB('..\\better_pics\\Up1Uncovered.jpg')
 	ip.findBB('..\\better_pics\\Up1Covered.jpg')"""
 
-	results = InspectionResults("22")
+	results = InspectionResults.InspectionResults()
+	results.openNewFile("22")
 	results.addResult(1,2,3,4,'yo')
 	results.closeFile()
