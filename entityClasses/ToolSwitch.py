@@ -8,22 +8,14 @@ import time
 """ 0-255 pwm to control Servo turns it, electromagnets holds it in place, two different electromagnets, high signal to turn """
 class ToolSwitch(object):
 
-	def __init__(self, servoPin, em1_s1, em1_s2, em1_s3, em1_s4, em2_s1, em2_s2, em2_s3, em2_s4):
+	def __init__(self, servoPin, em1_s1, em1_s2, em2_s1, em2_s2):
 
 		""" set the pin numbers """
 		self.servoPin = servoPin
 
 		""" Set up the Electromagnets """
-		self.em1 = Electromagnet(em1_s1, em1_s2, em1_s3, em1_s4)
-		self.em2 = Electromagnet(em2_s1, em2_s2, em2_s3, em2_s4)
-		self.em1_s1 = em1_s1
-		self.em1_s1 = em1_s2
-		self.em1_s1 = em1_s3
-		self.em1_s1 = em1_s4
-		self.em2_s1 = em2_s1
-		self.em2_s2 = em2_s2
-		self.em2_s3 = em2_s3
-		self.em2_s4 = em2_s4
+		self.em1 = Electromagnet(em1_s1, em1_s2)
+		self.em2 = Electromagnet(em2_s1, em2_s2)
 
 		""" set up the pins as outputs """
 		GPIO.setmode(GPIO.BCM) # specify naming convention to use
@@ -73,16 +65,12 @@ class Electromagnet(object):
 		""" Store the pin numbers """
 		self.s1 = s1
 		self.s2 = s2
-		self.s3 = s3
-		self.s4 = s4
 
 		""" Set the pins as outputs """
 		GPIO.setmode(GPIO.BCM) # specify naming convention to use
 		GPIO.setwarnings(False) # discard GPIO warnings
 		GPIO.setup(self.s1,GPIO.OUT) 
 		GPIO.setup(self.s2,GPIO.OUT) 
-		GPIO.setup(self.s3,GPIO.OUT) 
-		GPIO.setup(self.s4,GPIO.OUT) 
 
 	""" Function to turn on the electromagnet """
 	def turnOn(self):

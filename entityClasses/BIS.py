@@ -20,12 +20,8 @@ PIN_FS_DATA = 16 # Force Sensor Data Pin
 PIN_FS_CLK = 20 # Force Sensor Clock Pin
 PIN_EM1_S1 = 4 # Electromagnet 1 S1
 PIN_EM1_S2 = 17 # Electromagnet 1 S2
-PIN_EM1_S3 = 27 # Electromagnet 1 S3
-PIN_EM1_S4 = 22 # Electromagnet 1 S4
 PIN_EM2_S1 = 5 # Electromagnet 2 S1
 PIN_EM2_S2 = 6 # Electromagnet 2 S2
-PIN_EM2_S3 = 13 # Electromagnet 2 S3
-PIN_EM2_S4 = 19 # Electromagnet 2 S4
 
 """ Define the different inspection times for each blisk """
 IT_BLISK_P01 = 10
@@ -84,7 +80,7 @@ class BIS(object):
 		self.forceSensor = ForceSensor.ForceSensor(PIN_FS_DATA, PIN_FS_CLK)
 
 		""" set up the tool switch """
-		self.toolSwitch = ToolSwitch.ToolSwitch(PIN_SERVO_SIG, PIN_EM1_S1, PIN_EM1_S2, PIN_EM1_S3, PIN_EM1_S4, PIN_EM2_S1, PIN_EM2_S2, PIN_EM2_S3, PIN_EM2_S4)
+		self.toolSwitch = ToolSwitch.ToolSwitch(PIN_SERVO_SIG, PIN_EM1_S1, PIN_EM1_S2,  PIN_EM2_S1, PIN_EM2_S2)
 
 		""" set up the turntable stepper motor """
 		self.turntable = TurnTable.TurnTable(PIN_MOTOR_STEP, PIN_MOTOR_DIR)
