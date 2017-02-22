@@ -15,6 +15,7 @@ import time
 PIN_MOTOR_STEP = 23 # Stepper Motor Step Signal
 PIN_MOTOR_DIR = 24 # Stepper Motor Direction Signal
 PIN_SERVO_SIG = 18 # Tool Switch Servo Signal
+PIN_SERVO_POWER = 27 # Tool Switch Power Signal
 PIN_LED_SIG = 25 # LED Signal
 PIN_CC = 12 # Circuit Completor Pin
 PIN_FS_DATA = 16 # Force Sensor Data Pin
@@ -81,7 +82,7 @@ class BIS(object):
 		self.forceSensor = ForceSensor.ForceSensor(PIN_FS_DATA, PIN_FS_CLK)
 
 		""" set up the tool switch """
-		self.toolSwitch = ToolSwitch.ToolSwitch(PIN_SERVO_SIG, PIN_EM1_S1, PIN_EM1_S2,  PIN_EM2_S1, PIN_EM2_S2)
+		self.toolSwitch = ToolSwitch.ToolSwitch(PIN_SERVO_POWER, PIN_SERVO_SIG, PIN_EM1_S1, PIN_EM1_S2,  PIN_EM2_S1, PIN_EM2_S2)
 
 		""" set up the turntable stepper motor """
 		self.turntable = TurnTable.TurnTable(PIN_MOTOR_STEP, PIN_MOTOR_DIR)
