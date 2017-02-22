@@ -21,6 +21,9 @@ class LED(object):
 		GPIO.setwarnings(False) # discard GPIO warnings
 		GPIO.setup(pinNumber,GPIO.OUT) # set the pin as an output
 
+		""" Initially turn the pin off """
+		self.turnOff()
+
 	def turnOn(self):
 
 		""" code to turn the rasp pi pin on """

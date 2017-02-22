@@ -17,7 +17,7 @@ class CircuitCompletor(object):
 	def getContact(self):
 
 		reading = GPIO.input(self.pinNumber)
-		print(reading)
+		#print(reading)
 		return reading
 	
 

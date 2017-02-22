@@ -200,7 +200,7 @@ class StartInspectionController(object):
     def buttonPress(self):
 
         if RASP_PI:
-            self.bisApp.inspectBlisk()
+            self.bis.inspectBlisk()
 
         # REPLACED PROGRESS VIEW WITH INSPECTION VIEW
         #self.bisApp.inspectionProgressView.run()

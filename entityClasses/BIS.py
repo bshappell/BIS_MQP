@@ -62,15 +62,14 @@ class BIS(object):
 		stepsArray_G02_2 = [80]
 
 		""" Make the different stages Stage(numberBlades, smallBBRadius, largeBBRadius, stepsArray) """
-		stage_P01 = Stage.Stage(56, 0.05, 0.07, stepsArray_P01)
-		stage_G02_1 = Stage.Stage(49, 0.09, 0.11, stepsArray_G02_1)
-		stage_G02_2 = Stage.Stage(39, 0.105, 0.125, stepsArray_G02_2)
-		stage_P02 = Stage.Stage(34, 0.122, 0.142, stepsArray_P02)
+		stage_P01 = [Stage.Stage(56, 0.05, 0.07, stepsArray_P01)]
+		stage_G02 = [Stage.Stage(49, 0.09, 0.11, stepsArray_G02_1), Stage.Stage(39, 0.105, 0.125, stepsArray_G02_2)]
+		stage_P02 = [Stage.Stage(34, 0.122, 0.142, stepsArray_P02)]
 
 		""" The Blisks composed of the different stages Blisk(bliskID, inspectionTime, firstStage, secondStage) """
-		blisk_P01 = Blisk.Blisk(ID_BLISK_P01, IT_BLISK_P01, stage_P01, None)
-		blisk_P02 = Blisk.Blisk(ID_BLISK_P02, IT_BLISK_P02, stage_P02, None)
-		blisk_G02 = Blisk.Blisk(ID_BLISK_G02, IT_BLISK_G02, stage_G02_1, stage_G02_2)
+		blisk_P01 = Blisk.Blisk(ID_BLISK_P01, IT_BLISK_P01, stage_P01)
+		blisk_P02 = Blisk.Blisk(ID_BLISK_P02, IT_BLISK_P02, stage_P02)
+		blisk_G02 = Blisk.Blisk(ID_BLISK_G02, IT_BLISK_G02, stage_G02)
 
 		""" Array to store blisks """
 		self.blisks = [blisk_P01, blisk_P02, blisk_G02]
@@ -145,10 +144,12 @@ class BIS(object):
 
 		""" Increment the stepper motor until contact is made with the arm """
 		# TODO make sure that it doesnt turn more than one blade rotation
+		print "turning blisk until contact is made"
 		while(not self.circuitCompletor.getContact()):
 
 			self.turntable.increment()
 			time.sleep(0.007)
+		print "contact made turning complete"
 
 	""" Start the inspection of the current blisk """
 	def inspectBlisk(self):
@@ -171,7 +172,7 @@ class BIS(object):
 			for i in range(2):
 
 				""" Increment over every blade """
-				for blade in range(self.stage.numberBlades):
+				for blade in range(stage.numberBlades):
 
 					""" Set the current blade """
 					self.currBlade = blade

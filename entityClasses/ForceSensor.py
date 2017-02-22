@@ -39,8 +39,10 @@ class ForceSensor(object):
     """ Callback for when a new reading is recieved from the force sensor """
     def forceReadingCallback(self, count, mode, reading):
 
+        #print "raw reading: " + str(reading)
+
         gramsReading = READING_TO_GRAMS  * (reading - self.y_init)
-        print(count, mode, round(gramsReading, 2))
+        #print(count, mode, round(gramsReading, 2))
 
         """ Send the values to the IRC5 Controller """
         # TODO: add communication to IRC5
@@ -59,6 +61,7 @@ class ForceSensor(object):
     def zeroSensor(self):
 
         print "Starting Zeroing Function """
+        startTime = time.time()
 
         """ Start gettings readings """
         self.startReadings()
@@ -69,7 +72,7 @@ class ForceSensor(object):
 
         """ Check that the reading isnt currently None """
         count, mode, reading = self.hx117.get_reading()
-        while(reading == None):
+        while(reading == None) and (time.time() - startTime < 10):
 
             """ Start gettings readings """
             self.pauseReadings()
@@ -82,7 +85,9 @@ class ForceSensor(object):
         for i in range(50):
 
             count, mode, reading = self.hx117.get_reading()
-            print "Reading = " + str(reading)
+            print "Reading = "
+            print(reading)
+            print count, mode, reading
             averages.append(reading)
             time.sleep(0.07)
 
@@ -285,7 +290,7 @@ class HX711:
 """ For testing purposes """
 if __name__=="__main__":
 
-    fs = ForceSensor(9,11)
+    fs = ForceSensor(16,20)
 
     fs.zeroSensor()
     time.sleep(1) # number of seconds of testing, increase as needed
