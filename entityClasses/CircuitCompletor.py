@@ -19,6 +19,7 @@ class CircuitCompletor(object):
 		reading = GPIO.input(self.pinNumber)
 		print(reading)
 		return reading
+	
 
 """ Used for testing purposes """
 if __name__ == "__main__":

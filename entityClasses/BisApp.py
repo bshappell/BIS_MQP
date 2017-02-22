@@ -1,4 +1,4 @@
-RASP_PI = 0 # used to toggle between working on the pi and on a PC
+RASP_PI = 1 # used to toggle between working on the pi and on a PC
 
 from Tkinter import *
 import ttk
@@ -79,7 +79,7 @@ class SelectBliskController(object):
             print "ERROR INCORRECT BLISK NUMBER RECEIVED"
 
         if RASP_PI:
-            self.bis.selectBlisk(blisk)
+            self.bis.selectBlisk(bliskNum)
 
         self.bisApp.roughArmPositionView.run()
         #print "select blisk controller " + str(self.bisApp.currentView)
@@ -162,7 +162,6 @@ class ArmPositionController(object):
         if RASP_PI:
             self.bis.positionArmClose()
 
-        time.sleep(5)
         self.bisApp.turnBliskView.run()
         #print "arm position button press " + str(self.bisApp.currentView)
 
@@ -252,7 +251,9 @@ class BisApp(object):
     def __init__(self):
 
         """ BIS Entity Class """
-        self.bis = None #BIS.BIS()
+        self.bis = None
+        if RASP_PI:
+            self.bis = BIS.BIS()
 
         """ Root Application Screen """
         self.root = Tk()

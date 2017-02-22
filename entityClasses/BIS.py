@@ -5,7 +5,8 @@ import TurnTable
 import Blisk
 import CircuitCompletor
 import ABBRobot
-"""import ImageProcessor """
+import Stage
+"""import ImageProcessor"""
 import time
 
 # BIS (Blisk Inspection System) Class
@@ -18,10 +19,10 @@ PIN_LED_SIG = 25 # LED Signal
 PIN_CC = 12 # Circuit Completor Pin
 PIN_FS_DATA = 16 # Force Sensor Data Pin
 PIN_FS_CLK = 20 # Force Sensor Clock Pin
-PIN_EM1_S1 = 4 # Electromagnet 1 S1
-PIN_EM1_S2 = 17 # Electromagnet 1 S2
-PIN_EM2_S1 = 5 # Electromagnet 2 S1
-PIN_EM2_S2 = 6 # Electromagnet 2 S2
+PIN_EM1_S1 = 5 #4 # Electromagnet 1 S1
+PIN_EM1_S2 = 6 #17 # Electromagnet 1 S2
+PIN_EM2_S1 = 13 #5 # Electromagnet 2 S1
+PIN_EM2_S2 = 19 #6 # Electromagnet 2 S2
 
 """ Define the different inspection times for each blisk """
 IT_BLISK_P01 = 10
@@ -60,15 +61,15 @@ class BIS(object):
 		stepsArray_G02_2 = [80]
 
 		""" Make the different stages Stage(numberBlades, smallBBRadius, largeBBRadius, stepsArray) """
-		stage_P01 = Stage(56, 0.05, 0.07, stepsArray_P01)
-		stage_G02_1 = Stage(49, 0.09, 0.11, stepsArray_G02_1)
-		stage_G02_2 = Stage(39, 0.105, 0.125, stepsArray_G02_2)
-		stage_P02 = Stage(34, 0.122, 0.142, stepsArray_P02)
+		stage_P01 = Stage.Stage(56, 0.05, 0.07, stepsArray_P01)
+		stage_G02_1 = Stage.Stage(49, 0.09, 0.11, stepsArray_G02_1)
+		stage_G02_2 = Stage.Stage(39, 0.105, 0.125, stepsArray_G02_2)
+		stage_P02 = Stage.Stage(34, 0.122, 0.142, stepsArray_P02)
 
 		""" The Blisks composed of the different stages Blisk(bliskID, inspectionTime, firstStage, secondStage) """
-		blisk_P01 = (ID_BLISK_P01, IT_BLISK_P01, stage_P01, None)
-		blisk_P02 = (ID_BLISK_P02, IT_BLISK_P02, stage_P02, None)
-		blisk_G02 = (ID_BLISK_G02, IT_BLISK_G02, stage_G02_1, stage_G02_2)
+		blisk_P01 = Blisk.Blisk(ID_BLISK_P01, IT_BLISK_P01, stage_P01, None)
+		blisk_P02 = Blisk.Blisk(ID_BLISK_P02, IT_BLISK_P02, stage_P02, None)
+		blisk_G02 = Blisk.Blisk(ID_BLISK_G02, IT_BLISK_G02, stage_G02_1, stage_G02_2)
 
 		""" Array to store blisks """
 		self.blisks = [blisk_P01, blisk_P02, blisk_G02]
@@ -98,20 +99,20 @@ class BIS(object):
 	def start(self):
 
 		""" Check the connection with the ABB Robot """
-		if(abbRobot.checkConnection):
+		if(self.abbRobot.checkConnection()):
 			print "Connection with abb robot successful"
 		else:
 			print "Connection failed"
 
 		""" Home the Abb Robot arm """
-		abbRobot.pullArmBack()
+		self.abbRobot.pullArmBack()
 
 
 	""" Selects the blisk that will be used for inspection """
 	def selectBlisk(self, currBlisk):
 
 		""" Check that the blisk number is either 0,1,2 """
-		if(currBlisk > 2 || currBlisk < 0):
+		if(currBlisk > 2 or currBlisk < 0):
 			print "ERROR INCORRECT BLISK NUMBER RECIEVED"
 			return
 
@@ -120,14 +121,21 @@ class BIS(object):
 	""" Position the arm far from the turntable for the current blisk """
 	def positionArmFar(self):
 
-		self.abbRobot.positionArmFar(currBlisk)
+		if(not self.abbRobot.positionArmFar(self.currBlisk)):
+                        print "ERROR POSITIONING THE ARM FAR"
+                        return
 
 	""" Position the arm in between the blades of the current blisk """
 	def positionArmClose(self):
 
-		self.abbRobot.positionArmClose(currBlisk)
+		if(not self.abbRobot.positionArmClose(self.currBlisk)):
+                        print "ERROR POSITIONING ARM CLOSE"
+                        return
 
 		""" Check that there is no contact with the blisk and zero the Force Sensor """
+		if(self.circuitCompletor.getContact()):
+                        print "ERROR CONTACT WITH BLISK DETECTED"
+                        return
 
 		self.forceSensor.zeroSensor()
 

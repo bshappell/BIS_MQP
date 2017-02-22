@@ -60,7 +60,7 @@ class ToolSwitch(object):
 """ Class for Electromagnet """
 class Electromagnet(object):
 
-	def __init__(self, s1, s2, s3, s4):
+	def __init__(self, s1, s2):
 
 		""" Store the pin numbers """
 		self.s1 = s1
