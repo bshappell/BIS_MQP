@@ -1,5 +1,7 @@
 # ForceSensor Class
 
+""" Occasionally was working, stopped working after adding pwm to tool switch but that is most likely not the cause"""
+
 CH_A_GAIN_64  = 0 # Channel A gain 64
 CH_A_GAIN_128 = 1 # Channel A gain 128
 CH_B_GAIN_32  = 2 # Channel B gain 32
