@@ -82,9 +82,10 @@ class ABBRobot(object):
 		return True
 
 	""" Send the current force sensing measurement to the controller """
-	def sendForceMeasurement(self, measurement):
+	def sendForceMeasurement(self, reading):
 
 		""" Message Format: (MT_FORCE_MEASUREMENT, measurement) """
+		#print "abb force sensing: " + str(reading)
 
 		return True
 

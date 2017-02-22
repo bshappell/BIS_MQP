@@ -12,11 +12,14 @@ import pigpio # http://abyz.co.uk/rpi/pigpio/python.html
 
 class ForceSensor(object):
 
-    def __init__(self, dataPin, clkPin):
+    def __init__(self, dataPin, clkPin, forceCallback):
 
         """ Set up the data and clock pins """
       	self.clkPin = clkPin
       	self.dataPin = dataPin
+
+      	""" Function to send force reading to """
+      	self.forceCallback = forceCallback
 
       	""" Use a gain of 128 """
       	self.mode = CH_A_GAIN_128
@@ -45,7 +48,7 @@ class ForceSensor(object):
         #print(count, mode, round(gramsReading, 2))
 
         """ Send the values to the IRC5 Controller """
-        # TODO: add communication to IRC5
+        self.forceCallback(gramsReading)
 
     """ Pause the readings from the sensor """
     def pauseReadings(self):

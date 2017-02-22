@@ -56,10 +56,11 @@ class BIS(object):
 		self.currBlade = 0
 
 		""" The arrays of steps between blades for the different stages """
-		stepsArray_P01 = [80]
-		stepsArray_P02 = [80]
-		stepsArray_G02_1 = [80]
-		stepsArray_G02_2 = [80]
+		# TODO add error accounting to step arrays
+		stepsArray_P01 = [600]*56
+		stepsArray_P02 = [988]*34
+		stepsArray_G02_1 = [686]*49
+		stepsArray_G02_2 = [861]*39
 
 		""" Make the different stages Stage(numberBlades, smallBBRadius, largeBBRadius, stepsArray) """
 		stage_P01 = [Stage.Stage(56, 0.05, 0.07, stepsArray_P01)]
@@ -77,8 +78,11 @@ class BIS(object):
 		""" set up an LED """
 		self.led = LED.LED(PIN_LED_SIG)
 
+		""" set up the ABB Robot """
+		self.abbRobot = ABBRobot.ABBRobot()
+
 		""" set up the force sensor """
-		self.forceSensor = ForceSensor.ForceSensor(PIN_FS_DATA, PIN_FS_CLK)
+		self.forceSensor = ForceSensor.ForceSensor(PIN_FS_DATA, PIN_FS_CLK, self.abbRobot.sendForceMeasurement)
 
 		""" set up the tool switch """
 		self.toolSwitch = ToolSwitch.ToolSwitch(PIN_SERVO_POWER, PIN_SERVO_SIG, PIN_EM1_S1, PIN_EM1_S2,  PIN_EM2_S1, PIN_EM2_S2)
@@ -88,9 +92,6 @@ class BIS(object):
 
 		""" set up the circuit completor """
 		self.circuitCompletor = CircuitCompletor.CircuitCompletor(PIN_CC)
-
-		""" set up the ABB Robot """
-		self.abbRobot = ABBRobot.ABBRobot()
 
 		""" set up the ImageProcessor class """
 		# self.imageProcessor = ImageProcessor.ImageProcessor()
@@ -158,10 +159,12 @@ class BIS(object):
 		self.led.turnOn()
 
 		""" Begin sending the force sensing readings to the abb robot """
-		# TODO Figure out how to begin and stop sending force sensing readings 
+		self.forceSensor.startReadings()
 
 		""" Inspect all Stages of the blisk """
 		for stage in self.currBlisk.stages:
+
+                        print "inspect stage"
 
 			""" Use the small BB size first """
 			self.abbRobot.pullArmBack()
@@ -171,27 +174,33 @@ class BIS(object):
 			""" Inspect the blisk with both BB sizes """
 			for i in range(2):
 
+                                print "Switch BB size"
+
 				""" Increment over every blade """
 				for blade in range(stage.numberBlades):
+
+                                        print "inspect blade: " + str(blade)
 
 					""" Set the current blade """
 					self.currBlade = blade
 
 					""" Position Arm for Inspection """
-					self.abbRobot.posArmForInspection()
+					self.abbRobot.posArmForInspection(self.currBlisk, stage)
 
 					""" Inspect the blade """
 					self.inspectBlade()
 
 					""" Increment the turntable by one blade """
-					self.turntable.incrementBlade(currStage, blade)
+					self.turntable.incrementBlade(stage, blade)
+
+					time.sleep(1)
 
 				""" Switch to the larger BB size """
 				self.currBB = 1
 				self.abbRobot.pullArmBack()
-				self.toolSwitch.largeBB()
+				# self.toolSwitch.largeBB()
 
-			# TODO move the arm from one stage to the next
+			self.abbRobot.positionArmClose(self.currBlisk)
 
 		""" Turn off the led when the inspection is complete """
 		self.led.turnOff()
@@ -199,9 +208,10 @@ class BIS(object):
 		""" Stop sending the force sensing readings """
 
 	""" Handle the inspection of the current blade """
-	def inspectBlade():
+	def inspectBlade(self):
 
 		# TODO add functionality with image processor
+		
 		pass
 
 	

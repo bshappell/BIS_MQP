@@ -31,7 +31,7 @@ class TurnTable(object):
 		""" Iterate over each step needed to transition the curr blade """
 		for step in range(currStage.getStepsForBlade(blade)):
 
-			myTurn.increment()
+			self.increment()
 			sleep(0.002)
 
 
@@ -53,7 +53,7 @@ if __name__=="__main__":
         stage_P02 = Stage.Stage(BN_STAGE_P02, 0.122, 0.142, stepsArray_P02)
 
 	""" The Blisks composed of the different stages Blisk(bliskID, inspectionTime, firstStage, secondStage) """
-	blisk_P02 = Blisk.Blisk(ID_BLISK_P02, IT_BLISK_P02, None, None)
+	blisk_P02 = Blisk.Blisk(ID_BLISK_P02, IT_BLISK_P02, [stage_P02])
 
 	"""while(1):
 		myTurn.increment()
