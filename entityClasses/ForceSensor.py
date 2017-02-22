@@ -98,7 +98,12 @@ class ForceSensor(object):
         """ TODO Remove Outliers """
 
         """ Take the average of the array """
-        self.y_init = numpy.mean(numpy.array(averages))
+        print "averages: "
+        print averages
+        if averages[0]:
+            self.y_init = numpy.mean(numpy.array(averages))
+        else:
+            print "ERROR No Force Sensor Readings"
 
         """ Pause the readings """
         self.pauseReadings()
@@ -293,7 +298,7 @@ class HX711:
 """ For testing purposes """
 if __name__=="__main__":
 
-    fs = ForceSensor(16,20)
+    fs = ForceSensor(16,20, None)
 
     fs.zeroSensor()
     time.sleep(1) # number of seconds of testing, increase as needed

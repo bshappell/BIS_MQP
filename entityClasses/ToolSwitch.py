@@ -3,6 +3,7 @@
 # ToolSwitch Class
 import RPi.GPIO as GPIO
 import time
+import wiringpi
 
 SMALL_BB = 0
 LARGE_BB = 1
@@ -16,8 +17,8 @@ class ToolSwitch(object):
 		self.servo = Servo(servoPowerPin, servoSignalPin)
 
 		""" Set up the Electromagnets """
-		self.em_small = Electromagnet(em1_s1, em1_s2)
-		self.em_large = Electromagnet(em2_s1, em2_s2)
+		# self.em_small = Electromagnet(em1_s1, em1_s2)
+		# self.em_large = Electromagnet(em2_s1, em2_s2)
 
 		""" current state """
 		self.state = None
@@ -30,13 +31,13 @@ class ToolSwitch(object):
                         return
 
                 """ Turn off the electromagnet to unlock the tool """
-                self.em_large.turnOff()
+                # self.em_large.turnOff()
 
                 """ Use the servo to switch tools """
                 self.servo.switchToSmallBB()
 
                 """ Use the other electromagnet to lock the tool in place """
-                self.em_small.turnOn()
+                # self.em_small.turnOn()
 
                 self.state = SMALL_BB
 
@@ -47,13 +48,13 @@ class ToolSwitch(object):
                         return
 
                 """ Turn off the electromagnet to unlock the tool """
-                self.em_small.turnOff()
+                # self.em_small.turnOff()
 
                 """ Use the servo to switch tools """
                 self.servo.switchToLargeBB()
 
                 """ Use the other electromagnet to lock the tool in place """
-                self.em_large.turnOn()
+                # self.em_large.turnOn()
 
                 self.state = LARGE_BB
                         
@@ -68,10 +69,22 @@ class Servo(object):
                 self.signalPin = signalPin
 
                 """ set up the pins as outputs """
+		wiringpi.wiringPiSetupGpio()
+		wiringpi.pinMode(self.signalPin, wiringpi.GPIO.PWM_OUTPUT)
+		wiringpi.pwmSetMode(wiringpi.GPIO.PWM_MODE_MS)
+
 		GPIO.setmode(GPIO.BCM) # specify naming convention to use
 		GPIO.setwarnings(False) # discard GPIO warnings
-		GPIO.setup(self.powerPin,GPIO.OUT) # set the pin as an output
-		GPIO.setup(self.signalPin,GPIO.OUT) # set the pin as an output
+		GPIO.setup(self.powerPin,GPIO.OUT)
+
+		""" Turn off power to the servo """
+                GPIO.output(self.powerPin, GPIO.LOW)
+		
+		""" Divide the pwm clock down """
+		wiringpi.pwmSetClock(192)
+		wiringpi.pwmSetRange(2000)
+
+		self.delayPeriod = 5
 
 	def switchToSmallBB(self):
 
@@ -79,7 +92,8 @@ class Servo(object):
                 GPIO.output(self.powerPin, GPIO.HIGH)
 
                 """ Send the signal to move to the small BB position """
-
+                wiringpi.pwmWrite(self.signalPin, 95)
+                time.sleep(self.delayPeriod)
 
                 """ Turn off power to the servo """
                 GPIO.output(self.powerPin, GPIO.LOW)
@@ -91,7 +105,8 @@ class Servo(object):
                 GPIO.output(self.powerPin, GPIO.HIGH)
 
                 """ Send the signal to move to the large BB position """
-
+                wiringpi.pwmWrite(self.signalPin, 180)
+                time.sleep(self.delayPeriod)
 
                 """ Turn off power to the servo """
                 GPIO.output(self.powerPin, GPIO.LOW)
@@ -158,7 +173,7 @@ class Electromagnet(object):
 if __name__ == "__main__":
 
 	""" Test switching between the different ball bearing sizes """
-	toolSwitch = ToolSwitch(18,27,5,6,13,19)
+	"""toolSwitch = ToolSwitch(18,27,5,6,13,19)
 	time.sleep(5)
 	toolSwitch.largeBB()
 	time.sleep(5)
@@ -166,4 +181,14 @@ if __name__ == "__main__":
 	time.sleep(5)
 	toolSwitch.largeBB()
 	time.sleep(5)
-	toolSwitch.smallBB()
+	toolSwitch.smallBB()"""
+
+	servo = Servo(27,18)
+	while(1):
+                print "Swtich to small bb"
+                servo.switchToSmallBB()
+   
+                print "switch to large bb"
+                servo.switchToLargeBB()
+                
+	

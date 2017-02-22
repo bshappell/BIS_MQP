@@ -149,7 +149,7 @@ class BIS(object):
 		while(not self.circuitCompletor.getContact()):
 
 			self.turntable.increment()
-			time.sleep(0.007)
+			time.sleep(0.002)
 		print "contact made turning complete"
 
 	""" Start the inspection of the current blisk """
@@ -198,7 +198,7 @@ class BIS(object):
 				""" Switch to the larger BB size """
 				self.currBB = 1
 				self.abbRobot.pullArmBack()
-				# self.toolSwitch.largeBB()
+				self.toolSwitch.largeBB()
 
 			self.abbRobot.positionArmClose(self.currBlisk)
 
