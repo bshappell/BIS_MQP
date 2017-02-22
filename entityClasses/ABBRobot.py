@@ -4,7 +4,7 @@ import socket
 import time
 import sys
 
-TCP_IP = "192.168.125.3" 
+TCP_IP = "192.168.125.4" 
 TCP_PORT = 5515
 MESSAGE = "Hello, World!"
 
@@ -52,8 +52,8 @@ class ABBRobot(object):
 	""" Check that the arm is up and running, and the connection between the Pi and IRC5 is good """
 	def checkConnection(self):
 		self.my_print('waiting for a connection\n')
-		self.connection, self.client_address = sock.accept()
-		self.my_print('connection from ' + str(client_address))
+		self.connection, self.client_address = self.socket.accept()
+		self.my_print('connection from ' + str(self.client_address))
 
 		data = self.connection.recv(16)
 		self.my_print('received "%s"\n' % data)
@@ -124,6 +124,8 @@ class ABBRobot(object):
 		""" Message Format: (MT_ARM_HOME, BLISK_X, STAGE_X) """
 		self.my_print('sending HOME to the client\n')
 		self.connection.sendall("HOME")
+
+		self.my_print("sent home\n")
 
 		data = self.connection.recv(16)
 		self.my_print('received "%s"\n' % data)
