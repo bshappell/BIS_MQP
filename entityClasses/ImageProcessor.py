@@ -24,6 +24,7 @@ class ImageProcessor(object):
 			self.frame = cv2.imread('better_pics\\Up2Covered.jpg',-1)
 
 		""" Inspection Results Class """
+		self.results = InspectionResults.InspectionResults()
 
 		""" Define the range of green to mask """
 		self.lower_green = np.array([HUE_LOW,SATURATION_LOW,VALUE_LOW])

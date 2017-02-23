@@ -3,7 +3,9 @@
 import socket
 import time
 
-UDP_IP = "192.168.125.1"
+UDP_IP = "192.168.125.1" # IRC5 Controller
+# Lab PC is 192.168.125.2
+# This pc is 192.168.125.3
 UDP_PORT = 5515
 MESSAGE = "Hello, World!"
 
@@ -93,14 +95,70 @@ class ABBRobot(object):
 
 def UdpRecvTest():
 
-	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
-	sock.bind(("", UDP_PORT))
-	time_init = time.time()
-	while time.time() < 100 + time_init:
+	sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #DGRAM) # UDP
+	sock.bind(('192.168.125.1', UDP_PORT))
+	#time_init = time.time()
+	"""while time.time() < 100 + time_init:
 		data, addr = sock.recvfrom(1024) # buffer size is 1024 bytes
 		print "received message:", data
+		print "recieved from : ", addr
 		print "meh"
+		"""
 
+	sock.listen(1)
+	conn, addr = sock.accept()
+	print 'Connection address:', addr
+	while 1:
+		data = conn.recv(BUFFER_SIZE)
+		if not data: break
+		print "received data:", data
+		#conn.send(data)  # echo
+
+	conn.close()
+
+import sys
+
+
+def my_print(text):
+    sys.stdout.write(str(text))
+    sys.stdout.flush()
+
+def testWrk():
+
+	my_print("in test function\n")
+	# Create a TCP/IP socket
+	sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+	# Bind the socket to the port
+	server_address = ('192.168.125.3', 5515)
+	my_print('starting up on %s port %s\n' % server_address)
+	sock.bind(server_address)
+
+	# Listen for incoming connections
+	sock.listen(1)
+
+	while True:
+	    # Wait for a connection
+	    my_print('waiting for a connection\n')
+	    connection, client_address = sock.accept()
+
+	    try:
+	        my_print('connection from ' + str(client_address))
+
+	        # Receive the data in small chunks and retransmit it
+	        while True:
+	            data = connection.recv(16)
+	            my_print('received "%s"\n' % data)
+	            if data:
+	                my_print('sending data back to the client')
+	                connection.sendall(data)
+	            else:
+	                my_print('no more data from'+ str(client_address))
+	                break
+	            
+	    finally:
+	        # Clean up the connection
+	        connection.close()
 
 """ Used for testing purposes """
 if __name__ == "__main__":
@@ -112,4 +170,5 @@ if __name__ == "__main__":
 		abb.sendPacket()
 		time.sleep(0.5)"""
 
-	UdpRecvTest()
+	#UdpRecvTest()
+	testWrk()
