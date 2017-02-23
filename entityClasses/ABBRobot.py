@@ -53,40 +53,40 @@ class ABBRobot(object):
 
 		""" Message Format: (MT_ARM_FAR, BLISK_X, STAGE_X) """
 
-		pass
+		return True
 
 	""" Position the arm for inspection for the current blisk """
 	def positionArmClose(self, currBlisk):
 
 		""" Message Format: (MT_ARM_CLOSE, BLISK_X, STAGE_X) """
 
-		pass
+		return True
 
 	""" Position arm for inspection of the blade """
 	def posArmForInspection(self, currBlisk, currStage):
 
-		pass
+		return True
 
-	""" Positon the arm in the center of the current blade """
+	""" Inspect the current blade """
 	def inspectBlade(self, currBlisk, currStage):
 
 		""" Message Format: (MT_INSPECT_BLADE, BLISK_X, STAGE_X) """
 
-		pass
+		return True
 
 	""" Move the arm back away from the blisk for the placing and removing of the blisk """
 	def pullArmBack(self):
 
 		""" Message Format: (MT_ARM_HOME, BLISK_X, STAGE_X) """
 
-		pass
+		return True
 
 	""" Send the current force sensing measurement to the controller """
 	def sendForceMeasurement(self, measurement):
 
 		""" Message Format: (MT_FORCE_MEASUREMENT, measurement) """
 
-		pass
+		return True
 
 	""" Handle a message received from the IRC5 controller """
 	def handleMessage(self):
@@ -172,3 +172,4 @@ if __name__ == "__main__":
 
 	#UdpRecvTest()
 	testWrk()
+
