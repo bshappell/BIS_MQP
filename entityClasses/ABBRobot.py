@@ -2,11 +2,10 @@
 #import Blisk
 import socket
 import time
+import sys
 
-UDP_IP = "192.168.125.1" # IRC5 Controller
-# Lab PC is 192.168.125.2
-# This pc is 192.168.125.3
-UDP_PORT = 5515
+TCP_IP = "192.168.125.3" 
+TCP_PORT = 5515
 MESSAGE = "Hello, World!"
 
 """ BLISK IDS """
@@ -17,6 +16,8 @@ BLISK_3 = 0x03
 """ STAGE NUMBER """
 STAGE_1 = 0x01
 STAGE_2 = 0x02
+
+# TODO Indicate which side
 
 """ MESSAGE TYPES """
 MT_CHECK_CONNECTION = 0x00
@@ -34,7 +35,16 @@ class ABBRobot(object):
 
 	def __init__(self):
 
-		self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
+		""" Create a TCP/IP socket """
+		self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+		""" Bind the socket to the port """
+		self.server_address = (TCP_IP, TCP_PORT)
+		my_print('starting up on %s port %s\n' % self.server_address)
+		self.socket.bind(self.server_address)
+
+		""" Listen for incoming connections """
+		self.socket.listen(1)
 
 	""" Used to test sending packets """
 	def sendPacket(self):
@@ -94,30 +104,11 @@ class ABBRobot(object):
 
 		pass
 
-def UdpRecvTest():
+	def closeComm(self):
 
-	sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #DGRAM) # UDP
-	sock.bind(('192.168.125.1', UDP_PORT))
-	#time_init = time.time()
-	"""while time.time() < 100 + time_init:
-		data, addr = sock.recvfrom(1024) # buffer size is 1024 bytes
-		print "received message:", data
-		print "recieved from : ", addr
-		print "meh"
-		"""
 
-	sock.listen(1)
-	conn, addr = sock.accept()
-	print 'Connection address:', addr
-	while 1:
-		data = conn.recv(BUFFER_SIZE)
-		if not data: break
-		print "received data:", data
-		#conn.send(data)  # echo
 
-	conn.close()
 
-import sys
 
 
 def my_print(text):
