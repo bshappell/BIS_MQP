@@ -40,56 +40,100 @@ class ABBRobot(object):
 
 		""" Bind the socket to the port """
 		self.server_address = (TCP_IP, TCP_PORT)
+		self.client_address = ""
+		self.connection = None
 		my_print('starting up on %s port %s\n' % self.server_address)
 		self.socket.bind(self.server_address)
 
 		""" Listen for incoming connections """
 		self.socket.listen(1)
 
-	""" Used to test sending packets """
-	def sendPacket(self):
-
-		self.socket.sendto(MESSAGE, (UDP_IP, UDP_PORT))
-
 
 	""" Check that the arm is up and running, and the connection between the Pi and IRC5 is good """
 	def checkConnection(self):
+		self.my_print('waiting for a connection\n')
+		self.connection, self.client_address = sock.accept()
+		self.my_print('connection from ' + str(client_address))
+
+		data = self.connection.recv(16)
+		self.my_print('received "%s"\n' % data)
 
 		""" Return whether the connection was successful of not """
-		return True 
+		if data:
+			self.my_print("received data from ABBRobot, connection good\n")
+			return True 
+		else:
+			self.my_print("Did no recieve data from ABBRobot, connection failed\n")
+			return False
 
 	""" Position the arm for inspection for the current blisk """
 	def positionArmFar(self, currBlisk):
 
 		""" Message Format: (MT_ARM_FAR, BLISK_X, STAGE_X) """
+		self.my_print('sending FAR to the client\n')
+		self.connection.sendall("FAR")
 
-		return True
+		data = self.connection.recv(16)
+		self.my_print('received "%s"\n' % data)
+
+		if data == "FAR":
+			self.my_print("received FAR from ABBRobot\n")
+			return True 
+		else:
+			self.my_print("Did no recieve FAR from ABBRobot\n")
+			return False
 
 	""" Position the arm for inspection for the current blisk """
 	def positionArmClose(self, currBlisk):
 
 		""" Message Format: (MT_ARM_CLOSE, BLISK_X, STAGE_X) """
+		self.my_print('sending NEAR to the client\n')
+		self.connection.sendall("NEAR")
 
-		return True
+		data = self.connection.recv(16)
+		self.my_print('received "%s"\n' % data)
 
-	""" Position arm for inspection of the blade """
-	def posArmForInspection(self, currBlisk, currStage):
-
-		return True
+		if data == "NEAR":
+			self.my_print("received NEAR from ABBRobot\n")
+			return True 
+		else:
+			self.my_print("Did no recieve NEAR from ABBRobot\n")
+			return False
 
 	""" Inspect the current blade """
 	def inspectBlade(self, currBlisk, currStage):
 
 		""" Message Format: (MT_INSPECT_BLADE, BLISK_X, STAGE_X) """
+		self.my_print('sending INSPECT to the client\n')
+		self.connection.sendall("INSPECT")
 
-		return True
+		data = self.connection.recv(16)
+		self.my_print('received "%s"\n' % data)
 
+		if data == "INSPECT":
+			self.my_print("received INSPECT from ABBRobot\n")
+			return True 
+		else:
+			self.my_print("Did no recieve INSPECT from ABBRobot\n")
+			return False
+
+	""" HOME """
 	""" Move the arm back away from the blisk for the placing and removing of the blisk """
 	def pullArmBack(self):
 
 		""" Message Format: (MT_ARM_HOME, BLISK_X, STAGE_X) """
+		self.my_print('sending HOME to the client\n')
+		self.connection.sendall("HOME")
 
-		return True
+		data = self.connection.recv(16)
+		self.my_print('received "%s"\n' % data)
+
+		if data == "HOME":
+			self.my_print("received HOME from ABBRobot\n")
+			return True 
+		else:
+			self.my_print("Did no recieve HOME from ABBRobot\n")
+			return False
 
 	""" Send the current force sensing measurement to the controller """
 	def sendForceMeasurement(self, reading):
@@ -106,9 +150,14 @@ class ABBRobot(object):
 
 	def closeComm(self):
 
+		self.my_print('closing connection with client\n')
+		self.connection.sendall("DISCONNECT")
 
+	def my_print(self, text):
+	    sys.stdout.write(str(text))
+	    sys.stdout.flush()
 
-
+""" Questions: Can it handle delays? """
 
 
 def my_print(text):
@@ -126,6 +175,9 @@ def testWrk():
 	my_print('starting up on %s port %s\n' % server_address)
 	sock.bind(server_address)
 
+	message = 0
+	startTime = time.time()
+
 	# Listen for incoming connections
 	sock.listen(1)
 
@@ -139,14 +191,32 @@ def testWrk():
 
 	        # Receive the data in small chunks and retransmit it
 	        while True:
-	            data = connection.recv(16)
-	            my_print('received "%s"\n' % data)
-	            if data:
-	                my_print('sending data back to the client')
-	                connection.sendall(data)
-	            else:
-	                my_print('no more data from'+ str(client_address))
-	                break
+				data = connection.recv(16)
+				my_print('received "%s"\n' % data)
+				if data:
+					if (time.time() - startTime > 30):
+						my_print('closing connection with client\n')
+						connection.sendall("DISCONNECT")
+					elif message == 0:
+						my_print('sending HOME to the client\n')
+						connection.sendall("HOME")
+						message += 1
+					elif message == 1:
+						my_print('sending FAR to the client\n')
+						connection.sendall("FAR")
+						message += 1
+					elif message == 2:
+						my_print('sending NEAR to the client\n')
+						connection.sendall("NEAR")
+						message += 1
+					elif message == 3:
+						my_print('sending INSPECT to the client\n')
+						connection.sendall("INSPECT")
+						message = 0
+				else:
+					my_print('no more data from'+ str(client_address))
+					break
+					
 	            
 	    finally:
 	        # Clean up the connection
@@ -162,6 +232,5 @@ if __name__ == "__main__":
 		abb.sendPacket()
 		time.sleep(0.5)"""
 
-	#UdpRecvTest()
 	testWrk()
 

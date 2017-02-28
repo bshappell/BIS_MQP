@@ -185,7 +185,7 @@ class BIS(object):
 					self.currBlade = blade
 
 					""" Position Arm for Inspection """
-					self.abbRobot.posArmForInspection(self.currBlisk, stage)
+					#self.abbRobot.posArmForInspection(self.currBlisk, stage)
 
 					""" Inspect the blade """
 					self.inspectBlade()
