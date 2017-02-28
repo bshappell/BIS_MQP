@@ -193,23 +193,28 @@ def testWrk():
 	        while True:
 				data = connection.recv(16)
 				my_print('received "%s"\n' % data)
+				time.sleep(5)
 				if data:
 					if (time.time() - startTime > 30):
 						my_print('closing connection with client\n')
 						connection.sendall("DISCONNECT")
 					elif message == 0:
 						my_print('sending HOME to the client\n')
+						#time.sleep(1)
 						connection.sendall("HOME")
 						message += 1
 					elif message == 1:
+						#time.sleep(1)
 						my_print('sending FAR to the client\n')
 						connection.sendall("FAR")
 						message += 1
 					elif message == 2:
+						#time.sleep(1)
 						my_print('sending NEAR to the client\n')
 						connection.sendall("NEAR")
 						message += 1
 					elif message == 3:
+						#time.sleep(1)
 						my_print('sending INSPECT to the client\n')
 						connection.sendall("INSPECT")
 						message = 0
