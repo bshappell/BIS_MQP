@@ -123,20 +123,19 @@ class BIS(object):
 	def positionArmFar(self):
 
 		if(not self.abbRobot.positionArmFar(self.currBlisk)):
-                        print "ERROR POSITIONING THE ARM FAR"
-                        return
+			print "ERROR POSITIONING THE ARM FAR"
+			return
 
 	""" Position the arm in between the blades of the current blisk """
 	def positionArmClose(self):
 
 		if(not self.abbRobot.positionArmClose(self.currBlisk)):
-                        print "ERROR POSITIONING ARM CLOSE"
-                        return
+		return
 
 		""" Check that there is no contact with the blisk and zero the Force Sensor """
 		if(self.circuitCompletor.getContact()):
-                        print "ERROR CONTACT WITH BLISK DETECTED"
-                        return
+			print "ERROR CONTACT WITH BLISK DETECTED"
+			return
 
 		self.forceSensor.zeroSensor()
 
@@ -164,7 +163,7 @@ class BIS(object):
 		""" Inspect all Stages of the blisk """
 		for stage in self.currBlisk.stages:
 
-                        print "inspect stage"
+			print "inspect stage"
 
 			""" Use the small BB size first """
 			self.abbRobot.pullArmBack()
@@ -174,12 +173,12 @@ class BIS(object):
 			""" Inspect the blisk with both BB sizes """
 			for i in range(2):
 
-                                print "Switch BB size"
+				print "Switch BB size"
 
 				""" Increment over every blade """
 				for blade in range(stage.numberBlades):
 
-                                        print "inspect blade: " + str(blade)
+					print "inspect blade: " + str(blade)
 
 					""" Set the current blade """
 					self.currBlade = blade

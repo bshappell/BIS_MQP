@@ -48,107 +48,116 @@ class ABBRobot(object):
 		""" Listen for incoming connections """
 		self.socket.listen(1)
 
+	""" Send a message to the abb controller """
+	def send(self, message):
+
+		self.my_print('sending: ' + message + ' to the client\n')
+		self.connection.sendall(message)
+
+	def receive(self, expMessage):
+
+		data = self.connection.recv(16)
+
+		if data == expMessage:
+			self.my_print('Received Expected Value: "%s"\n' % data)
+			return True 
+		else:
+			self.my_print("ERROR Received Incorrect Value: " + data + " Expected: " + expMessage + "\n")
+			return False
 
 	""" Check that the arm is up and running, and the connection between the Pi and IRC5 is good """
 	def checkConnection(self):
+
 		self.my_print('waiting for a connection\n')
 		self.connection, self.client_address = self.socket.accept()
 		self.my_print('connection from ' + str(self.client_address))
 
-		data = self.connection.recv(16)
-		self.my_print('received "%s"\n' % data)
-
-		""" Return whether the connection was successful of not """
-		if data:
-			self.my_print("received data from ABBRobot, connection good\n")
-			return True 
-		else:
-			self.my_print("Did no recieve data from ABBRobot, connection failed\n")
-			return False
+		return self.receive("CONNECTED")
 
 	""" Position the arm for inspection for the current blisk """
 	def positionArmFar(self, currBlisk):
 
 		""" Message Format: (MT_ARM_FAR, BLISK_X, STAGE_X) """
-		self.my_print('sending FAR to the client\n')
-		self.connection.sendall("FAR")
-
-		data = self.connection.recv(16)
-		self.my_print('received "%s"\n' % data)
-
-		if data == "FAR":
-			self.my_print("received FAR from ABBRobot\n")
-			return True 
-		else:
-			self.my_print("Did no recieve FAR from ABBRobot\n")
+		if currBlisk == 0:
+			self.send("FAR_00")
+			return self.receive("FAR_00")
+		elif currBlisk == 1:
+			self.send("FAR_01")
+			return self.receive("FAR_01")
+		elif currBlisk == 2:
+			self.send("FAR_02")
+			return self.receive("FAR_02")
+		else: 
+			self.my_print("ERROR INCORRECT BLISK NUMBER RECEIVED IN POS ARM FAR")
 			return False
+
 
 	""" Position the arm for inspection for the current blisk """
 	def positionArmClose(self, currBlisk):
 
 		""" Message Format: (MT_ARM_CLOSE, BLISK_X, STAGE_X) """
-		self.my_print('sending NEAR to the client\n')
-		self.connection.sendall("NEAR")
-
-		data = self.connection.recv(16)
-		self.my_print('received "%s"\n' % data)
-
-		if data == "NEAR":
-			self.my_print("received NEAR from ABBRobot\n")
-			return True 
-		else:
-			self.my_print("Did no recieve NEAR from ABBRobot\n")
+		if currBlisk == 0:
+			self.send("NEAR_00")
+			return self.receive("NEAR_00")
+		elif currBlisk == 1:
+			self.send("NEAR_01")
+			return self.receive("NEAR_01")
+		elif currBlisk == 2:
+			self.send("NEAR_02")
+			return self.receive("NEAR_02")
+		else: 
+			self.my_print("ERROR INCORRECT BLISK NUMBER RECEIVED IN POS ARM CLOSE")
 			return False
 
 	""" Inspect the current blade """
 	def inspectBlade(self, currBlisk, currStage):
 
 		""" Message Format: (MT_INSPECT_BLADE, BLISK_X, STAGE_X) """
-		self.my_print('sending INSPECT to the client\n')
-		self.connection.sendall("INSPECT")
-
-		data = self.connection.recv(16)
-		self.my_print('received "%s"\n' % data)
-
-		if data == "INSPECT":
-			self.my_print("received INSPECT from ABBRobot\n")
-			return True 
+		if currStage == 0:
+			if currBlisk == 0:
+				self.send("INSPECT_00_00")
+				return self.receive("INSPECT_00_00")
+			elif currBlisk == 1:
+				self.send("INSPECT_01_00")
+				return self.receive("INSPECT_01_00")
+			elif currBlisk == 2:
+				self.send("INSPECT_02_00")
+				return self.receive("INSPECT_02_00")
+			else:
+				self.my_print("ERROR INCORRECT BLISK NUMBER RECEIVED IN PINSPECT BLADE")
+				return False
+		elif currStage == 1:
+			if currBlisk == 0:
+				self.send("INSPECT_00_01")
+				return self.receive("INSPECT_00_01")
+			elif currBlisk == 1:
+				self.send("INSPECT_01_01")
+				return self.receive("INSPECT_01_01")
+			elif currBlisk == 2:
+				self.send("INSPECT_02_01")
+				return self.receive("INSPECT_02_01")
+			else:
+				self.my_print("ERROR INCORRECT BLISK NUMBER RECEIVED IN INSPECT BLADE")
+				return False
 		else:
-			self.my_print("Did no recieve INSPECT from ABBRobot\n")
+			self.my_print("ERROR INCORRECT STAGE NUMBER RECEIVED IN INSPECT BLADE")
 			return False
 
-	""" HOME """
-	""" Move the arm back away from the blisk for the placing and removing of the blisk """
+
+	""" Home the arm back away from the blisk for the placing and removing of the blisk """
 	def pullArmBack(self):
 
 		""" Message Format: (MT_ARM_HOME, BLISK_X, STAGE_X) """
-		self.my_print('sending HOME to the client\n')
-		self.connection.sendall("HOME")
-
-		self.my_print("sent home\n")
-
-		data = self.connection.recv(16)
-		self.my_print('received "%s"\n' % data)
-
-		if data == "HOME":
-			self.my_print("received HOME from ABBRobot\n")
-			return True 
-		else:
-			self.my_print("Did no recieve HOME from ABBRobot\n")
-			return False
+		self.send("HOME")
+		return self.receive("HOME")
 
 	""" Send the current force sensing measurement to the controller """
 	def sendForceMeasurement(self, reading):
 
 		""" Message Format: (MT_FORCE_MEASUREMENT, measurement) """
 		#print "abb force sensing: " + str(reading)
-
 		return True
 
-	""" Handle a message received from the IRC5 controller """
-	def handleMessage(self):
-
-		pass
 
 	def closeComm(self):
 
@@ -159,8 +168,7 @@ class ABBRobot(object):
 	    sys.stdout.write(str(text))
 	    sys.stdout.flush()
 
-""" Questions: Can it handle delays? """
-
+""" *************************************************************** TEST CODE *************************************************************** """
 
 def my_print(text):
     sys.stdout.write(str(text))
@@ -231,13 +239,6 @@ def testWrk():
 
 """ Used for testing purposes """
 if __name__ == "__main__":
-
-	"""abb = ABBRobot()
-
-	for i in range(100):
-
-		abb.sendPacket()
-		time.sleep(0.5)"""
 
 	testWrk()
 
