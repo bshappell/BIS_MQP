@@ -16,6 +16,9 @@ IT_BLISK_P01 = 10
 IT_BLISK_P02 = 10
 IT_BLISK_G02 = 20
 
+ccw = 1
+cw = 0
+
 class TurnTable(object):
 
 	def __init__(self, stepPin, dirPin):
@@ -24,6 +27,7 @@ class TurnTable(object):
 		self.dirPin = dirPin
 		GPIO.setmode(GPIO.BCM)
 		GPIO.setup(self.stepPin, GPIO.OUT)
+		GPIO.setup(self.dirPin, GPIO.OUT)
 
 	""" Increment the current stage by one blade """
 	def incrementBlade(self, currStage, blade):
@@ -31,14 +35,20 @@ class TurnTable(object):
 		""" Iterate over each step needed to transition the curr blade """
 		for step in range(currStage.getStepsForBlade(blade)):
 
-			self.increment()
+			self.increment(ccw)
 			sleep(0.002)
 
 
 	""" Increment the turntable one step """
-	def increment(self):
+	def increment(self, direction):
 
 		""" set the pin high and then low again """
+		if direction == cw:
+                    GPIO.output(self.dirPin, GPIO.HIGH)
+                else:
+                     GPIO.output(self.dirPin, GPIO.LOW)   
+
+
 		GPIO.output(self.stepPin, GPIO.HIGH)
 		GPIO.output(self.stepPin, GPIO.LOW)
 

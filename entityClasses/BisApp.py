@@ -404,7 +404,7 @@ class RoughArmPositionView(object):
         self.frame.grid(row=0, column=0, sticky='news')
 
         """ Page Instructions """
-        explanation = "Place the selected blisk on the turntable before proceeding.\n When ready select the Position Arm Button and the arm will move outside of the blisk"
+        explanation = "Place the selected blisk on the turntable and attach grounding clip before proceeding.\n When ready select the Position Arm Button and the arm will move outside of the blisk"
         Label(self.frame, compound = CENTER, text=explanation, fg = "black",font = 16).pack(pady=20)
 
         """ Position Arm Button """
@@ -466,7 +466,7 @@ class ArmPositionView(object):
         self.frame.grid(row=0, column=0, sticky='news')
 
         """ Page Instructions """
-        explanation = "Ensure that the end of arm tooling is centered between the blades on the blisk.\n When ready select the Position Arm Button and the arm will move between the blades on the blisk"
+        explanation = "Ensure that the end of arm tooling is centered between the blades on the blisk and the grounding clip is secured to the blisk.\n When ready select the Position Arm Button and the arm will move between the blades on the blisk"
         Label(self.frame, compound = CENTER, text=explanation, fg = "black",font = 16).pack(pady=20)
 
         """ Position Arm Button """
@@ -545,7 +545,7 @@ class StartInspectionView(object):
         self.frame.grid(row=0, column=0, sticky='news')
 
         """ Page Instructions """
-        explanation = "Select the Start Inspection Button to initiate the inspection process"
+        explanation = "Remove the grounding clip now.\n Select the Start Inspection Button to initiate the inspection process"
         Label(self.frame, compound = CENTER, text=explanation, fg = "black",font = 16).pack(pady=20)
 
         """ Start Inspection Button """

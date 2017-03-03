@@ -4,7 +4,7 @@ import socket
 import time
 import sys
 
-TCP_IP = "192.168.125.4" 
+TCP_IP = "192.168.125.2" 
 TCP_PORT = 5515
 MESSAGE = "Hello, World!"
 
@@ -108,6 +108,7 @@ class ABBRobot(object):
 		else: 
 			self.my_print("ERROR INCORRECT BLISK NUMBER RECEIVED IN POS ARM CLOSE")
 			return False
+
 
 	""" Inspect the current blade """
 	def inspectBlade(self, currBlisk, currStage):

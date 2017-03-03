@@ -12,13 +12,16 @@ class CircuitCompletor(object):
 		""" set up the GPIO pin specified """
 		GPIO.setmode(GPIO.BCM) # specify naming convention to use
 		GPIO.setwarnings(False) # discard GPIO warnings
-		GPIO.setup(self.pinNumber, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+		GPIO.setup(self.pinNumber, GPIO.IN)
 
 	def getContact(self):
 
 		reading = GPIO.input(self.pinNumber)
-		#print(reading)
-		return reading
+		# print str(reading)
+		if (reading == 0):
+                        return  1
+                else:
+                        return 0
 	
 
 """ Used for testing purposes """
@@ -28,7 +31,6 @@ if __name__ == "__main__":
         cc = CircuitCompletor(12)
         t = 0
         while(t < 30):
-	        cc.getContact
+	        cc.getContact()
 	        time.sleep(1)
-	        cc.getContact
 	        t += 1

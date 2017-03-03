@@ -54,6 +54,7 @@ class BIS(object):
 		self.currBlisk = None
 		self.currStage = 0
 		self.currBlade = 0
+		self.bliskNum = None
 
 		""" The arrays of steps between blades for the different stages """
 		# TODO add error accounting to step arrays
@@ -117,20 +118,21 @@ class BIS(object):
 			print "ERROR INCORRECT BLISK NUMBER RECIEVED"
 			return
 
+                self.bliskNum = currBlisk
 		self.currBlisk = self.blisks[currBlisk]
 
 	""" Position the arm far from the turntable for the current blisk """
 	def positionArmFar(self):
 
-		if(not self.abbRobot.positionArmFar(self.currBlisk)):
-			print "ERROR POSITIONING THE ARM FAR"
+		if(not self.abbRobot.positionArmFar(self.bliskNum)):
+			print "ERROR POSITIONING THE ARM FAR - in positionArmFar"
 			return
 
 	""" Position the arm in between the blades of the current blisk """
 	def positionArmClose(self):
 
-		if(not self.abbRobot.positionArmClose(self.currBlisk)):
-		return
+		if(not self.abbRobot.positionArmClose(self.bliskNum)):
+                        return
 
 		""" Check that there is no contact with the blisk and zero the Force Sensor """
 		if(self.circuitCompletor.getContact()):
@@ -147,7 +149,7 @@ class BIS(object):
 		print "turning blisk until contact is made"
 		while(not self.circuitCompletor.getContact()):
 
-			self.turntable.increment()
+			self.turntable.increment(0)
 			time.sleep(0.002)
 		print "contact made turning complete"
 
@@ -160,51 +162,55 @@ class BIS(object):
 		""" Begin sending the force sensing readings to the abb robot """
 		self.forceSensor.startReadings()
 
-		""" Inspect all Stages of the blisk """
-		for stage in self.currBlisk.stages:
+		self.abbRobot.inspectBlade(self.bliskNum, 0)   #for testing purposes
 
-			print "inspect stage"
-
-			""" Use the small BB size first """
-			self.abbRobot.pullArmBack()
-			self.currBB = 0
-			self.toolSwitch.smallBB()
-
-			""" Inspect the blisk with both BB sizes """
-			for i in range(2):
-
-				print "Switch BB size"
-
-				""" Increment over every blade """
-				for blade in range(stage.numberBlades):
-
-					print "inspect blade: " + str(blade)
-
-					""" Set the current blade """
-					self.currBlade = blade
-
-					""" Position Arm for Inspection """
-					#self.abbRobot.posArmForInspection(self.currBlisk, stage)
-
-					""" Inspect the blade """
-					self.inspectBlade()
-
-					""" Increment the turntable by one blade """
-					self.turntable.incrementBlade(stage, blade)
-
-					time.sleep(1)
-
-				""" Switch to the larger BB size """
-				self.currBB = 1
-				self.abbRobot.pullArmBack()
-				self.toolSwitch.largeBB()
-
-			self.abbRobot.positionArmClose(self.currBlisk)
+##		""" Inspect all Stages of the blisk """
+##		for stage in self.currBlisk.stages:
+##
+##			print "inspect stage"
+##
+##			""" Use the small BB size first """
+##			self.abbRobot.pullArmBack()
+##			self.currBB = 0
+##			self.toolSwitch.smallBB()
+##
+##			""" Inspect the blisk with both BB sizes """
+##			for i in range(2):
+##
+##				print "Switch BB size"
+##
+##				""" Increment over every blade """
+##				for blade in range(stage.numberBlades):
+##
+##					print "inspect blade: " + str(blade)
+##
+##					""" Set the current blade """
+##					self.currBlade = blade
+##
+##					""" Position Arm for Inspection """
+##					#self.abbRobot.posArmForInspection(self.currBlisk, stage)
+##
+##					""" Inspect the blade """
+##					self.inspectBlade()
+##
+##					""" Increment the turntable by one blade """
+##					self.turntable.incrementBlade(stage, blade)
+##
+##					time.sleep(1)
+##
+##				""" Switch to the larger BB size """
+##				self.currBB = 1
+##				self.abbRobot.pullArmBack()
+##				self.toolSwitch.largeBB()
+##
+##			self.abbRobot.positionArmClose(self.currBlisk)
 
 		""" Turn off the led when the inspection is complete """
 		self.led.turnOff()
 
 		""" Stop sending the force sensing readings """
+
+		print "Blisk Inspection Function Complete"
 
 	""" Handle the inspection of the current blade """
 	def inspectBlade(self):
