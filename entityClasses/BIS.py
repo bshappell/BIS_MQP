@@ -6,8 +6,10 @@ import Blisk
 import CircuitCompletor
 import ABBRobot
 import Stage
-"""import ImageProcessor"""
+#import ImageProcessor
 import time
+import sys
+print sys.path
 
 # BIS (Blisk Inspection System) Class
 
@@ -128,18 +130,20 @@ class BIS(object):
 			print "ERROR POSITIONING THE ARM FAR - in positionArmFar"
 			return
 
-	""" Position the arm in between the blades of the current blisk """
-	def positionArmClose(self):
-
-		if(not self.abbRobot.positionArmClose(self.bliskNum)):
-                        return
-
 		""" Check that there is no contact with the blisk and zero the Force Sensor """
 		if(self.circuitCompletor.getContact()):
 			print "ERROR CONTACT WITH BLISK DETECTED"
 			return
 
 		self.forceSensor.zeroSensor()
+		
+
+	""" Position the arm in between the blades of the current blisk """
+	def positionArmClose(self):
+
+		if(not self.abbRobot.positionArmClose(self.bliskNum)):
+                        return
+
 
 	""" Position the blisk on the turntable by turning until contact is made """
 	def positionBlisk(self):

@@ -2,6 +2,9 @@
 import cv2
 import numpy as np
 import InspectionResults
+import sys
+print sys.path
+import pigpio
 
 DEBUG = 1 # Toggle to get debug features
 RASP_PI = 0 # Indicates whether 
@@ -233,13 +236,13 @@ class Box(object):
 if __name__ == "__main__":
 
 	ip = ImageProcessor()
-	ip.inspectArray()
+	#ip.inspectArray()
 	"""ip.findBB('..\\better_pics\\Up2Covered.jpg')
 	ip.findBB('..\\better_pics\\Up2Uncovered.jpg')
 	ip.findBB('..\\better_pics\\Up1Uncovered.jpg')
 	ip.findBB('..\\better_pics\\Up1Covered.jpg')"""
 
-	results = InspectionResults.InspectionResults()
+	"""results = InspectionResults.InspectionResults()
 	results.openNewFile("22")
 	results.addResult(1,2,3,4,'yo')
-	results.closeFile()
+	results.closeFile()"""
