@@ -4,6 +4,7 @@ import numpy as np
 import InspectionResults
 import sys
 import pigpio
+import time
 
 DEBUG = 1 # Toggle to get debug features
 RASP_PI = 0 # Indicates whether 
@@ -20,10 +21,11 @@ class ImageProcessor(object):
 
 	def __init__(self):
 
-		if CAMERA:
-			self.frame = cv2.VideoCapture(0)
-		else:
-			self.frame = cv2.imread('better_pics\\Up2Covered.jpg',-1)
+
+		self.capture = cv2.VideoCapture(0)
+		self.frame = None
+		#self.frame = cv2.imread('better_pics\\Up2Covered.jpg',-1)
+
 
 		""" Inspection Results Class """
 		self.results = InspectionResults.InspectionResults()
@@ -92,13 +94,14 @@ class ImageProcessor(object):
 	def inspectCameraImage(self):
 
                 while(True):
-                        frame = cv2.VideoCapture(0)
-                        self.inspectImageFromCamera(True,frame)
-                        cv2.imshow('Inspected Camera Image ' + str(cnt),frame)
+                        self.inspectImageFromCamera(True)
+                        cv2.imshow('Inspected Camera Image ',self.frame)
 
 			key = cv2.waitKey(1) & 0xFF
 			if key == ord('q'):
 				break
+
+			time.sleep(1)
 		
 		""" Close all windows currently open """
 		self.shutdown()
@@ -197,22 +200,23 @@ class ImageProcessor(object):
 
 
 	""" Inspect the current image to see if it passes """
-	def inspectImageFromCamera(self, isSmallBB, frame): #, currStage, sizeBB):
+	def inspectImageFromCamera(self, isSmallBB): #, currStage, sizeBB):
 
 		imagePasses = False
 		#frame_init = frame.copy()
+		ret, self.frame = self.capture.read()
 
 		""" Convert BGR to HSV """
-		hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+		hsv = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV)
 
 		""" Threshold the HSV image to get only green colors """
 		mask = cv2.inRange(hsv, self.lower_green, self.upper_green)
 
 		""" Bitwise-AND mask and original image """
-		res = cv2.bitwise_and(frame,frame, mask= mask)
+		res = cv2.bitwise_and(self.frame,self.frame, mask= mask)
 
 		""" Find the Contours in the Mask """
-		(cnts, _) = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+		(_, cnts, _) = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
 
 		""" Initialize the counts of contours in each section to zero """
 		quad1_cnt = 0
@@ -232,13 +236,13 @@ class ImageProcessor(object):
 
 			if DEBUG:
 				""" draw the contour and center of the shape on the image """
-				cv2.drawContours(frame, [c], -1, (0, 255, 0), 2)
-				cv2.circle(frame, (cX, cY), 7, (0, 0, 0), -1)
+				cv2.drawContours(self.frame, [c], -1, (0, 255, 0), 2)
+				cv2.circle(self.frame, (cX, cY), 7, (0, 0, 0), -1)
 
 				""" Draw the Boxes around each of the areas """
-				self.box1.draw(frame)
-				self.box2.draw(frame)
-				self.box3.draw(frame)
+				self.box1.draw(self.frame)
+				self.box2.draw(self.frame)
+				self.box3.draw(self.frame)
 
 			""" Determine the number of centroids in each quadrant """
 			if self.box1.inBox(cX,cY):
@@ -252,9 +256,24 @@ class ImageProcessor(object):
 		imagePasses = self.checkImage(isSmallBB,quad1_cnt,quad2_cnt,quad3_cnt)
 
 		""" Indicate Whether the image passes or fails """
-		cv2.putText(frame, "Inspection Passes: " + str(imagePasses), (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, self.upper_green, 2)
+		cv2.putText(self.frame, "Inspection Passes: " + str(imagePasses), (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, self.upper_green, 2)
 
 		return imagePasses
+
+	def test(self):
+
+                cap = self.capture
+
+                while(cap.isOpened()):
+                        ret, frame = cap.read()
+
+                        cv2.imshow('frame', frame)
+                        key = cv2.waitKey(1) & 0xFF
+			if key == ord('q'):
+				break
+
+		cap.release()
+		cv2.destroyAllWindows()
 
 
 """ Box Object to Store 4 points, draw the box and determine if points are within the box """
@@ -311,6 +330,7 @@ class Box(object):
 if __name__ == "__main__":
 
 	ip = ImageProcessor()
+	#ip.test()
 	ip.inspectCameraImage()
 	#ip.inspectArray()
 	"""ip.findBB('..\\better_pics\\Up2Covered.jpg')
@@ -322,3 +342,18 @@ if __name__ == "__main__":
 	results.openNewFile("22")
 	results.addResult(1,2,3,4,'yo')
 	results.closeFile()"""
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		
