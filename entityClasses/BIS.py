@@ -6,10 +6,9 @@ import Blisk
 import CircuitCompletor
 import ABBRobot
 import Stage
-#import ImageProcessor
+import ImageProcessor
 import time
 import sys
-print sys.path
 
 # BIS (Blisk Inspection System) Class
 

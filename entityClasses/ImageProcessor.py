@@ -3,12 +3,11 @@ import cv2
 import numpy as np
 import InspectionResults
 import sys
-print sys.path
 import pigpio
 
 DEBUG = 1 # Toggle to get debug features
 RASP_PI = 0 # Indicates whether 
-CAMERA = 0 # Indicates whether to run the code with the camera
+CAMERA = 1 # Indicates whether to run the code with the camera
 
 HUE_LOW = 26
 HUE_HIGH = 71
@@ -85,6 +84,21 @@ class ImageProcessor(object):
 				key = cv2.waitKey(1) & 0xFF
 				if key == ord('q'):
 					break
+		
+		""" Close all windows currently open """
+		self.shutdown()
+
+	""" Inspect Camera image """
+	def inspectCameraImage(self):
+
+                while(True):
+                        frame = cv2.VideoCapture(0)
+                        self.inspectImageFromCamera(True,frame)
+                        cv2.imshow('Inspected Camera Image ' + str(cnt),frame)
+
+			key = cv2.waitKey(1) & 0xFF
+			if key == ord('q'):
+				break
 		
 		""" Close all windows currently open """
 		self.shutdown()
@@ -182,6 +196,67 @@ class ImageProcessor(object):
 			self.capture.release()
 
 
+	""" Inspect the current image to see if it passes """
+	def inspectImageFromCamera(self, isSmallBB, frame): #, currStage, sizeBB):
+
+		imagePasses = False
+		#frame_init = frame.copy()
+
+		""" Convert BGR to HSV """
+		hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+
+		""" Threshold the HSV image to get only green colors """
+		mask = cv2.inRange(hsv, self.lower_green, self.upper_green)
+
+		""" Bitwise-AND mask and original image """
+		res = cv2.bitwise_and(frame,frame, mask= mask)
+
+		""" Find the Contours in the Mask """
+		(cnts, _) = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+
+		""" Initialize the counts of contours in each section to zero """
+		quad1_cnt = 0
+		quad2_cnt = 0
+		quad3_cnt = 0
+		 
+		""" Iterate over each of the contours """
+		for c in cnts:
+
+			""" compute the center of the contour """
+			M = cv2.moments(c)
+			area = M["m00"]
+			if M["m00"] == 0:
+				area = 0.000001
+			cX = int(M["m10"] / area)
+			cY = int(M["m01"] / area)
+
+			if DEBUG:
+				""" draw the contour and center of the shape on the image """
+				cv2.drawContours(frame, [c], -1, (0, 255, 0), 2)
+				cv2.circle(frame, (cX, cY), 7, (0, 0, 0), -1)
+
+				""" Draw the Boxes around each of the areas """
+				self.box1.draw(frame)
+				self.box2.draw(frame)
+				self.box3.draw(frame)
+
+			""" Determine the number of centroids in each quadrant """
+			if self.box1.inBox(cX,cY):
+				quad1_cnt += 1
+			elif self.box2.inBox(cX,cY):
+				quad2_cnt += 1
+			elif self.box3.inBox(cX,cY):
+				quad3_cnt += 1
+
+		""" Determine if the ball bearing case sizes pass """
+		imagePasses = self.checkImage(isSmallBB,quad1_cnt,quad2_cnt,quad3_cnt)
+
+		""" Indicate Whether the image passes or fails """
+		cv2.putText(frame, "Inspection Passes: " + str(imagePasses), (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, self.upper_green, 2)
+
+		return imagePasses
+
+
 """ Box Object to Store 4 points, draw the box and determine if points are within the box """
 class Box(object):
 
@@ -236,6 +311,7 @@ class Box(object):
 if __name__ == "__main__":
 
 	ip = ImageProcessor()
+	ip.inspectCameraImage()
 	#ip.inspectArray()
 	"""ip.findBB('..\\better_pics\\Up2Covered.jpg')
 	ip.findBB('..\\better_pics\\Up2Uncovered.jpg')
