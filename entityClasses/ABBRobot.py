@@ -192,7 +192,9 @@ class ABBRobot(object):
 	def closeComm(self):
 
 		self.my_print('closing connection with client\n')
-		self.connection.sendall("DISCONNECT")
+		if self.connection:
+                        self.connection.sendall("DISCONNECT")
+                        self.connection.close()
 
         """ Function to handle system prints """
 	def my_print(self, text):

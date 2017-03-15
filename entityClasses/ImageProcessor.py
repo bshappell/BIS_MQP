@@ -3,7 +3,6 @@ import cv2
 import numpy as np
 import InspectionResults
 import sys
-import pigpio
 import time
 
 DEBUG = 1 # Toggle to get debug features
@@ -100,8 +99,6 @@ class ImageProcessor(object):
 			key = cv2.waitKey(1) & 0xFF
 			if key == ord('q'):
 				break
-
-			time.sleep(1)
 		
 		""" Close all windows currently open """
 		self.shutdown()

@@ -318,6 +318,6 @@ if __name__=="__main__":
     print "Start"
     #fs.startReadings()
     #fs.startReadings()
-    time.sleep(100)
+    time.sleep(10)
     fs.end()
 

@@ -1,6 +1,7 @@
 RASP_PI = 1 # used to toggle between working on the pi and on a PC
 
 from Tkinter import *
+import tkMessageBox
 import ttk
 import time
 
@@ -257,6 +258,7 @@ class BisApp(object):
 
         """ Root Application Screen """
         self.root = Tk()
+        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
         #self.root.geometry('638x410')
         #self.root.resizable(width=False, height=False)
         self.root.title("Blisk Inspection System Application")
@@ -284,6 +286,15 @@ class BisApp(object):
 
         self.startScreenView.run()
         self.root.mainloop()
+
+    def on_closing(self):
+
+        if tkMessageBox.askokcancel("Quit", "Are you sure you want to quit?"):
+                
+                self.bis.shutdown()
+                self.root.destroy()
+                               
+        
         
     
 """ ******************************************** View Classes ******************************************** """    

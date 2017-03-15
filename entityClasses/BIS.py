@@ -96,7 +96,7 @@ class BIS(object):
 		self.circuitCompletor = CircuitCompletor.CircuitCompletor(PIN_CC)
 
 		""" set up the ImageProcessor class """
-		# self.imageProcessor = ImageProcessor.ImageProcessor()
+		self.imageProcessor = ImageProcessor.ImageProcessor()
 
 	""" Handles the startup of the BIS """
 	def start(self):
@@ -223,6 +223,14 @@ class BIS(object):
 		# TODO add functionality with image processor
 		
 		pass
+
+	""" Handle quitting and shutting down the system """
+	def shutdown(self):
+
+                 self.forceSensor.end()
+                 self.abbRobot.closeComm()
+                 self.led.turnOff()
+                 self.imageProcessor.shutdown()
 
 	
 """ Run the Blisk Application """
