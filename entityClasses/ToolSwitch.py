@@ -92,7 +92,7 @@ class Servo(object):
                 GPIO.output(self.powerPin, GPIO.HIGH)
 
                 """ Send the signal to move to the small BB position """
-                wiringpi.pwmWrite(self.signalPin, 95)
+                wiringpi.pwmWrite(self.signalPin, 700) #95)
                 time.sleep(self.delayPeriod)
 
                 """ Turn off power to the servo """
@@ -105,8 +105,20 @@ class Servo(object):
                 GPIO.output(self.powerPin, GPIO.HIGH)
 
                 """ Send the signal to move to the large BB position """
-                wiringpi.pwmWrite(self.signalPin, 180)
+                wiringpi.pwmWrite(self.signalPin, 800)
                 time.sleep(self.delayPeriod)
+
+                """ Turn off power to the servo """
+                GPIO.output(self.powerPin, GPIO.LOW)
+
+        def testRun(self, val):
+
+                """ Send power to the servo """
+                GPIO.output(self.powerPin, GPIO.HIGH)
+
+                """ Send the signal to move to the large BB position """
+                wiringpi.pwmWrite(self.signalPin, val)
+                time.sleep(1)
 
                 """ Turn off power to the servo """
                 GPIO.output(self.powerPin, GPIO.LOW)
@@ -184,11 +196,28 @@ if __name__ == "__main__":
 	toolSwitch.smallBB()"""
 
 	servo = Servo(27,18)
+	val = 0
+	increase = True
+
 	while(1):
+                servo.testRun(val)
+                print val
+                #time.sleep(1)
+                if val >= 220:
+                        increase = False
+                elif val <= 40:
+                        increase = True
+
+                        
+                if increase:
+                        val += 10
+                else:
+                        val -= 10
+	"""while(1):
                 print "Swtich to small bb"
                 servo.switchToSmallBB()
    
                 print "switch to large bb"
-                servo.switchToLargeBB()
+                servo.switchToLargeBB()"""
                 
 	

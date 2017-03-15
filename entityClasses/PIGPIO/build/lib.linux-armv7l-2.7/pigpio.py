@@ -299,7 +299,7 @@ import threading
 import os
 import atexit
 
-VERSION = "1.35"
+VERSION = "1.36"
 
 exceptions = True
 
@@ -1047,9 +1047,7 @@ class _callback_thread(threading.Thread):
       self.event_bits = 0
       self.callbacks = []
       self.events = []
-      self.sl.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-      self.sl.s.settimeout(None)
-      self.sl.s.connect((host, port))
+      self.sl.s = socket.create_connection((host, port), None)
       self.handle = _pigpio_command(self.sl, _PI_CMD_NOIB, 0, 0)
       self.go = True
       self.start()
@@ -4890,7 +4888,7 @@ class pi():
       return a.trigger
 
    def __init__(self,
-                host = os.getenv("PIGPIO_ADDR", ''),
+                host = os.getenv("PIGPIO_ADDR", 'localhost'),
                 port = os.getenv("PIGPIO_PORT", 8888)):
       """
       Grants access to a Pi's GPIO.
@@ -4928,17 +4926,18 @@ class pi():
 
       port = int(port)
 
+      if host == '':
+         host = "localhost"
+
       self._host = host
       self._port = port
 
-      self.sl.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-      self.sl.s.settimeout(None)
-
-      # Disable the Nagle algorithm.
-      self.sl.s.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
-
       try:
-         self.sl.s.connect((host, port))
+         self.sl.s = socket.create_connection((host, port), None)
+
+         # Disable the Nagle algorithm.
+         self.sl.s.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+
          self._notify = _callback_thread(self.sl, host, port)
 
       except socket.error:
@@ -4958,12 +4957,7 @@ class pi():
          if self.sl.s is not None:
             self.sl.s = None
 
-         if host == '':
-            h = "localhost"
-         else:
-            h = host
-
-         s = "Can't connect to pigpio at {}({})".format(str(h), str(port))
+         s = "Can't connect to pigpio at {}({})".format(host, str(port))
 
          print(_except_a.format(s))
          if exception == 1:

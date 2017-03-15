@@ -21,7 +21,10 @@ class ForceSensor(object):
       	self.dataPin = dataPin
 
       	""" Function to send force reading to """
-      	self.forceCallback = forceCallback
+      	if forceCallback:
+            self.forceCallback = forceCallback
+        else:
+            self.forceCallback = self.forceReadingCallback
 
       	""" Use a gain of 128 """
       	self.mode = CH_A_GAIN_128
@@ -47,10 +50,10 @@ class ForceSensor(object):
         #print "raw reading: " + str(reading)
 
         gramsReading = READING_TO_GRAMS  * (reading - self.y_init)
-        #print(count, mode, round(gramsReading, 2))
+        print(count, mode, round(gramsReading, 2))
 
         """ Send the values to the IRC5 Controller """
-        self.forceCallback(gramsReading)
+        #self.forceCallback(gramsReading)
 
     """ Pause the readings from the sensor """
     def pauseReadings(self):
@@ -108,7 +111,7 @@ class ForceSensor(object):
             print "ERROR No Force Sensor Readings"
 
         """ Pause the readings """
-        self.pauseReadings()
+        #self.pauseReadings()
 
         print "Zeroing Function Complete"
         
@@ -297,15 +300,24 @@ class HX711:
 
 
 
+def forceReadingCallback(count, mode, reading):
+
+        #print "raw reading: " + str(reading)
+
+        gramsReading = READING_TO_GRAMS  * (reading - self.y_init)
+        print(count, mode, round(gramsReading, 2))
+
+
 """ For testing purposes """
 if __name__=="__main__":
 
-    fs = ForceSensor(16,20, None)
+    fs = ForceSensor(16,20, forceReadingCallback)
 
     fs.zeroSensor()
     time.sleep(1) # number of seconds of testing, increase as needed
     print "Start"
-    fs.startReadings()
-    time.sleep(10)
+    #fs.startReadings()
+    #fs.startReadings()
+    time.sleep(100)
     fs.end()
 

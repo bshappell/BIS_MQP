@@ -135,6 +135,8 @@ class BIS(object):
 			print "ERROR CONTACT WITH BLISK DETECTED"
 			return
 
+                """ set up the force sensor """
+		self.forceSensor = ForceSensor.ForceSensor(PIN_FS_DATA, PIN_FS_CLK, self.abbRobot.sendForceMeasurement)
 		self.forceSensor.zeroSensor()
 		
 
@@ -164,7 +166,7 @@ class BIS(object):
 		self.led.turnOn()
 
 		""" Begin sending the force sensing readings to the abb robot """
-		self.forceSensor.startReadings()
+		#self.forceSensor.startReadings()
 
 		self.abbRobot.inspectBlade(self.bliskNum, 0)   #for testing purposes
 
