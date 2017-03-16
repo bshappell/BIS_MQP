@@ -42,7 +42,7 @@ class ForceSensor(object):
         self.hx117 = HX711(self.pi, DATA=self.dataPin, CLOCK=self.clkPin, mode=self.mode, callback=self.forceReadingCallback)
 
         """ Pause the sensor readings until it has been zeroed """
-        #self.hx117.pause()
+        self.hx117.pause()
 
     """ Callback for when a new reading is recieved from the force sensor """
     def forceReadingCallback(self, count, mode, reading):
@@ -111,7 +111,7 @@ class ForceSensor(object):
             print "ERROR No Force Sensor Readings"
 
         """ Pause the readings """
-        #self.pauseReadings()
+        self.pauseReadings()
 
         print "Zeroing Function Complete"
         
@@ -314,9 +314,10 @@ if __name__=="__main__":
     fs = ForceSensor(16,20, forceReadingCallback)
 
     fs.zeroSensor()
-    time.sleep(1) # number of seconds of testing, increase as needed
+    time.sleep(2) # number of seconds of testing, increase as needed
     print "Start"
-    #fs.startReadings()
+    #fs.zeroSensor()
+    fs.startReadings()
     #fs.startReadings()
     time.sleep(10)
     fs.end()

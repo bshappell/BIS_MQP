@@ -89,6 +89,13 @@ class ImageProcessor(object):
 		""" Close all windows currently open """
 		self.shutdown()
 
+	def inspect(self, isSmallBB):
+
+                self.inspectImageFromCamera(True)
+                cv2.imshow('Inspected Camera Image ',self.frame)
+
+                
+
 	""" Inspect Camera image """
 	def inspectCameraImage(self):
 

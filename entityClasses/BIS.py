@@ -21,10 +21,6 @@ PIN_LED_SIG = 25 # LED Signal
 PIN_CC = 12 # Circuit Completor Pin
 PIN_FS_DATA = 16 # Force Sensor Data Pin
 PIN_FS_CLK = 20 # Force Sensor Clock Pin
-PIN_EM1_S1 = 5 #4 # Electromagnet 1 S1
-PIN_EM1_S2 = 6 #17 # Electromagnet 1 S2
-PIN_EM2_S1 = 13 #5 # Electromagnet 2 S1
-PIN_EM2_S2 = 19 #6 # Electromagnet 2 S2
 
 """ Define the different inspection times for each blisk """
 IT_BLISK_P01 = 10
@@ -87,7 +83,7 @@ class BIS(object):
 		self.forceSensor = ForceSensor.ForceSensor(PIN_FS_DATA, PIN_FS_CLK, self.abbRobot.sendForceMeasurement)
 
 		""" set up the tool switch """
-		self.toolSwitch = ToolSwitch.ToolSwitch(PIN_SERVO_POWER, PIN_SERVO_SIG, PIN_EM1_S1, PIN_EM1_S2,  PIN_EM2_S1, PIN_EM2_S2)
+                self.toolSwitch = ToolSwitch.ToolSwitch(PIN_SERVO_POWER, PIN_SERVO_SIG)
 
 		""" set up the turntable stepper motor """
 		self.turntable = TurnTable.TurnTable(PIN_MOTOR_STEP, PIN_MOTOR_DIR)
@@ -97,6 +93,9 @@ class BIS(object):
 
 		""" set up the ImageProcessor class """
 		self.imageProcessor = ImageProcessor.ImageProcessor()
+
+		""" set up the force sensor class """
+		self.forceSensor = ForceSensor.ForceSensor(PIN_FS_DATA, PIN_FS_CLK, self.abbRobot.sendForceMeasurement)
 
 	""" Handles the startup of the BIS """
 	def start(self):
@@ -135,8 +134,12 @@ class BIS(object):
 			return
 
                 """ set up the force sensor """
-		self.forceSensor = ForceSensor.ForceSensor(PIN_FS_DATA, PIN_FS_CLK, self.abbRobot.sendForceMeasurement)
 		self.forceSensor.zeroSensor()
+
+		""" Use the small BB size first """
+		self.abbRobot.pullArmBack()
+		self.currBB = 0
+		self.toolSwitch.smallBB()
 		
 
 	""" Position the arm in between the blades of the current blisk """
@@ -158,57 +161,70 @@ class BIS(object):
 			time.sleep(0.002)
 		print "contact made turning complete"
 
+	""" Positions the arm for inspection by using force sensing """
+	def positionArmForInspection(self):
+
+                """ Begin sending the force sensing readings to the abb robot """
+		#self.forceSensor.startReadings()
+
+                pass
+
 	""" Start the inspection of the current blisk """
 	def inspectBlisk(self):
+
+                self.positionArmForInspection()
 
 		""" turn on the LED for inspection """
 		self.led.turnOn()
 
-		""" Begin sending the force sensing readings to the abb robot """
-		#self.forceSensor.startReadings()
+		
 
-		self.abbRobot.inspectBlade(self.bliskNum, 0)   #for testing purposes
+		###### self.abbRobot.inspectBlade(self.bliskNum, 0)   #for testing purposes
 
-##		""" Inspect all Stages of the blisk """
-##		for stage in self.currBlisk.stages:
-##
-##			print "inspect stage"
-##
-##			""" Use the small BB size first """
-##			self.abbRobot.pullArmBack()
-##			self.currBB = 0
-##			self.toolSwitch.smallBB()
-##
-##			""" Inspect the blisk with both BB sizes """
-##			for i in range(2):
-##
-##				print "Switch BB size"
-##
-##				""" Increment over every blade """
-##				for blade in range(stage.numberBlades):
-##
-##					print "inspect blade: " + str(blade)
-##
-##					""" Set the current blade """
-##					self.currBlade = blade
-##
-##					""" Position Arm for Inspection """
-##					#self.abbRobot.posArmForInspection(self.currBlisk, stage)
-##
-##					""" Inspect the blade """
-##					self.inspectBlade()
-##
-##					""" Increment the turntable by one blade """
-##					self.turntable.incrementBlade(stage, blade)
-##
-##					time.sleep(1)
-##
-##				""" Switch to the larger BB size """
-##				self.currBB = 1
-##				self.abbRobot.pullArmBack()
-##				self.toolSwitch.largeBB()
-##
-##			self.abbRobot.positionArmClose(self.currBlisk)
+		""" Inspect all Stages of the blisk """
+		self.currStage = 0
+		for stage in self.currBlisk.stages:
+
+			print "Inspecting Stage"
+
+			""" Use the small BB size first """
+			#self.abbRobot.pullArmBack()
+			#self.currBB = 0
+			#self.toolSwitch.smallBB()
+
+			""" Inspect the blisk with both BB sizes """
+			for i in range(2):
+
+				print "Switch BB size"
+
+				""" Increment over every blade """
+				for blade in range(stage.numberBlades):
+
+					print "inspect blade: " + str(blade)
+
+					""" Set the current blade """
+					self.currBlade = blade
+
+					""" Position Arm for Inspection """
+					#self.abbRobot.posArmForInspection(self.currBlisk, stage)
+
+					""" Inspect the blade """
+					self.inspectBlade()
+
+					""" Increment the turntable by one blade """
+					self.turntable.incrementBlade(stage, blade)
+
+					time.sleep(1)
+
+				""" Switch to the larger BB size """
+				self.currBB = 1
+				self.abbRobot.pullArmBack()
+				self.toolSwitch.largeBB()
+
+			self.abbRobot.positionArmClose(self.currBlisk)
+
+			""" switch to the second stage """
+			self.currStage = 1
 
 		""" Turn off the led when the inspection is complete """
 		self.led.turnOff()
@@ -220,9 +236,10 @@ class BIS(object):
 	""" Handle the inspection of the current blade """
 	def inspectBlade(self):
 
-		# TODO add functionality with image processor
+		self.abbRobot.inspectBlade(self.bliskNum, 0)   #for testing purposes
+
+		self.imageProcessor.inspect(True)
 		
-		pass
 
 	""" Handle quitting and shutting down the system """
 	def shutdown(self):

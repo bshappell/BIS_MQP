@@ -52,6 +52,9 @@ class ABBRobot(object):
 		self.forceFeedback = False
 		self.forceStartTime = 0
 
+		""" Indicates whether a blade inspection is currently happening """
+		self.inspecting = False
+
 	""" Send a message to the abb controller """
 	def send(self, message):
 
@@ -68,6 +71,15 @@ class ABBRobot(object):
 		else:
 			self.my_print("ERROR Received Incorrect Value: " + data + " Expected: " + expMessage + "\n")
 			return False
+
+	""" Enable blocking """
+	def enableBlocking(self):
+
+                self.socket.settimeout(None)
+
+        def disableBlocking(self):
+
+                self.socket.settimeout(0)
 
 	""" Check that the arm is up and running, and the connection between the Pi and IRC5 is good """
 	def checkConnection(self):
