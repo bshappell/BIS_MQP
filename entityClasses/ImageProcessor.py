@@ -94,7 +94,6 @@ class ImageProcessor(object):
                 self.inspectImageFromCamera(True)
                 cv2.imshow('Inspected Camera Image ',self.frame)
 
-                
 
 	""" Inspect Camera image """
 	def inspectCameraImage(self):

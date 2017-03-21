@@ -72,6 +72,16 @@ class ABBRobot(object):
 			self.my_print("ERROR Received Incorrect Value: " + data + " Expected: " + expMessage + "\n")
 			return False
 
+	def receiveNonBlocking(self, expMessage):
+
+		data = self.connection.recv(16)
+
+		if data == expMessage:
+			self.my_print('Received Expected Value: "%s"\n' % data)
+			return True 
+		else:
+			return False
+
 	""" Enable blocking """
 	def enableBlocking(self):
 
@@ -171,6 +181,76 @@ class ABBRobot(object):
 		else:
 			self.my_print("ERROR INCORRECT STAGE NUMBER RECEIVED IN INSPECT BLADE")
 			return False
+
+	""" Return whether the abb robot is still in the process of inspecting the blade """
+	def inspecting(self, currBlisk, currStage):
+
+                """ Determine the expected message """
+                if currStage == 0:
+                        if currBlisk == 0:
+				expMessage = "INSPECT_P01_00"
+			elif currBlisk == 1:
+				expMessage = "INSPECT_P02_00"
+			elif currBlisk == 2:
+				expMessage = "INSPECT_G02_00"
+			else:
+				self.my_print("ERROR INCORRECT BLISK NUMBER RECEIVED IN INSPECTING")
+		elif currStage == 1:
+			if currBlisk == 2:
+				expMessage = "INSPECT_G02_01"
+			else:
+				self.my_print("ERROR INCORRECT BLISK NUMBER RECEIVED IN INSPECT")
+		else:
+			self.my_print("ERROR INCORRECT STAGE NUMBER RECEIVED IN INSPECT ")
+
+                """ See if a value has been recieved """
+                if(self.receiveNonBlocking(expMessage)):
+
+                        """ When complete reenable blocking and set inspecting state to false """
+                        print "BLADE INSPECTION COMPLETE"
+                        self.inspecting = False
+                        self.enableBlocking()
+                        return True
+
+                else:
+                        
+                        return False
+                
+
+	""" Inspect the current blade """
+	def startInspectBlade(self, currBlisk, currStage):
+
+                """ set the state to inspecting """
+                self.inspecting = True
+
+		""" Message Format: (MT_INSPECT_BLADE, BLISK_X, STAGE_X) """
+		if currStage == 0:
+			if currBlisk == 0:
+				self.send("INSPECT_P01_00")
+				#return self.receive("INSPECT_P01_00")
+			elif currBlisk == 1:
+				self.send("INSPECT_P02_00")
+				#return self.receive("INSPECT_P02_00")
+			elif currBlisk == 2:
+				self.send("INSPECT_G02_00")
+				#return self.receive("INSPECT_G02_00")
+			else:
+				self.my_print("ERROR INCORRECT BLISK NUMBER RECEIVED IN PINSPECT BLADE")
+				#return False
+		elif currStage == 1:
+			if currBlisk == 2:
+				self.send("INSPECT_G02_01")
+				#return self.receive("INSPECT_G02_01")
+			else:
+				self.my_print("ERROR INCORRECT BLISK NUMBER RECEIVED IN INSPECT BLADE")
+				#return False
+		else:
+			self.my_print("ERROR INCORRECT STAGE NUMBER RECEIVED IN INSPECT BLADE")
+			#return False
+
+		""" Disable blocking on the socket """
+		self.disableBlocking()
+
 
 
 	""" Home the arm back away from the blisk for the placing and removing of the blisk """

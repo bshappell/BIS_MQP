@@ -195,7 +195,7 @@ class BIS(object):
 			""" Inspect the blisk with both BB sizes """
 			for i in range(2):
 
-				print "Switch BB size"
+				#print "Switch BB size"
 
 				""" Increment over every blade """
 				for blade in range(stage.numberBlades):
@@ -236,9 +236,11 @@ class BIS(object):
 	""" Handle the inspection of the current blade """
 	def inspectBlade(self):
 
-		self.abbRobot.inspectBlade(self.bliskNum, 0)   #for testing purposes
+		self.abbRobot.inspectBlade(self.bliskNum, self.stageNum)  
 
-		self.imageProcessor.inspect(True)
+		while(self.abbRobot.inspecting(self.bliskNum, self.stageNum)):
+                        
+                        self.imageProcessor.inspect(True)
 		
 
 	""" Handle quitting and shutting down the system """
