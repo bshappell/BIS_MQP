@@ -13,7 +13,7 @@ HUE_LOW = 26
 HUE_HIGH = 71
 SATURATION_LOW = 105
 SATURATION_HIGH = 255
-VALUE_LOW = 116
+VALUE_LOW = 100 #116
 VALUE_HIGH = 255
 
 class ImageProcessor(object):
@@ -357,9 +357,9 @@ if __name__ == "__main__":
 
 	ip = ImageProcessor()
 	#ip.test()
-	#ip.inspectCameraImage()
+	ip.inspectCameraImage()
 	#ip.inspectArray()
-        ip.findBBCamera()
+        #ip.findBBCamera()
 
 	"""ip.findBB('..\\better_pics\\Up2Covered.jpg')
 	ip.findBB('..\\better_pics\\Up2Uncovered.jpg')
