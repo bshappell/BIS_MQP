@@ -236,11 +236,16 @@ class BIS(object):
 	""" Handle the inspection of the current blade """
 	def inspectBlade(self):
 
-		self.abbRobot.inspectBlade(self.bliskNum, self.stageNum)  
+                print "in inspecting blade function"
 
-		while(self.abbRobot.inspecting(self.bliskNum, self.stageNum)):
+		self.abbRobot.startInspectBlade(self.bliskNum, self.currStage)  
+
+		while(self.abbRobot.stillInspecting(self.bliskNum, self.currStage)):
                         
                         self.imageProcessor.inspect(True)
+                        print "in while loop"
+
+                print "leaving inspect blade function"
 		
 
 	""" Handle quitting and shutting down the system """

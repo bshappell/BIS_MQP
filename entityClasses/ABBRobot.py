@@ -4,7 +4,7 @@ import socket
 import time
 import sys
 
-TCP_IP = "169.254.118.154"# "192.168.125.3" 
+TCP_IP = "192.168.125.3" 
 TCP_PORT = 5515
 MESSAGE = "Hello, World!"
 
@@ -74,21 +74,39 @@ class ABBRobot(object):
 
 	def receiveNonBlocking(self, expMessage):
 
-		data = self.connection.recv(16)
+		try:
+                        data = self.connection.recv(16)
+                except socket.timeout, e:
+                        err = e.args[0]
+                        if err == 'timed out':
+                                self.my_print("Socket Timeout Error")
+                                return False
+                        else:
+                                self.my_print("Real Error occured")
+                                self.my_print(e)
+                                return False
+                except socket.error, e:
+                        print e
+                        return False
 
-		if data == expMessage:
-			self.my_print('Received Expected Value: "%s"\n' % data)
-			return True 
-		else:
-			return False
+                """ Otherwise got a message """
+                if data == expMessage:
+                        self.my_print('Received Expected Value: "%s"\n' % data)
+                        return True
+                else:
+                        self.my_print("ERROR Received Incorrect Value: " + data + " Expected: " + expMessage + "\n")
+                        return False
+
 
 	""" Enable blocking """
 	def enableBlocking(self):
 
-                self.socket.settimeout(None)
+                #self.socket.settimeout(None)
+                #self.socket.setBlocking(1)
 
         def disableBlocking(self):
 
+                #self.setBlocking(0)
                 self.socket.settimeout(0)
 
 	""" Check that the arm is up and running, and the connection between the Pi and IRC5 is good """
@@ -183,7 +201,9 @@ class ABBRobot(object):
 			return False
 
 	""" Return whether the abb robot is still in the process of inspecting the blade """
-	def inspecting(self, currBlisk, currStage):
+	def stillInspecting(self, currBlisk, currStage):
+
+                self.my_print("Still Inspecting")
 
                 """ Determine the expected message """
                 if currStage == 0:
@@ -210,11 +230,11 @@ class ABBRobot(object):
                         print "BLADE INSPECTION COMPLETE"
                         self.inspecting = False
                         self.enableBlocking()
-                        return True
+                        return False
 
                 else:
                         
-                        return False
+                        return True
                 
 
 	""" Inspect the current blade """
@@ -250,6 +270,7 @@ class ABBRobot(object):
 
 		""" Disable blocking on the socket """
 		self.disableBlocking()
+		self.my_print("Start Inspection Blade Function Compplete")
 
 
 
