@@ -73,7 +73,7 @@ class Servo(object):
                 GPIO.output(self.powerPin, GPIO.HIGH)
 
                 """ Send the signal to move to the small BB position """
-                self.pwm.ChangeDutyCycle(2.5) # 50% duty cycle
+                self.pwm.ChangeDutyCycle(3) # 50% duty cycle
                 time.sleep(2)
 
                 """ Turn off power to the servo """
@@ -87,7 +87,7 @@ class Servo(object):
                 time.sleep(0.1)
 
                 """ Send the signal to move to the large BB position """
-                self.pwm.ChangeDutyCycle(7.5) # 50% duty cycle
+                self.pwm.ChangeDutyCycle(7.6) # 50% duty cycle
                 time.sleep(2)
 
                 """ Turn off power to the servo """
@@ -133,7 +133,7 @@ class Servo(object):
 if __name__ == "__main__":
 
 	""" Test switching between the different ball bearing sizes """
-	toolSwitch = ToolSwitch(27,18)
+	toolSwitch = ToolSwitch(17,4)
 	#toolSwitch.testRun(2)
 
         print "Swtich to small bb"

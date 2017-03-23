@@ -13,14 +13,14 @@ import sys
 # BIS (Blisk Inspection System) Class
 
 # Define the Rasp Pinout
-PIN_MOTOR_STEP = 23 # Stepper Motor Step Signal
-PIN_MOTOR_DIR = 24 # Stepper Motor Direction Signal
-PIN_SERVO_SIG = 18 # Tool Switch Servo Signal
-PIN_SERVO_POWER = 27 # Tool Switch Power Signal
-PIN_LED_SIG = 25 # LED Signal
-PIN_CC = 12 # Circuit Completor Pin
-PIN_FS_DATA = 16 # Force Sensor Data Pin
-PIN_FS_CLK = 20 # Force Sensor Clock Pin
+PIN_MOTOR_STEP = 20 # Stepper Motor Step Signal
+PIN_MOTOR_DIR = 16 # Stepper Motor Direction Signal
+PIN_SERVO_SIG = 4 # Tool Switch Servo Signal
+PIN_SERVO_POWER = 17 # Tool Switch Power Signal
+PIN_LED_SIG = 22 # LED Signal
+PIN_CC = 5 # Circuit Completor Pin
+PIN_FS_DATA = 24 # Force Sensor Data Pin
+PIN_FS_CLK = 23 # Force Sensor Clock Pin
 
 """ Define the different inspection times for each blisk """
 IT_BLISK_P01 = 10

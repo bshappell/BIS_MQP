@@ -4,7 +4,7 @@ import socket
 import time
 import sys
 
-TCP_IP = "192.168.125.3" 
+TCP_IP = "169.254.118.154"# "192.168.125.3" 
 TCP_PORT = 5515
 MESSAGE = "Hello, World!"
 
