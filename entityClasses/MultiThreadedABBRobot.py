@@ -255,6 +255,10 @@ class ABBRobot(object):
 
 """ *************************************************************** Server Class *************************************************************** """
 
+""" Code based on code written by Eli Bendersky (eliben@gmail.com) """
+""" https://github.com/eliben/code-for-blog/blob/master/2011/socket_client_thread_sample/socketclientthread.py """
+
+
 class ServerCommand(object):
     """ A command to the server thread.
         Each command type has its associated data:
