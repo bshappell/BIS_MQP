@@ -55,16 +55,15 @@ class ABBRobot(object):
 
 		self.my_print('sending: ' + message + ' to the client\n')
 		self.server_thread.cmd_q.put(ClientCommand(ClientCommand.SEND, message))
-    	reply = self.server_thread.reply_q.get(True)
+		reply = self.server_thread.reply_q.get(True)
 
 	def receive(self, expMessage):
-
 		sct.cmd_q.put(ClientCommand(ClientCommand.RECEIVE, expMessage))
-    	reply = sct.reply_q.get(True)
+		reply = sct.reply_q.get(True)
 
 		if data == expMessage:
 			self.my_print('Received Expected Value: "%s"\n' % data)
-			return True 
+			return True
 		else:
 			self.my_print("ERROR Received Incorrect Value: " + data + " Expected: " + expMessage + "\n")
 			return False
@@ -75,10 +74,10 @@ class ABBRobot(object):
 
 		my_print('starting up on %s port %s\n' % self.server_address)
 		self.server_thread.cmd_q.put(ServerCommand(ServerCommand.CONNECT, self.server_address))
-    	reply = self.server_thread.reply_q.get(True)
-    	self.my_print(reply.type, reply.data)
+		reply = self.server_thread.reply_q.get(True)
+		self.my_print(reply.type, reply.data)
 
-    	return self.receive("CONNECTED")
+		return self.receive("CONNECTED")
 
 	""" Position the arm for inspection for the current blisk """
 	def positionArmFar(self, currBlisk):
@@ -344,10 +343,10 @@ class SocketServerThread(threading.Thread):
             self.socket.listen(1)
 
             self.my_print('waiting for a connection\n')
-			self.connection, self.client_address = self.socket.accept()
-			self.my_print('connection from ' + str(self.client_address))
+            self.connection, self.client_address = self.socket.accept()
+            self.my_print('connection from ' + str(self.client_address))
 
-			self.reply_q.put(self._success_reply())
+            self.reply_q.put(self._success_reply())
 
         except IOError as e:
             self.reply_q.put(self._error_reply(str(e)))
@@ -367,13 +366,13 @@ class SocketServerThread(threading.Thread):
     def _handle_RECEIVE(self, cmd):
         try:
         	data = self.connection.recv(16)
-            if data:
-            	self.reply_q.put(self._success_reply(data))
-            	return
-            else:
-            	self.reply_q.put(self._error_reply('Socket closed prematurely'))
+        	if data:
+        		self.reply_q.put(self._success_reply(data))
+        		return
+        	else:
+        		self.reply_q.put(self._error_reply('Socket closed prematurely'))
         except IOError as e:
-            self.reply_q.put(self._error_reply(str(e)))
+        	self.reply_q.put(self._error_reply(str(e)))
 
     def _error_reply(self, errstr):
         return ServerReply(ServerReply.ERROR, errstr)
