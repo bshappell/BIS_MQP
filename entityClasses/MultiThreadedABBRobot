@@ -43,9 +43,6 @@ class ABBRobot(object):
 		""" Create Socket Server Thread to handle TCP communication """
 		self.server_thread = SocketServerThread()
 
-
-		""" ********************************* OLD CODE ********************************* """
-
 		""" Stores the state of whether the ABB is using force sensing feedback or not """
 		self.forceFeedback = False
 		self.forceStartTime = 0
@@ -56,18 +53,14 @@ class ABBRobot(object):
 	""" Send a message to the abb controller """
 	def send(self, message):
 
-
-		""" ********************************* OLD CODE ********************************* """
-
 		self.my_print('sending: ' + message + ' to the client\n')
-		self.connection.sendall(message)
+		self.server_thread.cmd_q.put(ClientCommand(ClientCommand.SEND, message))
+    	reply = self.server_thread.reply_q.get(True)
 
 	def receive(self, expMessage):
 
-
-		""" ********************************* OLD CODE ********************************* """
-
-		data = self.connection.recv(16)
+		sct.cmd_q.put(ClientCommand(ClientCommand.RECEIVE, expMessage))
+    	reply = sct.reply_q.get(True)
 
 		if data == expMessage:
 			self.my_print('Received Expected Value: "%s"\n' % data)
@@ -85,21 +78,10 @@ class ABBRobot(object):
     	reply = self.server_thread.reply_q.get(True)
     	self.my_print(reply.type, reply.data)
 
-
-
-		""" ********************************* OLD CODE ********************************* """
-
-		self.my_print('waiting for a connection\n')
-		self.connection, self.client_address = self.socket.accept()
-		self.my_print('connection from ' + str(self.client_address))
-
-		return self.receive("CONNECTED")
+    	return self.receive("CONNECTED")
 
 	""" Position the arm for inspection for the current blisk """
 	def positionArmFar(self, currBlisk):
-
-
-		""" ********************************* OLD CODE ********************************* """
 
 		""" Message Format: (MT_ARM_FAR, BLISK_X, STAGE_X) """
 		if currBlisk == 0:
@@ -118,9 +100,6 @@ class ABBRobot(object):
 
 	""" Position the arm for inspection for the current blisk """
 	def positionArmClose(self, currBlisk):
-
-
-		""" ********************************* OLD CODE ********************************* """
 
 		""" Message Format: (MT_ARM_CLOSE, BLISK_X, STAGE_X) """
 		if currBlisk == 0:
@@ -234,29 +213,20 @@ class ABBRobot(object):
 		if currStage == 0:
 			if currBlisk == 0:
 				self.send("INSPECT_P01_00")
-				#return self.receive("INSPECT_P01_00")
 			elif currBlisk == 1:
 				self.send("INSPECT_P02_00")
-				#return self.receive("INSPECT_P02_00")
 			elif currBlisk == 2:
 				self.send("INSPECT_G02_00")
-				#return self.receive("INSPECT_G02_00")
 			else:
 				self.my_print("ERROR INCORRECT BLISK NUMBER RECEIVED IN PINSPECT BLADE")
-				#return False
 		elif currStage == 1:
 			if currBlisk == 2:
 				self.send("INSPECT_G02_01")
-				#return self.receive("INSPECT_G02_01")
 			else:
 				self.my_print("ERROR INCORRECT BLISK NUMBER RECEIVED IN INSPECT BLADE")
-				#return False
 		else:
 			self.my_print("ERROR INCORRECT STAGE NUMBER RECEIVED IN INSPECT BLADE")
-			#return False
 
-		""" Disable blocking on the socket """
-		self.disableBlocking()
 		self.my_print("Start Inspection Blade Function Compplete")
 
 
@@ -271,30 +241,27 @@ class ABBRobot(object):
 	""" Send the current force sensing measurement to the controller """
 	def sendForceMeasurement(self, reading):
 
-                """ Determine if we are in the force feedback mode """
-                if self.forceFeedback:
-                        self.processForceReading(reading)
-                        #self.send("FORCE_SENSING"
+		""" Determine if we are in the force feedback mode """
+		if self.forceFeedback:
+			self.processForceReading(reading)
+			#self.send("FORCE_SENSING"
+		else:
+			pass
 
-                else:
-                        pass
+	""" Function to process the force reading and determine if contact has been made """
+	def processForceReading(self, reading):
 
+		if time.time() - self.forceStartTime > 5:
+			self.forceFeedback = False
+			print "SETTING FORCE FEEDBACK TO FALSE"
 
-        """ Function to process the force reading and determine if contact has been made """
-        def processForceReading(self, reading):
-
-                if time.time() - self.forceStartTime > 5:
-                        self.forceFeedback = False
-                        print "SETTING FORCE FEEDBACK TO FALSE"
-
-        
-        """ Function to close the TCP Socket """
+	""" Function to close the TCP Socket """
 	def closeComm(self):
 
 		self.my_print('closing connection with client\n')
 		if self.connection:
 			self.connection.sendall("DISCONNECT")
-			self.connection.close()
+			self.server_thread.cmd_q.put(ClientCommand(ClientCommand.CLOSE))
 
         """ Function to handle system prints """
 	def my_print(self, text):
@@ -303,10 +270,6 @@ class ABBRobot(object):
 	    
 
 """ *************************************************************** Server Class *************************************************************** """
-
-
-
-
 
 class ServerCommand(object):
     """ A command to the server thread.
@@ -404,7 +367,6 @@ class SocketServerThread(threading.Thread):
     def _handle_RECEIVE(self, cmd):
         try:
         	data = self.connection.recv(16)
-            header_data = self._recv_n_bytes(4)
             if data:
             	self.reply_q.put(self._success_reply(data))
             	return
