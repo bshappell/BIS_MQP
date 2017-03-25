@@ -112,10 +112,15 @@ class ImageProcessor(object):
 		""" Close all windows currently open """
 		self.shutdown()
 
-	def inspect(self, isSmallBB):
+	def inspect(self, isSmallBB, callFunction, bliskNum, stageNum):
 
-                self.inspectImageFromCamera(True)
-                cv2.imshow('Inspected Camera Image ',self.frame)
+                while(callFunction(bliskNum, stageNum)):
+
+                        self.inspectImageFromCamera(True)
+                        cv2.imshow('Inspected Camera Image ',self.frame)
+
+                        key = cv2.waitKey(1) & 0xFF
+
 
 
 	""" Inspect Camera image """
@@ -300,6 +305,11 @@ class ImageProcessor(object):
 
 		cap.release()
 		cv2.destroyAllWindows()
+
+	""" Function to handle system prints """
+	def my_print(self, text):
+	    sys.stdout.write(str(text))
+	    sys.stdout.flush()
 
 
 """ Box Object to Store 4 points, draw the box and determine if points are within the box """

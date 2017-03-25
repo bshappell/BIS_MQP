@@ -72,11 +72,11 @@ class ABBRobot(object):
 		self.server_thread.cmd_q.put(ServerCommand(ServerCommand.RECEIVE, expMessage))
 		reply = self.server_thread.reply_q.get(True)
 
-		if data == expMessage:
-			self.my_print('Received Expected Value: "%s"\n' % data)
+		if reply.data == expMessage:
+			self.my_print('Received Expected Value: "%s"\n' % reply.data)
 			return True
 		else:
-			self.my_print("ERROR Received Incorrect Value: " + data + " Expected: " + expMessage + "\n")
+			self.my_print("ERROR Received Incorrect Value: " + reply.data + " Expected: " + expMessage + "\n")
 			return False
 
 
@@ -86,9 +86,6 @@ class ABBRobot(object):
 		self.my_print('waiting for a connection\n')
 		self.server_thread.cmd_q.put(ServerCommand(ServerCommand.CONNECT, self.server_address))
 		reply = self.server_thread.reply_q.get(True)
-		
-		#self.connection, self.client_address = self.socket.accept()
-		#self.my_print('connection from ' + str(self.client_address))
 
 		return self.receive("CONNECTED")
 
@@ -146,42 +143,9 @@ class ABBRobot(object):
 
 		print "POSITION ARM FOR INSPECTION COMPLETE"
 
-	""" Inspect the current blade """
-	def inspectBlade(self, currBlisk, currStage):
-
-
-
-		""" ********************************* OLD CODE ********************************* """
-
-		""" Message Format: (MT_INSPECT_BLADE, BLISK_X, STAGE_X) """
-		if currStage == 0:
-			if currBlisk == 0:
-				self.send("INSPECT_P01_00")
-				return self.receive("INSPECT_P01_00")
-			elif currBlisk == 1:
-				self.send("INSPECT_P02_00")
-				return self.receive("INSPECT_P02_00")
-			elif currBlisk == 2:
-				self.send("INSPECT_G02_00")
-				return self.receive("INSPECT_G02_00")
-			else:
-				self.my_print("ERROR INCORRECT BLISK NUMBER RECEIVED IN PINSPECT BLADE")
-				return False
-		elif currStage == 1:
-			if currBlisk == 2:
-				self.send("INSPECT_G02_01")
-				return self.receive("INSPECT_G02_01")
-			else:
-				self.my_print("ERROR INCORRECT BLISK NUMBER RECEIVED IN INSPECT BLADE")
-				return False
-		else:
-			self.my_print("ERROR INCORRECT STAGE NUMBER RECEIVED IN INSPECT BLADE")
-			return False
 
 	""" Return whether the abb robot is still in the process of inspecting the blade """
 	def stillInspecting(self, currBlisk, currStage):
-
-                self.my_print("Still Inspecting")
 
                 """ Determine the expected message """
                 if currStage == 0:
@@ -202,17 +166,21 @@ class ABBRobot(object):
 			self.my_print("ERROR INCORRECT STAGE NUMBER RECEIVED IN INSPECT ")
 
                 """ See if a value has been recieved """
-                if(self.receiveNonBlocking(expMessage)):
+                try:
+                        #ret = self.server_thread.reply_q.get(True,0.1)
+                        ret = self.server_thread.reply_q.get_nowait()
+
+                        #if ret.data: #== expMessage:
 
                         """ When complete reenable blocking and set inspecting state to false """
                         print "BLADE INSPECTION COMPLETE"
                         self.inspecting = False
-                        self.enableBlocking()
                         return False
 
-                else:
-                        
+                except Queue.Empty as e:
                         return True
+
+                return True
                 
 
 	""" Inspect the current blade """
@@ -238,6 +206,9 @@ class ABBRobot(object):
 				self.my_print("ERROR INCORRECT BLISK NUMBER RECEIVED IN INSPECT BLADE")
 		else:
 			self.my_print("ERROR INCORRECT STAGE NUMBER RECEIVED IN INSPECT BLADE")
+
+		self.my_print("recieve val")
+		self.server_thread.cmd_q.put(ServerCommand(ServerCommand.RECEIVE, "INSPECT_P02_00"))
 
 		self.my_print("Start Inspection Blade Function Complete")
 
@@ -273,7 +244,7 @@ class ABBRobot(object):
 		self.my_print('closing connection with client\n')
 		if self.server_thread:
 			self.send("DISCONNECT")
-			self.server_thread.cmd_q.put(ClientCommand(ClientCommand.CLOSE))
+			self.server_thread.cmd_q.put(ServerCommand(ServerCommand.CLOSE))
 			self.server_thread.join()
 
         """ Function to handle system prints """

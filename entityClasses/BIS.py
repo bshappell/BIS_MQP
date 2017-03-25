@@ -137,7 +137,7 @@ class BIS(object):
 		self.forceSensor.zeroSensor()
 
 		""" Use the small BB size first """
-		self.abbRobot.pullArmBack()
+		#self.abbRobot.pullArmBack()
 		self.currBB = 0
 		self.toolSwitch.smallBB()
 		
@@ -240,10 +240,9 @@ class BIS(object):
 
 		self.abbRobot.startInspectBlade(self.bliskNum, self.currStage)  
 
-		while(self.abbRobot.stillInspecting(self.bliskNum, self.currStage)):
+		#while(self.abbRobot.stillInspecting(self.bliskNum, self.currStage)):
                         
-                        self.imageProcessor.inspect(True)
-                        print "in while loop"
+                self.imageProcessor.inspect(True, self.abbRobot.stillInspecting, self.bliskNum, self.currStage)
 
                 print "leaving inspect blade function"
 		

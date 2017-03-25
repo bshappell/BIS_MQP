@@ -50,7 +50,7 @@ class ForceSensor(object):
         #print "raw reading: " + str(reading)
 
         gramsReading = READING_TO_GRAMS  * (reading - self.y_init)
-        print(count, mode, round(gramsReading, 2))
+        #print(count, mode, round(gramsReading, 2))
 
         """ Send the values to the IRC5 Controller """
         #self.forceCallback(gramsReading)
