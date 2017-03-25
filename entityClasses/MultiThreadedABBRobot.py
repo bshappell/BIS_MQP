@@ -47,7 +47,7 @@ class ABBRobot(object):
 		self.server_thread = SocketServerThread()
 		self.server_thread.start()
 
-		self.my_print("setting up server")
+                self.my_print("setting up server")
 		self.server_thread.cmd_q.put(ServerCommand(ServerCommand.SETUP, self.server_address))
 		reply = self.server_thread.reply_q.get(True)
 
@@ -57,6 +57,8 @@ class ABBRobot(object):
 
 		""" Indicates whether a blade inspection is currently happening """
 		self.inspecting = False
+
+		self.my_print("finished abb init")
 
 	""" Send a message to the abb controller """
 	def send(self, message):
@@ -352,12 +354,14 @@ class SocketServerThread(threading.Thread):
 
     def _handle_SETUP(self, cmd):
 
-            """self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.socket.bind((cmd.data[0], cmd.data[1]))
             self.my_print("Binding to socket complete")
             self.socket.listen(2)
-            self.my_print("Listening on socket complete")"""
+            self.my_print("Listening on socket complete")
             self.my_print("setup")
+
+            self.reply_q.put(self._success_reply())
 
     def _handle_CONNECT(self, cmd):
         try:
