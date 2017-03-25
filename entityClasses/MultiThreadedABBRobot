@@ -34,7 +34,7 @@ MT_MOVEMENT_COMPLETE = 0x07
 MT_CONNECTION_GOOD = 0x08
 MT_INSPECTION_COMPLETE = 0x09
 
-class ABBRobot(object):
+class MultiThreadedABBRobot(object):
 
 	def __init__(self):
 
