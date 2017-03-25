@@ -4,7 +4,7 @@ import ToolSwitch
 import TurnTable
 import Blisk
 import CircuitCompletor
-import ABBRobot
+import MultiThreadedABBRobot
 import Stage
 import ImageProcessor
 import time
@@ -77,7 +77,7 @@ class BIS(object):
 		self.led = LED.LED(PIN_LED_SIG)
 
 		""" set up the ABB Robot """
-		self.abbRobot = ABBRobot.ABBRobot()
+		self.abbRobot = MultiThreadedABBRobot.ABBRobot()
 
 		""" set up the force sensor """
 		self.forceSensor = ForceSensor.ForceSensor(PIN_FS_DATA, PIN_FS_CLK, self.abbRobot.sendForceMeasurement)
