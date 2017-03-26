@@ -21,10 +21,11 @@ class ImageProcessor(object):
 	def __init__(self):
 
 
-		self.capture = cv2.VideoCapture(0)
+		if RASP_PI:
+			self.capture = cv2.VideoCapture(0)
+		else:
+			self.capture = cv2.VideoCapture(1)
 		self.frame = None
-		#self.frame = cv2.imread('better_pics\\Up2Covered.jpg',-1)
-
 
 		""" Inspection Results Class """
 		self.results = InspectionResults.InspectionResults()
@@ -73,13 +74,17 @@ class ImageProcessor(object):
 	""" Find the Ball Bearing and locate the centroid """
 	def findBBCamera(self):
 
-                ret, pic = self.capture.read()
-		img = cv2.imread(pic,0)
-		img = cv2.medianBlur(img,5)
-		cimg = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+		ret, self.frame = self.capture.read()
 
-		circles = cv2.HoughCircles(img, cv2.cv.CV_HOUGH_GRADIENT,1,20,
-		                            param1=50,param2=45,minRadius=80,maxRadius=0)
+		""" Convert BGR to HSV """
+		cimg = cv2.cvtColor(self.frame, cv2.COLOR_GRAY2BGR)
+
+		#ret, pic = self.capture.read()
+		#img = cv2.imread(pic,0)
+		#img = cv2.medianBlur(pic,5)
+		#cimg = cv2.cvtColor(pic, cv2.COLOR_GRAY2BGR)
+
+		circles = cv2.HoughCircles(self.frame, cv2.cv.CV_HOUGH_GRADIENT,1,20, param1=50,param2=45,minRadius=80,maxRadius=0)
 
 		circles = np.uint16(np.around(circles))
 		for i in circles[0,:]:
@@ -114,21 +119,23 @@ class ImageProcessor(object):
 
 	def inspect(self, isSmallBB, callFunction, bliskNum, stageNum):
 
-                while(callFunction(bliskNum, stageNum)):
+		while(callFunction(bliskNum, stageNum)):
 
-                        self.inspectImageFromCamera(True)
-                        cv2.imshow('Inspected Camera Image ',self.frame)
+			self.inspectImageFromCamera(True)
+			cv2.imshow('Inspected Camera Image ',self.frame)
 
-                        key = cv2.waitKey(1) & 0xFF
+			key = cv2.waitKey(1) & 0xFF
 
 
 
 	""" Inspect Camera image """
 	def inspectCameraImage(self):
 
-                while(True):
-                        self.inspectImageFromCamera(True)
-                        cv2.imshow('Inspected Camera Image ',self.frame)
+		while(True):
+
+			#self.inspectImageFromCamera(True)
+			self.findBBCamera()
+			cv2.imshow('Inspected Camera Image ',self.frame)
 
 			key = cv2.waitKey(1) & 0xFF
 			if key == ord('q'):
@@ -247,7 +254,10 @@ class ImageProcessor(object):
 		res = cv2.bitwise_and(self.frame,self.frame, mask= mask)
 
 		""" Find the Contours in the Mask """
-		(_, cnts, _) = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+		if RASP_PI:
+			(_, cnts, _) = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+		else:
+			(cnts, _) = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
 
 		""" Initialize the counts of contours in each section to zero """
 		quad1_cnt = 0
