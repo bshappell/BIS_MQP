@@ -6,7 +6,7 @@ import sys
 import time
 
 DEBUG = 1 # Toggle to get debug features
-RASP_PI = 0 # Indicates whether 
+RASP_PI = 1 # Indicates whether 
 CAMERA = 1 # Indicates whether to run the code with the camera
 
 HUE_LOW = 26
@@ -119,12 +119,30 @@ class ImageProcessor(object):
 
 	def inspect(self, isSmallBB, callFunction, bliskNum, stageNum):
 
+                start_time = time.time()
+                pic_count = 0
+
 		while(callFunction(bliskNum, stageNum)):
 
 			self.inspectImageFromCamera(True)
 			cv2.imshow('Inspected Camera Image ',self.frame)
 
 			key = cv2.waitKey(1) & 0xFF
+
+			pic_count += 1
+
+                end_time =(time.time())
+                self.my_print("end_time: ")
+                self.my_print(end_time)
+		self.my_print("start_time: ")
+		self.my_print(start_time)
+		self.my_print("elapsed time: ")
+		self.my_print(end_time - start_time)
+		self.my_print("pic_count: ")
+		self.my_print(pic_count)
+		self.my_print("fps: ")
+		self.my_print(pic_count/(end_time - start_time))
+		
 
 
 
@@ -133,13 +151,13 @@ class ImageProcessor(object):
 
 		while(True):
 
-			#self.inspectImageFromCamera(True)
-			self.findBBCamera()
-			cv2.imshow('Inspected Camera Image ',self.frame)
+			self.inspectImageFromCamera(True)
+			#self.findBBCamera()
+			"""cv2.imshow('Inspected Camera Image ',self.frame)
 
 			key = cv2.waitKey(1) & 0xFF
 			if key == ord('q'):
-				break
+				break"""
 		
 		""" Close all windows currently open """
 		self.shutdown()
