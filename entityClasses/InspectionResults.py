@@ -2,6 +2,7 @@
 
 import csv
 import datetime
+import InspectionPosition
 
 """ Class to handle saving the inspection results """
 class InspectionResults(object):

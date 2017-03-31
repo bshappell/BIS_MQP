@@ -72,42 +72,27 @@ class ABBRobot(object):
 			self.my_print("ERROR Received Incorrect Value: " + data + " Expected: " + expMessage + "\n")
 			return False
 
-	def receiveNonBlocking(self, expMessage):
+	def receiveNonBlocking(self):
 
 		try:
-                        data = self.connection.recv(16)
-                except socket.timeout, e:
-                        err = e.args[0]
-                        if err == 'timed out':
-                                self.my_print("Socket Timeout Error")
-                                return False
-                        else:
-                                self.my_print("Real Error occured")
-                                self.my_print(e)
-                                return False
-                except socket.error, e:
-                        print e
-                        return False
-
-                """ Otherwise got a message """
-                if data == expMessage:
-                        self.my_print('Received Expected Value: "%s"\n' % data)
-                        return True
-                else:
-                        self.my_print("ERROR Received Incorrect Value: " + data + " Expected: " + expMessage + "\n")
-                        return False
-
-
-	""" Enable blocking """
-	def enableBlocking(self):
-
-                #self.socket.settimeout(None)
-                #self.socket.setBlocking(1)
-
-        def disableBlocking(self):
-
-                #self.setBlocking(0)
-                self.socket.settimeout(0)
+			data = self.connection.recv(16)
+		except socket.timeout, e:
+			err = e.args[0]
+			if err == 'timed out':
+				self.my_print("Socket Timeout Error")
+				return (False, "")
+			else:
+				self.my_print("Real Error occured")
+				self.my_print(e)
+				return (False, "")
+		except socket.error, e:
+			print e
+			return (False, "")
+		""" Otherwise got a message """
+		if data:
+			return (True, data)
+		else:
+			return (False, "")
 
 	""" Check that the arm is up and running, and the connection between the Pi and IRC5 is good """
 	def checkConnection(self):
@@ -157,20 +142,20 @@ class ABBRobot(object):
 	""" Position the arm for inspection in the center of the blade using force sensing feedback """
 	def positionArmForInspection(self, currBlisk, currStage):
 
-                """ Check that the force sensing state is not already active """
-                if self.forceFeedback:
-                        print "ERROR FORCE SENSING FEEDBACK MODE ALREADY SELECTED"
-                        return
+		""" Check that the force sensing state is not already active """
+		if self.forceFeedback:
+			print "ERROR FORCE SENSING FEEDBACK MODE ALREADY SELECTED"
+			return
 
-                """ Set the force sensing feedback mode active """
-                self.forceFeedback = True
-                self.forceStartTime = time.time()
+		""" Set the force sensing feedback mode active """
+		self.forceFeedback = True
+		self.forceStartTime = time.time()
 
-                """ Wait until the ABB Robot is finished positioning in the center of the blade """
-                while self.forceFeedback:
-                        pass
+		""" Wait until the ABB Robot is finished positioning in the center of the blade """
+		while self.forceFeedback:
+			pass
 
-                print "POSITION ARM FOR INSPECTION COMPLETE"
+		print "POSITION ARM FOR INSPECTION COMPLETE"
 
 	""" Inspect the current blade """
 	def inspectBlade(self, currBlisk, currStage):
@@ -203,11 +188,10 @@ class ABBRobot(object):
 	""" Return whether the abb robot is still in the process of inspecting the blade """
 	def stillInspecting(self, currBlisk, currStage):
 
-                self.my_print("Still Inspecting")
-
-                """ Determine the expected message """
-                if currStage == 0:
-                        if currBlisk == 0:
+		self.my_print("Still Inspecting")
+		""" Determine the expected message """
+		if currStage == 0:
+			if currBlisk == 0:
 				expMessage = "INSPECT_P01_00"
 			elif currBlisk == 1:
 				expMessage = "INSPECT_P02_00"
@@ -223,18 +207,23 @@ class ABBRobot(object):
 		else:
 			self.my_print("ERROR INCORRECT STAGE NUMBER RECEIVED IN INSPECT ")
 
-                """ See if a value has been recieved """
-                if(self.receiveNonBlocking(expMessage)):
+		distance = -1
+		blade_side = -1			
 
-                        """ When complete reenable blocking and set inspecting state to false """
-                        print "BLADE INSPECTION COMPLETE"
-                        self.inspecting = False
-                        self.enableBlocking()
-                        return False
-
-                else:
-                        
-                        return True
+		""" See if a value has been recieved """
+		ret, message = self.receiveNonBlocking(expMessage)
+		if(ret):
+			if(message == expMessage):
+				print "BLADE INSPECTION COMPLETE"
+				self.inspecting = False
+				return (False, blade_side, distance)
+			""" Otherwise position recieved """
+			else:
+				print "POSITION VALUE RECEIVED FROM ABB"
+				return (True, blade_side, distance)
+		""" No message recieved, continue inspection """
+		else:
+			return (True, blade_side, distance)
                 
 
 	""" Inspect the current blade """

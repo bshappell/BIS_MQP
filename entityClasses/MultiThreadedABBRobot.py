@@ -147,9 +147,9 @@ class ABBRobot(object):
 	""" Return whether the abb robot is still in the process of inspecting the blade """
 	def stillInspecting(self, currBlisk, currStage):
 
-                """ Determine the expected message """
-                if currStage == 0:
-                        if currBlisk == 0:
+		""" Determine the expected message """
+		if currStage == 0:
+			if currBlisk == 0:
 				expMessage = "INSPECT_P01_00"
 			elif currBlisk == 1:
 				expMessage = "INSPECT_P02_00"
@@ -165,22 +165,25 @@ class ABBRobot(object):
 		else:
 			self.my_print("ERROR INCORRECT STAGE NUMBER RECEIVED IN INSPECT ")
 
-                """ See if a value has been recieved """
-                try:
-                        #ret = self.server_thread.reply_q.get(True,0.1)
-                        ret = self.server_thread.reply_q.get_nowait()
+		distance = -1
+		blade_side = -1	
 
-                        #if ret.data: #== expMessage:
+		""" See if a value has been recieved """
+		try:
+			ret, message = self.server_thread.reply_q.get_nowait()
+			if ret.data: == expMessage:
+				""" When complete reenable blocking and set inspecting state to false """
+				self.inspecting = False
+				return (False, blade_side, distance)
+			""" Otherwise position recieved """
+			else:
+				print "POSITION VALUE RECEIVED FROM ABB"
+				return (True, blade_side, distance)
 
-                        """ When complete reenable blocking and set inspecting state to false """
-                        print "BLADE INSPECTION COMPLETE"
-                        self.inspecting = False
-                        return False
-
-                except Queue.Empty as e:
-                        return True
-
-                return True
+		""" No message recieved, continue inspection """
+		except Queue.Empty as e:
+			return (True, blade_side, distance)
+		return (True, blade_side, distance)
                 
 
 	""" Inspect the current blade """

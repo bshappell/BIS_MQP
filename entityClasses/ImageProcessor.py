@@ -2,6 +2,7 @@
 import cv2
 import numpy as np
 import InspectionResults
+import InspectionPosition
 import sys
 import time
 
@@ -120,12 +121,35 @@ class ImageProcessor(object):
 		""" Close all windows currently open """
 		self.shutdown()
 
-	def inspect(self, isSmallBB, callFunction, bliskNum, stageNum):
+	""" Called before inspecting a new blisk """
+	def newBlisk(self,bliskNum):
 
-		while(callFunction(bliskNum, stageNum)):
+		if bliskNum == 0:
+			bliskStr = "P01"
+		elif bliskNum == 1:
+			bliskStr = "P02"
+		elif bliskNum == 2:
+			bliskStr = "G02"
 
-			self.inspectImageFromCamera(True)
-			cv2.imshow('Inspected Camera Image ',self.frame)
+		""" Open new file for inspection results """
+		self.results.openNewFile(bliskStr)
+
+	def inspect(self, callFunction, position):
+
+		stillInspecting = True
+
+		while(stillInspecting):
+
+			stillInspecting, blade_side, distance = callFunction(position.blisk_number, position.stage_number)
+			if ((distance != -1) and (blade_side != -1)):
+				position.update(blade_side,distance)
+
+			""" Inspect the captured image """
+			passValue = self.inspectImageFromCamera(position.small_ball_bearing)
+			cv2.imshow('Inspected Camera Image ', self.frame)
+
+			""" Save the inspection results to the file """
+			self.results.addResult(position)
 
 			key = cv2.waitKey(1) & 0xFF
 
@@ -136,7 +160,9 @@ class ImageProcessor(object):
 
 		while(True):
 
-			self.inspectImageFromCamera(True)
+			""" Inspect the captured image """
+			passValue = self.inspectImageFromCamera(True)
+
 			#self.findBBCamera()
 			cv2.imshow('Inspected Camera Image ',self.frame)
 
