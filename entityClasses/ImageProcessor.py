@@ -7,14 +7,14 @@ import sys
 import time
 
 DEBUG = 1 # Toggle to get debug features
-RASP_PI = 0 # Indicates whether 
+RASP_PI = 1 # Indicates whether 
 CAMERA = 1 # Indicates whether to run the code with the camera
 
 HUE_LOW = 26
 HUE_HIGH = 71
 SATURATION_LOW = 105
 SATURATION_HIGH = 255
-VALUE_LOW = 100 #116
+VALUE_LOW = 116 #116
 VALUE_HIGH = 255
 
 class ImageProcessor(object):
@@ -153,6 +153,21 @@ class ImageProcessor(object):
 
 			key = cv2.waitKey(1) & 0xFF
 
+			pic_count += 1
+
+                end_time =(time.time())
+                self.my_print("end_time: ")
+                self.my_print(end_time)
+		self.my_print("start_time: ")
+		self.my_print(start_time)
+		self.my_print("elapsed time: ")
+		self.my_print(end_time - start_time)
+		self.my_print("pic_count: ")
+		self.my_print(pic_count)
+		self.my_print("fps: ")
+		self.my_print(pic_count/(end_time - start_time))
+		
+
 
 
 	""" Inspect Camera image """
@@ -164,6 +179,7 @@ class ImageProcessor(object):
 			passValue = self.inspectImageFromCamera(True)
 
 			#self.findBBCamera()
+
 			cv2.imshow('Inspected Camera Image ',self.frame)
 
 			key = cv2.waitKey(1) & 0xFF

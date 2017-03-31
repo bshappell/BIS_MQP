@@ -15,24 +15,29 @@ class LED(object):
 
 		""" set the pinNumber """
 		self.pinNumber = pinNumber
+		self.brightness = 15
 
 		""" set up the GPIO pin specified """
 		GPIO.setmode(GPIO.BCM) # specify naming convention to use
 		GPIO.setwarnings(False) # discard GPIO warnings
 		GPIO.setup(pinNumber,GPIO.OUT) # set the pin as an output
 
+		self.pwm = GPIO.PWM(self.pinNumber, 60)
+
 		""" Initially turn the pin off """
-		self.turnOff()
+		#self.turnOff()
 
 	def turnOn(self):
 
 		""" code to turn the rasp pi pin on """
-		GPIO.output(self.pinNumber, GPIO.HIGH)
+		#GPIO.output(self.pinNumber, GPIO.HIGH)
+		self.pwm.start(self.brightness)
 
 	def turnOff(self):
 
 		""" code to turn the rasp pi pin off """
-		GPIO.output(self.pinNumber, GPIO.LOW)
+		#GPIO.output(self.pinNumber, GPIO.LOW)
+		self.pwm.stop()
 
 
 """ Used for testing purposes """
@@ -40,7 +45,6 @@ if __name__ == "__main__":
 
         """ for LED testing purposes """
         led = LED(22)
-        led.turnOn()
-        #time.sleep(5)
-        #led.turnOff()
+        while(1):
+                led.turnOn()
         
