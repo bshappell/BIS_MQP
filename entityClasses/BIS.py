@@ -83,7 +83,7 @@ class BIS(object):
 		self.forceSensor = ForceSensor.ForceSensor(PIN_FS_DATA, PIN_FS_CLK, self.abbRobot.sendForceMeasurement)
 
 		""" set up the tool switch """
-                self.toolSwitch = ToolSwitch.ToolSwitch(PIN_SERVO_POWER, PIN_SERVO_SIG)
+		self.toolSwitch = ToolSwitch.ToolSwitch(PIN_SERVO_POWER, PIN_SERVO_SIG)
 
 		""" set up the turntable stepper motor """
 		self.turntable = TurnTable.TurnTable(PIN_MOTOR_STEP, PIN_MOTOR_DIR)

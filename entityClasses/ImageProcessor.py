@@ -35,9 +35,12 @@ class ImageProcessor(object):
 		self.upper_green = np.array([HUE_HIGH,SATURATION_HIGH,VALUE_HIGH])
 
 		""" The Different Boxes to search for light in """
-		self.box1 = Box(80,80,100,100)
+		"""self.box1 = Box(80,80,100,100)
 		self.box2 = Box(50,270,100,100)
-		self.box3 = Box(250,320,100,100)
+		self.box3 = Box(250,320,100,100)"""
+		self.box1 = Box(420,100,70,70)
+		self.box2 = Box(320,50,70,70)
+		self.box3 = Box(250,150,70,70)
 
 		""" Array of Test Images """
 		frame1 = cv2.imread('..\\better_pics\\Up2Covered.jpg',-1)
@@ -153,11 +156,12 @@ class ImageProcessor(object):
 
 			self.inspectImageFromCamera(True)
 			#self.findBBCamera()
-			"""cv2.imshow('Inspected Camera Image ',self.frame)
+
+			cv2.imshow('Inspected Camera Image ',self.frame)
 
 			key = cv2.waitKey(1) & 0xFF
 			if key == ord('q'):
-				break"""
+				break
 		
 		""" Close all windows currently open """
 		self.shutdown()
