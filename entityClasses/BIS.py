@@ -84,7 +84,7 @@ class BIS(object):
 		self.abbRobot = MultiThreadedABBRobot.ABBRobot()
 
 		""" set up the force sensor """
-		self.forceSensor = ForceSensor.ForceSensor(PIN_FS_DATA, PIN_FS_CLK, self.abbRobot.sendForceMeasurement)
+		self.forceSensor = ForceSensor.ForceSensor(PIN_FS_DATA, PIN_FS_CLK)
 
 		""" set up the tool switch """
 		self.toolSwitch = ToolSwitch.ToolSwitch(PIN_SERVO_POWER, PIN_SERVO_SIG)
@@ -99,7 +99,7 @@ class BIS(object):
 		self.imageProcessor = ImageProcessor.ImageProcessor()
 
 		""" set up the force sensor class """
-		self.forceSensor = ForceSensor.ForceSensor(PIN_FS_DATA, PIN_FS_CLK, self.abbRobot.sendForceMeasurement)
+		self.forceSensor = ForceSensor.ForceSensor(PIN_FS_DATA, PIN_FS_CLK)
 
 	""" Handles the startup of the BIS """
 	def start(self):
@@ -171,14 +171,12 @@ class BIS(object):
 
                 print "position arm for inspection in bis"
 
-		""" Begin sending the force sensing readings to the abb robot """
-		self.forceSensor.startReadings()
+		self.forceSensor.positionInFillet(self.abbRobot.inspectionPositioning)
 
 		""" Position Arm for Inspection """
-		self.abbRobot.positionArmForInspection(self.currBlisk, self.stage_num)
+		#self.abbRobot.positionArmForInspection(self.currBlisk, self.stage_num)
 
-		""" Stop the force sensing readings """
-		#self.forceSensor.pauseReadings()
+
 
 	""" Start the inspection of the current blisk """
 	def inspectBlisk(self):

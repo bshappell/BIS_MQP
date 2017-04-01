@@ -126,7 +126,14 @@ class ABBRobot(object):
 		else: 
 			self.my_print("ERROR INCORRECT BLISK NUMBER RECEIVED IN POS ARM CLOSE")
 			return False
-		
+
+        """ Send the message to the ABB to move forward more """
+	def inspectionPositioning(self):
+
+                self.my_print("move forward more")
+
+                pass
+
 
 	""" Position the arm for inspection in the center of the blade using force sensing feedback """
 	def positionArmForInspection(self, currBlisk, currStage):

@@ -14,7 +14,7 @@ import pigpio # http://abyz.co.uk/rpi/pigpio/python.html
 
 class ForceSensor(object):
 
-    def __init__(self, dataPin, clkPin, forceCallback):
+    def __init__(self, dataPin, clkPin, forceCallback=None):
 
         """ Set up the data and clock pins """
       	self.clkPin = clkPin
@@ -45,7 +45,7 @@ class ForceSensor(object):
         self.hx117.pause()
 
     """ Callback for when a new reading is recieved from the force sensor """
-    def forceReadingCallback(self, count, mode, reading):
+    def forceReadingCallback(self, reading):
 
         #print "raw reading: " + str(reading)
 
@@ -65,6 +65,36 @@ class ForceSensor(object):
 
         self.hx117.start()
         time.sleep(1)
+
+    """ Processes the force sensing readings until the arm is correctly positioned in the fillet """
+    def positionInFillet(self, callFunc):
+
+        """ Start receving readings """
+        self.startReadings()
+
+        readings = []
+
+        start_time = time.time()
+        print start_time
+        
+        """ Collect multiple readings to be averaged """
+        for i in range(50):
+
+            count, mode, reading = self.hx117.get_reading()
+            print "Reading = "
+            print(reading)
+            print count, mode, reading
+            readings.append(reading)
+            #time.sleep(0.07)
+
+            """ Send the value to the abb """
+            callFunc()
+
+        print time.time() - start_time
+            
+        """ Pause readings when function complete """
+        self.pauseReadings()
+
 
     """ Zero the sensor by polling it over a time frame """
     def zeroSensor(self):
