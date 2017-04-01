@@ -50,9 +50,9 @@ class BIS(object):
 		self.blade_num = 0
 		self.blisk_num = 0
 		self.stage_num = 0
-		self.blade_side = 0 """ Recieved from the ABB """
-		self.blade_dist = 0 """ Recieved from the ABB """
-		self.bb_num = 0 """ 0 indicates the small BB 1 indicates large BB """
+		self.blade_side = 0
+		self.blade_dist = 0
+		self.bb_num = 0
 
 		""" The arrays of steps between blades for the different stages """
 		# TODO add error accounting to step arrays
@@ -72,7 +72,7 @@ class BIS(object):
 		blisk_G02 = Blisk.Blisk(ID_BLISK_G02, IT_BLISK_G02, stage_G02)
 
 		""" Inspection Position Class """
-		self.position = InspectionPosition()
+		self.position = InspectionPosition.InspectionPosition()
 
 		""" Array to store blisks """
 		self.blisks = [blisk_P01, blisk_P02, blisk_G02]

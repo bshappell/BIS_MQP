@@ -171,16 +171,13 @@ class ABBRobot(object):
 		""" See if a value has been recieved """
 		try:
 			ret, message = self.server_thread.reply_q.get_nowait()
-			if ret.data: == expMessage:
+			if ret.data == expMessage:
 				""" When complete reenable blocking and set inspecting state to false """
 				self.inspecting = False
 				return (False, blade_side, distance)
-			""" Otherwise position recieved """
 			else:
 				print "POSITION VALUE RECEIVED FROM ABB"
 				return (True, blade_side, distance)
-
-		""" No message recieved, continue inspection """
 		except Queue.Empty as e:
 			return (True, blade_side, distance)
 		return (True, blade_side, distance)

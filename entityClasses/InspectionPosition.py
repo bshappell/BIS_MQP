@@ -1,6 +1,6 @@
 
 """ Class to store a position along a blisk """
-class InspectionPosition(class):
+class InspectionPosition(object):
 
 	def __init__(self):
 
