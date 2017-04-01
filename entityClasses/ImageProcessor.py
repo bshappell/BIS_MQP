@@ -137,6 +137,7 @@ class ImageProcessor(object):
 	def inspect(self, callFunction, position):
 
 		stillInspecting = True
+		pic_count = 0
 
 		while(stillInspecting):
 
@@ -149,7 +150,7 @@ class ImageProcessor(object):
 			cv2.imshow('Inspected Camera Image ', self.frame)
 
 			""" Save the inspection results to the file """
-			self.results.addResult(position)
+			self.results.addResult(position, passValue)
 
 			key = cv2.waitKey(1) & 0xFF
 

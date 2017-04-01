@@ -22,6 +22,8 @@ STAGE_2 = 0x02
 
 # TODO Indicate which side
 
+RECORD_FORCE_SENSING = 0
+
 """ MESSAGE TYPES """
 MT_CHECK_CONNECTION = 0x00
 MT_ARM_HOME = 0x01
@@ -54,6 +56,7 @@ class ABBRobot(object):
 		""" Stores the state of whether the ABB is using force sensing feedback or not """
 		self.forceFeedback = False
 		self.forceStartTime = 0
+		self.ff_count = 0
 
 		""" Indicates whether a blade inspection is currently happening """
 		self.inspecting = False
@@ -128,12 +131,15 @@ class ABBRobot(object):
 	""" Position the arm for inspection in the center of the blade using force sensing feedback """
 	def positionArmForInspection(self, currBlisk, currStage):
 
+                print "positioning arm for inspection"
+
 		""" Check that the force sensing state is not already active """
 		if self.forceFeedback:
 			print "ERROR FORCE SENSING FEEDBACK MODE ALREADY SELECTED"
 			return
 
 		""" Set the force sensing feedback mode active """
+		self.ff_count = 0
 		self.forceFeedback = True
 		self.forceStartTime = time.time()
 
@@ -234,16 +240,22 @@ class ABBRobot(object):
 	""" Function to process the force reading and determine if contact has been made """
 	def processForceReading(self, reading):
 
+                print "processing force reading"
+
+                self.ff_count += 1
+
 		if time.time() - self.forceStartTime > 5:
 			self.forceFeedback = False
-			print "SETTING FORCE FEEDBACK TO FALSE"
+			self.my_print("SETTING FORCE FEEDBACK TO FALSE")
+			self.my_print("FFB Count: ")
+			self.my_print(self.ff_count)
 
 	""" Function to close the TCP Socket """
 	def closeComm(self):
 
 		self.my_print('closing connection with client\n')
 		if self.server_thread:
-			self.send("DISCONNECT")
+			#self.send("DISCONNECT")
 			self.server_thread.cmd_q.put(ServerCommand(ServerCommand.CLOSE))
 			self.server_thread.join()
 
@@ -353,14 +365,16 @@ class SocketServerThread(threading.Thread):
             self.reply_q.put(self._error_reply(str(e)))
 
     def _handle_CLOSE(self, cmd):
-        self.connection.close()
+        if self.connection:
+                self.connection.close()
         reply = ServerReply(ServerReply.SUCCESS)
         self.reply_q.put(reply)
 
     def _handle_SEND(self, cmd):
         try:
-            self.connection.sendall(cmd.data)
-            self.reply_q.put(self._success_reply())
+                if self.connection:
+                        self.connection.sendall(cmd.data)
+                        self.reply_q.put(self._success_reply())
         except IOError as e:
             self.reply_q.put(self._error_reply(str(e)))
 

@@ -167,14 +167,21 @@ class BIS(object):
 	""" Positions the arm for inspection by using force sensing """
 	def positionArmForInspection(self):
 
+                print "position arm for inspection in bis"
+
 		""" Begin sending the force sensing readings to the abb robot """
 		self.forceSensor.startReadings()
+
+		""" Position Arm for Inspection """
+		self.abbRobot.positionArmForInspection(self.currBlisk, self.stage_num)
+
+		""" Stop the force sensing readings """
+		#self.forceSensor.pauseReadings()
 
 	""" Start the inspection of the current blisk """
 	def inspectBlisk(self):
 
-		""" Position Arm for Inspection """
-		self.abbRobot.posArmForInspection(self.currBlisk, stage)
+		self.positionArmForInspection()
 
 		""" turn on the LED for inspection """
 		self.led.turnOn()
@@ -233,7 +240,7 @@ class BIS(object):
 
 		print "in inspecting blade function"
 		""" TO DO how to get position to image processor? """
-		self.position.set(self.blisk_num, self.stage_num, self.blade_num, self.blade_side, self.bb_num, self.blade_dist)
+		self.position.setPos(self.blisk_num, self.stage_num, self.blade_num, self.blade_side, self.bb_num, self.blade_dist)
 		self.imageProcessor.inspect(self.abbRobot.stillInspecting, self.position)
 		print "leaving inspect blade function"
 		

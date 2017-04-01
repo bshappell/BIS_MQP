@@ -53,7 +53,7 @@ class ForceSensor(object):
         #print(count, mode, round(gramsReading, 2))
 
         """ Send the values to the IRC5 Controller """
-        #self.forceCallback(gramsReading)
+        self.forceCallback(gramsReading)
 
     """ Pause the readings from the sensor """
     def pauseReadings(self):

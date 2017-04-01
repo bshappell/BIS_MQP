@@ -12,7 +12,7 @@ class InspectionPosition(object):
 		self.distance = 0
 
 
-	def set(self, blisk_number, stage_number, blade_number, blade_side, ball_bearing, distance):
+	def setPos(self, blisk_number, stage_number, blade_number, blade_side, ball_bearing, distance):
 
 		self.blisk_number = blisk_number
 		self.stage_number = stage_number
