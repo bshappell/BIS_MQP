@@ -64,6 +64,7 @@ class ForceSensor(object):
     def startReadings(self):
 
         self.hx117.start()
+        time.sleep(1)
 
     """ Zero the sensor by polling it over a time frame """
     def zeroSensor(self):
@@ -73,7 +74,6 @@ class ForceSensor(object):
 
         """ Start gettings readings """
         self.startReadings()
-        time.sleep(1)
 
         """ List to store the average reading values """
         averages = []

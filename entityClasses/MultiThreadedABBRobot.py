@@ -145,9 +145,10 @@ class ABBRobot(object):
 
 		""" Wait until the ABB Robot is finished positioning in the center of the blade """
 		while self.forceFeedback:
+                        time.sleep(0.01)
 			pass
 
-		print "POSITION ARM FOR INSPECTION COMPLETE"
+		self.my_print("POSITION ARM FOR INSPECTION COMPLETE")
 
 
 	""" Return whether the abb robot is still in the process of inspecting the blade """

@@ -24,7 +24,7 @@ class InspectionResults(object):
 			self.filename = None
 
 		""" Open the file and create a csv writer """
-		self.filename = datetime.datetime.now().strftime("/home/pi/Documents/BIS_MQP/entityClasses/Blisk" + bliskID + "_%B_%d_%Y_%I%M%p" + ".csv")
+		self.filename = datetime.datetime.now().strftime("/home/pi/Documents/BIS_MQP/results/Blisk" + bliskID + "_%B_%d_%Y_%I%M%p" + ".csv")
 		self.file = open(self.filename, 'wb')
 		print self.filename
 		self.csvWriter = csv.writer(self.file)

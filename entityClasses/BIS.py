@@ -129,15 +129,17 @@ class BIS(object):
 
 		if(not self.abbRobot.positionArmFar(self.blisk_num)):
 			print "ERROR POSITIONING THE ARM FAR - in positionArmFar"
-			return
+			#return
 
 		""" Check that there is no contact with the blisk and zero the Force Sensor """
 		if(self.circuitCompletor.getContact()):
 			print "ERROR CONTACT WITH BLISK DETECTED"
-			return
+			#return
 
                 """ set up the force sensor """
 		self.forceSensor.zeroSensor()
+
+		print "ZERO FS COMPLETE"
 
 		""" Use the small BB size first """
 		#self.abbRobot.pullArmBack()
