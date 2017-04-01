@@ -5,12 +5,14 @@
 CH_A_GAIN_64  = 0 # Channel A gain 64
 CH_A_GAIN_128 = 1 # Channel A gain 128
 CH_B_GAIN_32  = 2 # Channel B gain 32
-READING_TO_GRAMS = 0.00236
+READING_TO_GRAMS = -0.00236
+PLOTTING = 0
 
 import time
 import RPi.GPIO as GPIO
 import numpy
 import pigpio # http://abyz.co.uk/rpi/pigpio/python.html
+import matplotlib.pyplot as plt
 
 class ForceSensor(object):
 
@@ -24,7 +26,7 @@ class ForceSensor(object):
       	if forceCallback:
             self.forceCallback = forceCallback
         else:
-            self.forceCallback = self.forceReadingCallback
+            None #self.forceCallback = forceReadingCallback
 
       	""" Use a gain of 128 """
       	self.mode = CH_A_GAIN_128
@@ -45,7 +47,7 @@ class ForceSensor(object):
         self.hx117.pause()
 
     """ Callback for when a new reading is recieved from the force sensor """
-    def forceReadingCallback(self, reading):
+    def forceReadingCallback(self, count, mode, reading):
 
         #print "raw reading: " + str(reading)
 
@@ -53,7 +55,7 @@ class ForceSensor(object):
         #print(count, mode, round(gramsReading, 2))
 
         """ Send the values to the IRC5 Controller """
-        self.forceCallback(gramsReading)
+        self.forceCallback(count, mode, gramsReading)
 
     """ Pause the readings from the sensor """
     def pauseReadings(self):
@@ -73,27 +75,40 @@ class ForceSensor(object):
         self.startReadings()
 
         readings = []
+        timeList = []
 
         start_time = time.time()
         print start_time
+
+        # TO DO: Remove
+        callFunc()
         
         """ Collect multiple readings to be averaged """
-        for i in range(50):
+        while(time.time()-start_time < 5):
 
             count, mode, reading = self.hx117.get_reading()
             print "Reading = "
             print(reading)
             print count, mode, reading
-            readings.append(reading)
-            #time.sleep(0.07)
-
+            gramsReading = READING_TO_GRAMS  * (reading - self.y_init)
+            readings.append(gramsReading)
+            timeList.append(time.time()-start_time)
+            time.sleep(0.5)
+                
             """ Send the value to the abb """
-            callFunc()
+            #callFunc()
 
         print time.time() - start_time
             
         """ Pause readings when function complete """
         self.pauseReadings()
+
+        if(PLOTTING):
+            plt.plot(timeList,readings)
+            plt.ylabel('Force (g)')
+            plt.show()
+
+        print "position in fillet complete"
 
 
     """ Zero the sensor by polling it over a time frame """
@@ -334,21 +349,27 @@ def forceReadingCallback(count, mode, reading):
 
         #print "raw reading: " + str(reading)
 
-        gramsReading = READING_TO_GRAMS  * (reading - self.y_init)
+        gramsReading = READING_TO_GRAMS  * (reading)
         print(count, mode, round(gramsReading, 2))
+
+
+def testFunc():
+
+    print "value received"
 
 
 """ For testing purposes """
 if __name__=="__main__":
 
-    fs = ForceSensor(16,20, forceReadingCallback)
+    fs = ForceSensor(24,23, forceReadingCallback)
 
     fs.zeroSensor()
-    time.sleep(2) # number of seconds of testing, increase as needed
+    time.sleep(.5) # number of seconds of testing, increase as needed
     print "Start"
+    fs.positionInFillet(testFunc)
     #fs.zeroSensor()
-    fs.startReadings()
     #fs.startReadings()
-    time.sleep(10)
+    #fs.startReadings()
+    #time.sleep(10)
     fs.end()
 

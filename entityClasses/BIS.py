@@ -177,6 +177,9 @@ class BIS(object):
 		#self.abbRobot.positionArmForInspection(self.currBlisk, self.stage_num)
 
 
+		print "bis pos arm for inspection complete"
+
+
 
 	""" Start the inspection of the current blisk """
 	def inspectBlisk(self):
@@ -188,6 +191,8 @@ class BIS(object):
 
 		""" Indicate to the image processor that a new blisk is going to be inspected """
 		self.imageProcessor.newBlisk(self.blisk_num)
+
+		print "begin blade inspection"
 
 		""" Inspect all Stages of the blisk """
 		self.stage_num = 0

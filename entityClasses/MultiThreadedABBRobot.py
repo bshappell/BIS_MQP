@@ -132,7 +132,9 @@ class ABBRobot(object):
 
                 self.my_print("move forward more")
 
-                pass
+                self.send("EOAT_FORWARD")
+                self.receive("EOAT_FORWARD")
+
 
 
 	""" Position the arm for inspection in the center of the blade using force sensing feedback """
