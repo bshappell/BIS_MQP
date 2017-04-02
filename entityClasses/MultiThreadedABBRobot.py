@@ -189,6 +189,7 @@ class ABBRobot(object):
 			ret, message = self.server_thread.reply_q.get_nowait()
 			if ret.data == expMessage:
 				""" When complete reenable blocking and set inspecting state to false """
+				print "received expected data in still inspecting!!!!!!!!!!!1"
 				self.inspecting = False
 				return (False, blade_side, distance)
 			else:

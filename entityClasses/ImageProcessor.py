@@ -174,6 +174,8 @@ class ImageProcessor(object):
 	""" Inspect Camera image """
 	def inspectCameraImage(self):
 
+                image_count = 1
+
 		while(True):
 
 			""" Inspect the captured image """
@@ -186,6 +188,8 @@ class ImageProcessor(object):
 			key = cv2.waitKey(1) & 0xFF
 			if key == ord('q'):
 				break
+			elif key == ord('s'):
+                                image_count += 1
 		
 		""" Close all windows currently open """
 		self.shutdown()

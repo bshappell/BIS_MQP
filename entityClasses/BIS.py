@@ -246,6 +246,7 @@ class BIS(object):
 		print "in inspecting blade function"
 		""" TO DO how to get position to image processor? """
 		self.position.setPos(self.blisk_num, self.stage_num, self.blade_num, self.blade_side, self.bb_num, self.blade_dist)
+		self.abbRobot.startInspectBlade(self.blisk_num, self.stage_num)
 		self.imageProcessor.inspect(self.abbRobot.stillInspecting, self.position)
 		print "leaving inspect blade function"
 		

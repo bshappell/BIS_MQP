@@ -79,12 +79,9 @@ class ForceSensor(object):
 
         start_time = time.time()
         print start_time
-
-        # TO DO: Remove
-        callFunc()
         
         """ Collect multiple readings to be averaged """
-        while(time.time()-start_time < 5):
+        while(time.time()-start_time < 10):
 
             count, mode, reading = self.hx117.get_reading()
             print "Reading = "
@@ -96,7 +93,7 @@ class ForceSensor(object):
             time.sleep(0.5)
                 
             """ Send the value to the abb """
-            #callFunc()
+            ######################callFunc()
 
         print time.time() - start_time
             
