@@ -6,8 +6,8 @@ import InspectionPosition
 import sys
 import time
 
-DEBUG = 1 # Toggle to get debug features
-RASP_PI = 1 # Indicates whether 
+DEBUG = 0 # Toggle to get debug features
+RASP_PI = 1 # Indicates whether the code is running on the Raspberry Pi or not
 CAMERA = 1 # Indicates whether to run the code with the camera
 
 HUE_LOW = 26
@@ -39,9 +39,9 @@ class ImageProcessor(object):
 		"""self.box1 = Box(80,80,100,100)
 		self.box2 = Box(50,270,100,100)
 		self.box3 = Box(250,320,100,100)"""
-		self.box1 = Box(420,100,70,70)
-		self.box2 = Box(320,50,70,70)
-		self.box3 = Box(250,150,70,70)
+		self.box1 = Box(400,85,70,70,True)
+		self.box2 = Box(285,50,100,50,True)
+		self.box3 = Box(220,140,70,70,True)
 
 		""" Array of Test Images """
 		frame1 = cv2.imread('..\\better_pics\\Up2Covered.jpg',-1)
@@ -138,6 +138,7 @@ class ImageProcessor(object):
 
 		stillInspecting = True
 		pic_count = 0
+		image_count = 1
 
 		while(stillInspecting):
 
@@ -179,7 +180,7 @@ class ImageProcessor(object):
 		while(True):
 
 			""" Inspect the captured image """
-			passValue = self.inspectImageFromCamera(True)
+			passValue = self.inspectImageFromCamera(False)
 
 			#self.findBBCamera()
 
@@ -190,6 +191,8 @@ class ImageProcessor(object):
 				break
 			elif key == ord('s'):
                                 image_count += 1
+                                img = self.frame
+                                cv2.imwrite("../pictures/Capture_" + str(image_count) +".png", img)
 		
 		""" Close all windows currently open """
 		self.shutdown()
@@ -250,9 +253,10 @@ class ImageProcessor(object):
 		""" Determine if the ball bearing case sizes pass """
 		imagePasses = self.checkImage(isSmallBB,quad1_cnt,quad2_cnt,quad3_cnt)
 
-		""" Indicate Whether the image passes or fails """
-		cv2.putText(frame, "Inspection Passes: " + str(imagePasses), (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, self.upper_green, 2)
-
+                if(DEBUG):
+                        """ Indicate Whether the image passes or fails """
+                        cv2.putText(frame, "Inspection Passes: " + str(imagePasses), (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, self.upper_green, 2)
+        
 		return imagePasses
 
 	""" Determine if the centroid count in each quadrant passes """
@@ -266,14 +270,14 @@ class ImageProcessor(object):
 	""" Check to see if the image passes with the large BB size """
 	def checkLargeBB(self,quad1_cnt,quad2_cnt,quad3_cnt):
 
-		if ((quad1_cnt>0) and (quad3_cnt>0)):
+		if ((quad1_cnt>0) and (quad2_cnt > 0) and (quad3_cnt>0)):
 			return True
 		return False
 
 	""" Check to see if the image passes with the Small BB size """
 	def checkSmallBB(self,quad1_cnt,quad2_cnt,quad3_cnt):	
 
-		if ((quad1_cnt>0) and (quad2_cnt>0) and (quad3_cnt>0)):
+		if ((quad1_cnt>0) and (quad2_cnt == 0) and (quad3_cnt>0)):
 			return True
 		return False	
 
@@ -346,8 +350,9 @@ class ImageProcessor(object):
 		""" Determine if the ball bearing case sizes pass """
 		imagePasses = self.checkImage(isSmallBB,quad1_cnt,quad2_cnt,quad3_cnt)
 
-		""" Indicate Whether the image passes or fails """
-		cv2.putText(self.frame, "Inspection Passes: " + str(imagePasses), (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, self.upper_green, 2)
+                if(DEBUG):
+                        """ Indicate Whether the image passes or fails """
+                        cv2.putText(self.frame, "Inspection Passes: " + str(imagePasses), (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, self.upper_green, 2)
 
 		return imagePasses
 
@@ -375,16 +380,20 @@ class ImageProcessor(object):
 """ Box Object to Store 4 points, draw the box and determine if points are within the box """
 class Box(object):
 
-	def __init__(self, x_pos, y_pos, x_width, y_width):
+	def __init__(self, x_pos, y_pos, x_width, y_width, filled):
 
 		""" Store the parameter values """
 		self.xPos = x_pos
 		self.yPos = y_pos
 		self.xWidth = x_width
 		self.yWidth = y_width
+		self.filled = filled
 
-		""" Color to draw the box lines """
-		self.color = (255,255,255)
+		if(self.filled):
+                        """ Color to draw the box lines """
+                        self.color = (255,255,255)
+                else:
+                        self.color = (0, 0, 255)
 
 	""" Return the Upper Left Hand Point on the Box """
 	def p00(self):
