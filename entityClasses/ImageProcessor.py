@@ -6,7 +6,7 @@ import InspectionPosition
 import sys
 import time
 
-DEBUG = 0 # Toggle to get debug features
+DEBUG = 1 # Toggle to get debug features
 RASP_PI = 1 # Indicates whether the code is running on the Raspberry Pi or not
 CAMERA = 1 # Indicates whether to run the code with the camera
 
@@ -44,20 +44,35 @@ class ImageProcessor(object):
 		self.box3 = Box(220,140,70,70,True)
 
 		""" Array of Test Images """
-		frame1 = cv2.imread('..\\better_pics\\Up2Covered.jpg',-1)
+		"""frame1 = cv2.imread('..\\better_pics\\Up2Covered.jpg',-1)
 		frame2 = cv2.imread('..\\better_pics\\Up2Uncovered.jpg',-1)
 		frame3 = cv2.imread('..\\better_pics\\Down1Covered.jpg',-1)
 		frame4 = cv2.imread('..\\better_pics\\Down1Uncovered.jpg',-1)
 		frame5 = cv2.imread('..\\better_pics\\Down2Covered.jpg',-1)
 		frame6 = cv2.imread('..\\better_pics\\Down2Uncovered.jpg',-1)
 		frame7 = cv2.imread('..\\better_pics\\Up1Uncovered.jpg',-1)
-		frame8 = cv2.imread('..\\better_pics\\Up1Covered.jpg',-1)
-		self.frames = [frame1,frame2,frame3,frame4,frame5,frame6,frame7,frame8]
+		frame8 = cv2.imread('..\\better_pics\\Up1Covered.jpg',-1)"""
+		
+		frame1 = cv2.imread('../pictures/Large_Fail.png',-1)
+		frame2 = cv2.imread('../pictures/Large_Pass.png',-1)
+		frame3 = cv2.imread('../pictures/Plain_Large.png',0)
+		frame4 = cv2.imread('../pictures/Plain_Small.png',0)
+
+		frame5 = cv2.imread('../better_pics/Up2Covered.jpg', 0)
+                frame6 = cv2.imread('..better_pics/Up2Uncovered.jpg',0)
+                frame7 = cv2.imread('../better_pics/Up1Uncovered.jpg',0)
+                frame8 = cv2.imread('../better_pics/Up1Covered.jpg',0)
+		
+		"""frame5 = cv2.imread('../pictures/Small_Fail.png',-1)
+		frame6 = cv2.imread('../pictures/Small_Pass.png',-1)
+		frame7 = cv2.imread('../pictures/Small_Pass_Light.png',-1)
+		frame8 = cv2.imread('../pictures/Small_Pass_Light2.png',-1)"""
+		self.frames = [frame3,frame4] #frame5,frame6,frame7,frame8]
 
 	""" Find the Ball Bearing and locate the centroid """
-	def findBB(self, image):
+	def findBB(self, img):
 
-		img = cv2.imread(image,0)
+		#img = cv2.imread(image,0)
 		img = cv2.medianBlur(img,5)
 		cimg = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
 
@@ -66,14 +81,16 @@ class ImageProcessor(object):
 
 		circles = np.uint16(np.around(circles))
 		for i in circles[0,:]:
+                    print "circle found"
 		    # draw the outer circle
 		    cv2.circle(cimg,(i[0],i[1]),i[2],(0,255,0),2)
 		    # draw the center of the circle
 		    cv2.circle(cimg,(i[0],i[1]),2,(0,0,255),3)
 
-		cv2.imshow('detected circles',cimg)
-		cv2.waitKey(0)
-		cv2.destroyAllWindows()
+		#cv2.imshow('detected circles',cimg)
+		#cv2.waitKey(0)
+		#cv2.destroyAllWindows()
+		return cimg
 
 	""" Find the Ball Bearing and locate the centroid """
 	def findBBCamera(self):
@@ -105,8 +122,12 @@ class ImageProcessor(object):
 	""" Inspect the test array of images """
 	def inspectArray(self):
 
-		for frame in self.frames:
-			self.inspectImage(True,frame)
+                inspectArray = []
+
+		#for frame in self.frames:
+			#self.inspectImage(True,frame)
+                        #inspectArray.append(self.findBB(frame))
+                 #       self.findBB(frame)
 
 		if DEBUG:
 			while(True):
@@ -436,8 +457,8 @@ if __name__ == "__main__":
 
 	ip = ImageProcessor()
 	#ip.test()
-	ip.inspectCameraImage()
-	#ip.inspectArray()
+	#ip.inspectCameraImage()
+	ip.inspectArray()
         #ip.findBBCamera()
 
 	"""ip.findBB('..\\better_pics\\Up2Covered.jpg')
