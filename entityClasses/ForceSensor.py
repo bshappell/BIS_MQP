@@ -6,7 +6,8 @@ CH_A_GAIN_64  = 0 # Channel A gain 64
 CH_A_GAIN_128 = 1 # Channel A gain 128
 CH_B_GAIN_32  = 2 # Channel B gain 32
 READING_TO_GRAMS = -0.00236
-PLOTTING = 1
+PLOTTING = 0
+F_THRESH = 1750
 
 import csv
 import time
@@ -69,6 +70,8 @@ class ForceSensor(object):
     """ Processes the force sensing readings until the arm is correctly positioned in the fillet """
     def positionInFillet(self, callFunc):
 
+        saveCount = 0
+
         """ Start receving readings """
         self.startReadings()
 
@@ -79,22 +82,37 @@ class ForceSensor(object):
         #print start_time
 
         c,m,r = self.hx117.get_reading()
+        c-=1
+        time.sleep(0.1)
         
         """ Collect multiple readings to be averaged """
-        while(time.time()-start_time < 20):
+        while(True):  # time.time()-start_time < 20):
 
             count, mode, reading = self.hx117.get_reading()
+            c+=1
             #print "Reading = "
             #print(reading)
             #print count, mode, reading
-            gramsReading = READING_TO_GRAMS  * (reading - self.y_init)
-            readings.append(gramsReading)
-            timeList.append(time.time()-start_time)
-            time.sleep(0.07)
-            saveCount = count - c
-                
-            """ Send the value to the abb """
-            ######################callFunc()
+
+            if (count == c):
+                print "restarting HX711"
+                self.restartHX711()
+            else:
+                print "Getting Reading"
+                gramsReading = READING_TO_GRAMS  * (reading - self.y_init)
+                print gramsReading
+                readings.append(gramsReading)
+                timeList.append(time.time()-start_time)
+                time.sleep(0.07)
+                saveCount = count - c
+                if(gramsReading < F_THRESH):
+                    """ Send the value to the abb """
+                    print "Sending Move Command"
+                    callFunc()
+
+                elif(gramsReading >= F_THRESH):
+                    print "Exiting Force Sensing Loop"
+                    break
 
         """ Pause readings when function complete """
         self.pauseReadings()
@@ -161,6 +179,12 @@ class ForceSensor(object):
         self.pauseReadings()
 
         print "Zeroing Function Complete"
+
+
+    def restartHX711(self):
+        self.hx117.pause()
+        time.sleep(0.1)
+        self.startReadings()
         
 
     def end(self):
@@ -212,7 +236,7 @@ class HX711:
     pi.write(CLOCK, 1) # Pause the sensor.
 
     pi.wave_add_generic(
-       [pigpio.pulse(1<<CLOCK, 0, 10), pigpio.pulse(0, 1<<CLOCK, 50)]) #was 20 and 20 not 2 and 2
+       [pigpio.pulse(1<<CLOCK, 0, 20), pigpio.pulse(0, 1<<CLOCK, 20)]) #was 20 and 20 not 2 and 2
 
     self._wid = pi.wave_create()
 
