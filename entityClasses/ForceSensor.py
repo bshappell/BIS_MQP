@@ -6,8 +6,9 @@ CH_A_GAIN_64  = 0 # Channel A gain 64
 CH_A_GAIN_128 = 1 # Channel A gain 128
 CH_B_GAIN_32  = 2 # Channel B gain 32
 READING_TO_GRAMS = -0.00236
-PLOTTING = 0
+PLOTTING = 1
 
+import csv
 import time
 import RPi.GPIO as GPIO
 import numpy
@@ -49,11 +50,8 @@ class ForceSensor(object):
     """ Callback for when a new reading is recieved from the force sensor """
     def forceReadingCallback(self, count, mode, reading):
 
-        #print "raw reading: " + str(reading)
-
         gramsReading = READING_TO_GRAMS  * (reading - self.y_init)
-        #print(count, mode, round(gramsReading, 2))
-
+        
         """ Send the values to the IRC5 Controller """
         self.forceCallback(count, mode, gramsReading)
 
@@ -78,29 +76,36 @@ class ForceSensor(object):
         timeList = []
 
         start_time = time.time()
-        print start_time
+        #print start_time
+
+        c,m,r = self.hx117.get_reading()
         
         """ Collect multiple readings to be averaged """
-        while(time.time()-start_time < 10):
+        while(time.time()-start_time < 20):
 
             count, mode, reading = self.hx117.get_reading()
-            print "Reading = "
-            print(reading)
-            print count, mode, reading
+            #print "Reading = "
+            #print(reading)
+            #print count, mode, reading
             gramsReading = READING_TO_GRAMS  * (reading - self.y_init)
             readings.append(gramsReading)
             timeList.append(time.time()-start_time)
-            time.sleep(0.5)
+            time.sleep(0.07)
+            saveCount = count - c
                 
             """ Send the value to the abb """
             ######################callFunc()
 
-        print time.time() - start_time
-            
         """ Pause readings when function complete """
         self.pauseReadings()
 
+        print "Number of Samples:" + str(saveCount)
+
         if(PLOTTING):
+            with open('data.csv', 'wb') as f:
+                writer = csv.writer(f)
+                for value in range(0, len(readings)):
+                    writer.writerow([readings[value], timeList[value]])
             plt.plot(timeList,readings)
             plt.ylabel('Force (g)')
             plt.show()
@@ -135,11 +140,11 @@ class ForceSensor(object):
         for i in range(50):
 
             count, mode, reading = self.hx117.get_reading()
-            print "Reading = "
-            print(reading)
-            print count, mode, reading
+            #print "Reading = "
+            #print(reading)
+            #print count, mode, reading
             averages.append(reading)
-            time.sleep(0.07)
+            time.sleep(0.1)
 
         """ Remove the outliers """
         """ TODO Remove Outliers """
@@ -207,7 +212,7 @@ class HX711:
     pi.write(CLOCK, 1) # Pause the sensor.
 
     pi.wave_add_generic(
-       [pigpio.pulse(1<<CLOCK, 0, 20), pigpio.pulse(0, 1<<CLOCK, 20)])
+       [pigpio.pulse(1<<CLOCK, 0, 10), pigpio.pulse(0, 1<<CLOCK, 50)]) #was 20 and 20 not 2 and 2
 
     self._wid = pi.wave_create()
 
@@ -347,7 +352,7 @@ def forceReadingCallback(count, mode, reading):
         #print "raw reading: " + str(reading)
 
         gramsReading = READING_TO_GRAMS  * (reading)
-        print(count, mode, round(gramsReading, 2))
+        #print(count, mode, round(gramsReading, 2))
 
 
 def testFunc():
@@ -361,7 +366,7 @@ if __name__=="__main__":
     fs = ForceSensor(24,23, forceReadingCallback)
 
     fs.zeroSensor()
-    time.sleep(.5) # number of seconds of testing, increase as needed
+    time.sleep(1) # number of seconds of testing, increase as needed
     print "Start"
     fs.positionInFillet(testFunc)
     #fs.zeroSensor()

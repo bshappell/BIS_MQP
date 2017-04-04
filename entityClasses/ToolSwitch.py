@@ -5,6 +5,9 @@ import RPi.GPIO as GPIO
 import time
 import pigpio
 
+LARGE_DC = 8.2
+SMALL_DC = 3.0
+
 WIRING_PI = False
 
 if WIRING_PI:
@@ -73,7 +76,7 @@ class Servo(object):
                 GPIO.output(self.powerPin, GPIO.HIGH)
 
                 """ Send the signal to move to the small BB position """
-                self.pwm.ChangeDutyCycle(3) # 50% duty cycle
+                self.pwm.ChangeDutyCycle(SMALL_DC)
                 time.sleep(2)
 
                 """ Turn off power to the servo """
@@ -87,11 +90,10 @@ class Servo(object):
                 time.sleep(0.1)
 
                 """ Send the signal to move to the large BB position """
-                self.pwm.ChangeDutyCycle(7.6) # 50% duty cycle
+                self.pwm.ChangeDutyCycle(LARGE_DC)
                 time.sleep(2)
 
                 """ Turn off power to the servo """
-                time.sleep(0.1)
                 GPIO.output(self.powerPin, GPIO.LOW)
 
         def testRun(self, val):
