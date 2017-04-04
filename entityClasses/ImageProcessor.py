@@ -6,7 +6,7 @@ import InspectionPosition
 import sys
 import time
 
-DEBUG = 1 # Toggle to get debug features
+DEBUG = 0 # Toggle to get debug features
 RASP_PI = 1 # Indicates whether the code is running on the Raspberry Pi or not
 CAMERA = 1 # Indicates whether to run the code with the camera
 
@@ -76,8 +76,7 @@ class ImageProcessor(object):
 		img = cv2.medianBlur(img,5)
 		cimg = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
 
-		circles = cv2.HoughCircles(img, cv2.cv.CV_HOUGH_GRADIENT,1,20,
-		                            param1=50,param2=45,minRadius=80,maxRadius=0)
+		circles = cv2.HoughCircles(img, cv2.cv.CV_HOUGH_GRADIENT,1,20, param1=50,param2=45,minRadius=80,maxRadius=0)
 
 		circles = np.uint16(np.around(circles))
 		for i in circles[0,:]:
@@ -457,7 +456,7 @@ if __name__ == "__main__":
 
 	ip = ImageProcessor()
 	#ip.test()
-	#ip.inspectCameraImage()
+	ip.inspectCameraImage()
 	ip.inspectArray()
         #ip.findBBCamera()
 

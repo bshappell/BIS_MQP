@@ -55,7 +55,7 @@ class TurnTable(object):
 
 if __name__=="__main__":
 	
-	myTurn = TurnTable(23,24)
+	myTurn = TurnTable(20,16)
         
 	stepsArray_P02 = [4667]
 
