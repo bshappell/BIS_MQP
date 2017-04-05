@@ -49,7 +49,7 @@ class ABBRobot(object):
 		self.server_thread = SocketServerThread()
 		self.server_thread.start()
 
-                self.my_print("setting up server")
+		self.my_print("setting up server")
 		self.server_thread.cmd_q.put(ServerCommand(ServerCommand.SETUP, self.server_address))
 		reply = self.server_thread.reply_q.get(True)
 
