@@ -3,7 +3,7 @@
 """ Occasionally was working, stopped working after adding pwm to tool switch but that is most likely not the cause"""
 
 READING_TO_GRAMS = -0.00236
-PLOTTING = 1
+PLOTTING = 0
 F_THRESH = 1750
 
 import FSThread
@@ -68,9 +68,11 @@ class ForceSensor(object):
         #c-=1
         time.sleep(0.1)
         last_val = 0
+        restartCount = 0
+        mvCmd_cnt = 0
         
         """ Collect multiple readings to be averaged """
-        while(True):  # time.time()-start_time < 20):
+        while(time.time()-start_time < 20):
 
             count, mode, reading = self.get_reading()
             #c+=1
@@ -86,6 +88,7 @@ class ForceSensor(object):
                 c = count
 
             if (count == c) and (time.time() - last_val >= 0.02):
+                restartCount += 1
                 print "restarting HX711"
                 self.restartHX711()
                 c,m,r = self.get_reading()
@@ -96,10 +99,11 @@ class ForceSensor(object):
                 print gramsReading
                 readings.append(gramsReading)
                 timeList.append(time.time()-start_time)
-                time.sleep(0.07)
+                time.sleep(0.03)
                 if(gramsReading < F_THRESH):
                     """ Send the value to the abb """
-                    #print "Sending Move Command"
+                    mvCmd_cnt +=1
+                    print "Sending Move Command"
                     callFunc()
 
                 elif(gramsReading >= F_THRESH):
@@ -109,6 +113,9 @@ class ForceSensor(object):
         """ Pause readings when function complete """
         print "pausing readings"
         self.pauseReadings()
+
+        print restartCount
+        print "Move Commands Sent: ", mvCmd_cnt
 
         if(PLOTTING):
             with open('data.csv', 'wb') as f:
