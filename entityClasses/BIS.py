@@ -166,25 +166,12 @@ class BIS(object):
 			time.sleep(0.002)
 		print "contact made turning complete"
 
-	""" Positions the arm for inspection by using force sensing """
-	def positionArmForInspection(self):
-
-                print "position arm for inspection in bis"
-
-		self.forceSensor.positionInFillet(self.abbRobot.inspectionPositioning)
-
-		""" Position Arm for Inspection """
-		#self.abbRobot.positionArmForInspection(self.currBlisk, self.stage_num)
-
-
-		print "bis pos arm for inspection complete"
-
+		""" Pull the arm back """
+		self.abbRobot.retractArm(self.blisk_num)
 
 
 	""" Start the inspection of the current blisk """
 	def inspectBlisk(self):
-
-		self.positionArmForInspection()
 
 		""" turn on the LED for inspection """
 		self.led.turnOn()
@@ -193,62 +180,69 @@ class BIS(object):
 		self.imageProcessor.newBlisk(self.blisk_num)
 
 		print "begin blade inspection"
-
 		""" Inspect all Stages of the blisk """
 		self.stage_num = 0
 		for stage in self.currBlisk.stages:
+			self.stage_num = stage
 
 			print "Inspecting Stage"
 
 			""" Use the small BB size first """
-			#self.abbRobot.pullArmBack()
-			#self.toolSwitch.smallBB()
+			self.toolSwitch.smallBB()
 
 			""" Inspect the blisk with both BB sizes """
 			for bb_size in range(2):
-
 				self.bb_num = bb_size
 
 				""" Increment over every blade """
 				for blade in range(stage.numberBlades):
+					self.blade_num = blade
 
 					print "inspect blade: " + str(blade)
 
-					""" Set the current blade """
-					self.blade_num = blade
+					""" Inspect both sides of the blade """
+					for side in range(2):
+						self.blade_side = side
 
-					""" Inspect the blade """
-					self.inspectBlade()
+						""" Inspect the blade """
+						self.inspectBlade()
 
 					""" Increment the turntable by one blade """
 					self.turntable.incrementBlade(stage, blade)
 					time.sleep(1)
 
 				""" Switch to the larger BB size """
-				self.abbRobot.pullArmBack()
 				self.toolSwitch.largeBB()
-
-			self.abbRobot.positionArmClose(self.currBlisk)
-
-			""" switch to the second stage """
-			self.stage_num = 1
 
 		""" Turn off the led when the inspection is complete """
 		self.led.turnOff()
 
-		""" Stop sending the force sensing readings """
-
 		print "Blisk Inspection Function Complete"
 
-	""" Handle the inspection of the current blade """
+
+	""" Handle the inspection of the current blade on both the convex and concave side """
 	def inspectBlade(self):
 
 		print "in inspecting blade function"
-		""" TO DO how to get position to image processor? """
-		self.position.setPos(self.blisk_num, self.stage_num, self.blade_num, self.blade_side, self.bb_num, self.blade_dist)
+		self.positionArmForInspection()
 		self.abbRobot.startInspectBlade(self.blisk_num, self.stage_num)
 		self.imageProcessor.inspect(self.abbRobot.stillInspecting, self.position)
 		print "leaving inspect blade function"
+
+
+	""" Positions the arm for inspection by using force sensing """
+	def positionArmForInspection(self):
+
+		print "position arm for inspection in bis"
+
+		""" Move the Abb Robot to prep for positioning in the fillet """
+		self.position.setPos(self.blisk_num, self.stage_num, self.blade_num, self.blade_side, self.bb_num, self.blade_dist)
+		self.abbRobot.prepInspection(self.position)
+
+		""" Move the EOAT forward until force contact is made """
+		self.forceSensor.positionInFillet(self.abbRobot.inspectionPositioning)
+
+		print "bis pos arm for inspection complete"
 		
 
 	""" Handle quitting and shutting down the system """

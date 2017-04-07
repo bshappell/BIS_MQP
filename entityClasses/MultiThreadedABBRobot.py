@@ -41,9 +41,6 @@ class ABBRobot(object):
 	def __init__(self):
 
 		self.server_address = (TCP_IP, TCP_PORT)
-		"""self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		self.socket.bind(self.server_address)
-		self.socket.listen(2)"""
 
 		""" Create Socket Server Thread to handle TCP communication """
 		self.server_thread = SocketServerThread()
@@ -53,15 +50,8 @@ class ABBRobot(object):
 		self.server_thread.cmd_q.put(ServerCommand(ServerCommand.SETUP, self.server_address))
 		reply = self.server_thread.reply_q.get(True)
 
-		""" Stores the state of whether the ABB is using force sensing feedback or not """
-		self.forceFeedback = False
-		self.forceStartTime = 0
-		self.ff_count = 0
-
-		""" Indicates whether a blade inspection is currently happening """
-		self.inspecting = False
-
-		self.my_print("finished abb init")
+		""" Expected response from IRC5 """
+		self.exp_message = ""
 
 	""" Send a message to the abb controller """
 	def send(self, message):
@@ -95,7 +85,6 @@ class ABBRobot(object):
 	""" Position the arm for inspection for the current blisk """
 	def positionArmFar(self, currBlisk):
 
-		""" Message Format: (MT_ARM_FAR, BLISK_X, STAGE_X) """
 		if currBlisk == 0:
 			self.send("FAR_P01")
 			return self.receive("FAR_P01")
@@ -113,7 +102,6 @@ class ABBRobot(object):
 	""" Position the arm for inspection for the current blisk """
 	def positionArmClose(self, currBlisk):
 
-		""" Message Format: (MT_ARM_CLOSE, BLISK_X, STAGE_X) """
 		if currBlisk == 0:
 			self.send("NEAR_P01")
 			return self.receive("NEAR_P01")
@@ -127,59 +115,47 @@ class ABBRobot(object):
 			self.my_print("ERROR INCORRECT BLISK NUMBER RECEIVED IN POS ARM CLOSE")
 			return False
 
-        """ Send the message to the ABB to move forward more """
+	""" Retract the arm from the close position where contact with the blisk was made """
+	def retractArm(self, currBlisk):
+
+		if currBlisk == 0:
+			self.send("RETRACT_NEAR_P01")
+			return self.receive("RETRACT_NEAR_P01")
+		elif currBlisk == 1:
+			self.send("RETRACT_NEAR_P02")
+			return self.receive("RETRACT_NEAR_P02")
+		elif currBlisk == 2:
+			self.send("RETRACT_NEAR_G02")
+			return self.receive("RETRACT_NEAR_G02")
+		else: 
+			self.my_print("ERROR INCORRECT BLISK NUMBER RECEIVED IN POS ARM CLOSE")
+			return False
+
+	""" Position the arm for getting force contact with the blisk """
+	def prepInspection(self, position):
+
+		""" Message Format: PREP_INSP_BLISK_STAGE_CONCAVE/CONVEX_BB """
+		message = "PREP_INSP_"
+		message += position.blisk_string
+		message += "_"
+		message += str(position.stage_number)
+		message += "_"
+		message += str(position.blade_side)
+		message += "_"
+		message += str(position.ball_bearing)
+
+		self.send(message)
+		return self.receive(message)
+
+    """ Send the message to the ABB to move forward more """
 	def inspectionPositioning(self):
 
-                self.my_print("move forward more")
-
-                self.send("EOAT_FORWARD")
-                self.receive("EOAT_FORWARD")
-
-
-
-	""" Position the arm for inspection in the center of the blade using force sensing feedback """
-	def positionArmForInspection(self, currBlisk, currStage):
-
-                print "positioning arm for inspection"
-
-		""" Check that the force sensing state is not already active """
-		if self.forceFeedback:
-			print "ERROR FORCE SENSING FEEDBACK MODE ALREADY SELECTED"
-			return
-
-		""" Set the force sensing feedback mode active """
-		self.ff_count = 0
-		self.forceFeedback = True
-		self.forceStartTime = time.time()
-
-		""" Wait until the ABB Robot is finished positioning in the center of the blade """
-		while self.forceFeedback:
-                        time.sleep(0.01)
-			pass
-
-		self.my_print("POSITION ARM FOR INSPECTION COMPLETE")
-
+		self.my_print("move forward more")
+		self.send("EOAT_FORWARD")
+		self.receive("EOAT_FORWARD")
 
 	""" Return whether the abb robot is still in the process of inspecting the blade """
-	def stillInspecting(self, currBlisk, currStage):
-
-		""" Determine the expected message """
-		if currStage == 0:
-			if currBlisk == 0:
-				expMessage = "INSPECT_P01_00"
-			elif currBlisk == 1:
-				expMessage = "INSPECT_P02_00"
-			elif currBlisk == 2:
-				expMessage = "INSPECT_G02_00"
-			else:
-				self.my_print("ERROR INCORRECT BLISK NUMBER RECEIVED IN INSPECTING")
-		elif currStage == 1:
-			if currBlisk == 2:
-				expMessage = "INSPECT_G02_01"
-			else:
-				self.my_print("ERROR INCORRECT BLISK NUMBER RECEIVED IN INSPECT")
-		else:
-			self.my_print("ERROR INCORRECT STAGE NUMBER RECEIVED IN INSPECT ")
+	def stillInspecting(self, position):
 
 		distance = -1
 		blade_side = -1	
@@ -187,10 +163,9 @@ class ABBRobot(object):
 		""" See if a value has been recieved """
 		try:
 			ret, message = self.server_thread.reply_q.get_nowait()
-			if ret.data == expMessage:
+			if ret.data == self.exp_message:
 				""" When complete reenable blocking and set inspecting state to false """
-				print "received expected data in still inspecting!!!!!!!!!!!1"
-				self.inspecting = False
+				print "received expected data in still inspecting!!!!!!!!!!!"
 				return (False, blade_side, distance)
 			else:
 				print "POSITION VALUE RECEIVED FROM ABB"
@@ -201,34 +176,25 @@ class ABBRobot(object):
                 
 
 	""" Inspect the current blade """
-	def startInspectBlade(self, currBlisk, currStage):
+	def startInspectBlade(self, position):
 
-		""" set the state to inspecting """
-		self.inspecting = True
+		""" Message Format: INSPECT_BLISK_STAGE_CONCAVE/CONVEX_BB """
+		message = "INSPECT_"
+		message += position.blisk_string
+		message += "_"
+		message += str(position.stage_number)
+		message += "_"
+		message += str(position.blade_side)
+		message += "_"
+		message += str(position.ball_bearing)
 
-		""" Message Format: (MT_INSPECT_BLADE, BLISK_X, STAGE_X) """
-		if currStage == 0:
-			if currBlisk == 0:
-				self.send("INSPECT_P01_00")
-			elif currBlisk == 1:
-				self.send("INSPECT_P02_00")
-			elif currBlisk == 2:
-				self.send("INSPECT_G02_00")
-			else:
-				self.my_print("ERROR INCORRECT BLISK NUMBER RECEIVED IN PINSPECT BLADE")
-		elif currStage == 1:
-			if currBlisk == 2:
-				self.send("INSPECT_G02_01")
-			else:
-				self.my_print("ERROR INCORRECT BLISK NUMBER RECEIVED IN INSPECT BLADE")
-		else:
-			self.my_print("ERROR INCORRECT STAGE NUMBER RECEIVED IN INSPECT BLADE")
+		""" Set the expected message """
+		self.exp_message = message
 
-		self.my_print("recieve val")
+		""" Send the message and add the command to receive a response but don't wait for it """
+		self.send(message)
 		self.server_thread.cmd_q.put(ServerCommand(ServerCommand.RECEIVE, "INSPECT_P02_00"))
-
 		self.my_print("Start Inspection Blade Function Complete")
-
 
 
 	""" Home the arm back away from the blisk for the placing and removing of the blisk """
@@ -238,35 +204,11 @@ class ABBRobot(object):
 		self.send("HOME")
 		return self.receive("HOME")
 
-	""" Send the current force sensing measurement to the controller """
-	def sendForceMeasurement(self, reading):
-
-		""" Determine if we are in the force feedback mode """
-		if self.forceFeedback:
-			self.processForceReading(reading)
-			#self.send("FORCE_SENSING"
-		else:
-			pass
-
-	""" Function to process the force reading and determine if contact has been made """
-	def processForceReading(self, reading):
-
-                print "processing force reading"
-
-                self.ff_count += 1
-
-		if time.time() - self.forceStartTime > 5:
-			self.forceFeedback = False
-			self.my_print("SETTING FORCE FEEDBACK TO FALSE")
-			self.my_print("FFB Count: ")
-			self.my_print(self.ff_count)
-
 	""" Function to close the TCP Socket """
 	def closeComm(self):
 
 		self.my_print('closing connection with client\n')
 		if self.server_thread:
-			#self.send("DISCONNECT")
 			self.server_thread.cmd_q.put(ServerCommand(ServerCommand.CLOSE))
 			self.server_thread.join()
 
@@ -383,9 +325,9 @@ class SocketServerThread(threading.Thread):
 
     def _handle_SEND(self, cmd):
         try:
-                if self.connection:
-                        self.connection.sendall(cmd.data)
-                        self.reply_q.put(self._success_reply())
+        	if self.connection:
+        		self.connection.sendall(cmd.data)
+        		self.reply_q.put(self._success_reply())
         except IOError as e:
             self.reply_q.put(self._error_reply(str(e)))
 

@@ -16,15 +16,13 @@ class Stage(object):
 		self.stepsArray = stepsArray
 
 	def getNumberBlades(self):
-                return self.numberBlades
+		return self.numberBlades
 
-        def getLargeBBRadius(self):
-                return self.largeBBRadius
+	def getLargeBBRadius(self):
+		return self.largeBBRadius
 
-        def getSmallBBRadius(self):
-                return self.smallBBRadius
+	def getSmallBBRadius(self):
+		return self.smallBBRadius
 
-        def getStepsForBlade(self, blade):
-
-		""" TODO change to use the correct amount!!! """
-		return self.stepsArray[0]
+	def getStepsForBlade(self, blade):
+		return self.stepsArray[blade]
