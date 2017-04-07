@@ -11,9 +11,9 @@ import InspectionPosition
 import time
 import sys
 
-# BIS (Blisk Inspection System) Class
+""" BIS (Blisk Inspection System) Class """
 
-# Define the Rasp Pinout
+""" Define the Rasp Pinout """
 PIN_MOTOR_STEP = 20 # Stepper Motor Step Signal
 PIN_MOTOR_DIR = 16 # Stepper Motor Direction Signal
 PIN_SERVO_SIG = 4 # Tool Switch Servo Signal
@@ -47,15 +47,14 @@ class BIS(object):
 		""" Store current position for inspection """
 		self.currBlisk = None
 		self.currStage = None
-		self.blade_num = 0
 		self.blisk_num = 0
+		self.blade_num = 0
 		self.stage_num = 0
 		self.blade_side = 0
 		self.blade_dist = 0
-		self.bb_num = 0
+		self.bb_num = 0 # small bb first
 
 		""" The arrays of steps between blades for the different stages """
-		# TODO add error accounting to step arrays
 		stepsArray_P01 = [600,600,600,600,600,600,600,600,600,600,
                                   600,600,600,600,600,600,600,600,600,600,
                                   600,600,600,600,600,600,600,600,600,600,
@@ -158,11 +157,6 @@ class BIS(object):
 		self.forceSensor.zeroSensor()
 
 		print "ZERO FS COMPLETE"
-
-		""" Use the small BB size first """
-		#self.abbRobot.pullArmBack()
-		self.bb_num = 0
-		self.toolSwitch.smallBB()
 		
 
 	""" Position the arm in between the blades of the current blisk """
@@ -191,6 +185,13 @@ class BIS(object):
 	""" Start the inspection of the current blisk """
 	def inspectBlisk(self):
 
+		""" Reset stored values on inspection position """
+		self.blade_num = 0
+		self.stage_num = 0
+		self.blade_side = 0
+		self.blade_dist = 0
+		self.bb_num = 0 # Large BB size first
+
 		""" turn on the LED for inspection """
 		self.led.turnOn()
 
@@ -203,8 +204,8 @@ class BIS(object):
 			self.stage_num = stage
 			print "Inspecting Stage"
 
-			""" Use the small BB size first """
-			self.toolSwitch.smallBB()
+			""" Use the large BB size first (0 is large) """
+			self.toolSwitch.largeBB()
 
 			""" Inspect the blisk with both BB sizes """
 			for bb_size in range(2):
