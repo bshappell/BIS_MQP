@@ -181,10 +181,8 @@ class BIS(object):
 
 		print "begin blade inspection"
 		""" Inspect all Stages of the blisk """
-		self.stage_num = 0
 		for stage in self.currBlisk.stages:
 			self.stage_num = stage
-
 			print "Inspecting Stage"
 
 			""" Use the small BB size first """
@@ -225,7 +223,7 @@ class BIS(object):
 
 		print "in inspecting blade function"
 		self.positionArmForInspection()
-		self.abbRobot.startInspectBlade(self.blisk_num, self.stage_num)
+		self.abbRobot.startInspectBlade(self.position)
 		self.imageProcessor.inspect(self.abbRobot.stillInspecting, self.position)
 		print "leaving inspect blade function"
 

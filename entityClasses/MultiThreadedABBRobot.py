@@ -167,6 +167,12 @@ class ABBRobot(object):
 				""" When complete reenable blocking and set inspecting state to false """
 				print "received expected data in still inspecting!!!!!!!!!!!"
 				return (False, blade_side, distance)
+			elif ret.data == "START_PATH"
+				print "START_PATH RECEIVED FROM ABB"
+				return (True, blade_side, distance)
+			elif ret.data == "PAUSE_PATH"
+				print "PAUSE_PATH RECEIVED FROM ABB"
+				return (True, blade_side, distance)
 			else:
 				print "POSITION VALUE RECEIVED FROM ABB"
 				return (True, blade_side, distance)

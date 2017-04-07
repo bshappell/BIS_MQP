@@ -28,7 +28,7 @@ class InspectionPosition(object):
 			self.my_print("ERROR INCORRECT BLISK NUMBER RECEIVED IN PREP INSP CLOSE")
 
 		""" Check and set the stage number """
-		if ((stage_number == 1) and (self.blade_number == 2)):
+		if ((stage_number == 1) and (self.blisk_number == 2)):
 			self.stage_number = 1
 		else:
 			self.stage_number = 0
