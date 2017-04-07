@@ -26,27 +26,27 @@ class ForceSensor(object):
         """ Used to store the initial y intercept """
         self.y_init = 0 
                     
-       """ Create Force Sensor Thread """
-        self.fs_thread = FSThread.FSThread()
+        """ Create Force Sensor Thread """
+        self.fs_thread = FSThread.FSThread(self.dataPin, self.clkPin)
         self.fs_thread.start()
 
     """ Pause the readings from the sensor """
     def pauseReadings(self):
 
-        self.fs_thread.cmd_q.put(FSCommand(FSCommand.PAUSE))
+        self.fs_thread.cmd_q.put(FSThread.FSCommand(FSThread.FSCommand.PAUSE))
         reply = self.fs_thread.reply_q.get(True)
 
     """ Start running the sensor """
     def startReadings(self):
 
-        self.fs_thread.cmd_q.put(FSCommand(FSCommand.START))
+        self.fs_thread.cmd_q.put(FSThread.FSCommand(FSThread.FSCommand.START))
         reply = self.fs_thread.reply_q.get(True)
-        time.sleep(1)
+        time.sleep(0.5)
 
     """ Get a reading from the force sensor """
-    def get_reading():
+    def get_reading(self):
 
-        self.fs_thread.cmd_q.put(FSCommand(FSCommand.READING))
+        self.fs_thread.cmd_q.put(FSThread.FSCommand(FSThread.FSCommand.READING))
         reply = self.fs_thread.reply_q.get(True)
         return reply.data
 
@@ -65,31 +65,44 @@ class ForceSensor(object):
         #print start_time
 
         c,m,r = self.get_reading()
-        c-=1
+        #c-=1
         time.sleep(0.1)
+        last_val = 0
+        restartCount = 0
+        mvCmd_cnt = 0
         
         """ Collect multiple readings to be averaged """
-        while(True):  # time.time()-start_time < 20):
+        while(time.time()-start_time < 20):
 
             count, mode, reading = self.get_reading()
-            c+=1
+            #c+=1
             #print "Reading = "
             #print(reading)
             #print count, mode, reading
 
-            if (count == c):
+            print "count: " + str(count)
+            print "c: " + str(c)
+
+            if(count != c):
+                last_val = time.time()
+                c = count
+
+            if (count == c) and (time.time() - last_val >= 0.02):
+                restartCount += 1
                 print "restarting HX711"
                 self.restartHX711()
+                c,m,r = self.get_reading()
+                last_val = time.time()
             else:
                 print "Getting Reading"
                 gramsReading = READING_TO_GRAMS  * (reading - self.y_init)
                 print gramsReading
                 readings.append(gramsReading)
                 timeList.append(time.time()-start_time)
-                time.sleep(0.07)
-                saveCount = count - c
+                time.sleep(0.03)
                 if(gramsReading < F_THRESH):
                     """ Send the value to the abb """
+                    mvCmd_cnt +=1
                     print "Sending Move Command"
                     callFunc()
 
@@ -98,9 +111,11 @@ class ForceSensor(object):
                     break
 
         """ Pause readings when function complete """
+        print "pausing readings"
         self.pauseReadings()
 
-        print "Number of Samples:" + str(saveCount)
+        print restartCount
+        print "Move Commands Sent: ", mvCmd_cnt
 
         if(PLOTTING):
             with open('data.csv', 'wb') as f:
@@ -131,21 +146,18 @@ class ForceSensor(object):
         while(reading == None) and (time.time() - startTime < 10):
 
             """ Start gettings readings """
-            self.pauseReadings()
-            time.sleep(1)
-            self.startReadings()
-            time.sleep(1)
+            self.restartHX711()
             count, mode, reading = self.get_reading()
 
         """ Collect multiple readings to be averaged """
-        for i in range(50):
+        for i in range(10):
 
             count, mode, reading = self.get_reading()
             #print "Reading = "
             #print(reading)
             #print count, mode, reading
             averages.append(reading)
-            time.sleep(0.1)
+            time.sleep(0.04)
 
         """ Remove the outliers """
         """ TODO Remove Outliers """
@@ -165,13 +177,13 @@ class ForceSensor(object):
 
 
     def restartHX711(self):
-        self.hx711.pause()
+        self.pauseReadings()
         time.sleep(0.1)
         self.startReadings()  
 
     def end(self):
                   
-        self.fs_thread.cmd_q.put(FSCommand(FSCommand.END))
+        self.fs_thread.cmd_q.put(FSThread.FSCommand(FSThread.FSCommand.END))
         reply = self.fs_thread.reply_q.get(True)
         self.fs_thread.join()
 
@@ -179,8 +191,8 @@ class ForceSensor(object):
 
 def testFunc():
 
-    print "value received"
-
+    #print "value received"
+    pass
 
 """ For testing purposes """
 if __name__=="__main__":
@@ -194,6 +206,5 @@ if __name__=="__main__":
     #fs.zeroSensor()
     #fs.startReadings()
     #fs.startReadings()
-    #time.sleep(10)
     fs.end()
 

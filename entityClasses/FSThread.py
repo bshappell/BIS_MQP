@@ -3,17 +3,26 @@ import time
 import RPi.GPIO as GPIO
 import numpy
 import pigpio # http://abyz.co.uk/rpi/pigpio/python.html
+import sys
+import struct
+import threading
+import Queue
+
+CH_A_GAIN_64  = 0 # Channel A gain 64
+CH_A_GAIN_128 = 1 # Channel A gain 128
+CH_B_GAIN_32  = 2 # Channel B gain 32
+
 
 class FSCommand(object):
     """ A command to the force sensor thread.
         Each command type has its associated data:
 
-        READING:    None
+        READING:        None
         PAUSE:   	None
         START: 		None
         END:    	None
     """
-    CONNECT, SEND, RECEIVE, CLOSE, SETUP = range(5)
+    START, PAUSE, READING, END = range(4)
 
     def __init__(self, type, data=None):
         self.type = type
@@ -101,13 +110,13 @@ class FSThread(threading.Thread):
         self.reply_q.put(FSReply(FSReply.SUCCESS))
 
     """ Pause the readings from the sensor """
-    def _handle_PAUSE(self):
+    def _handle_PAUSE(self, cmd):
 
         self.hx711.pause()
         self.reply_q.put(FSReply(FSReply.SUCCESS))
 
     """ Start running the sensor """
-    def _handle_START(self):
+    def _handle_START(self, cmd):
 
         self.hx711.start()
         self.reply_q.put(FSReply(FSReply.SUCCESS))
