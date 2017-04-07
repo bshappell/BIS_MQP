@@ -52,6 +52,10 @@ class TurnTable(object):
 		GPIO.output(self.stepPin, GPIO.HIGH)
 		GPIO.output(self.stepPin, GPIO.LOW)
 
+	def close(self):
+
+                GPIO.cleanup()
+
 
 if __name__=="__main__":
 	

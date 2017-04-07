@@ -31,12 +31,12 @@ class InspectionResults(object):
 		self.bliskID = bliskID	
 
 		""" Write the Header Row """
-		self.csvWriter.writerow(("Stage", "Blade", "Blade Side", "small Ball Bearing", "Position", "Result"))
+		self.csvWriter.writerow(("Stage", "Blade", "Blade Side", "Ball Bearing", "Position", "Result"))
 
 	""" Add a new line to the csv file """
 	def addResult(self, position, result):
 
-                self.csvWriter.writerow((position.stage_number, position.blade_number, position.blade_side, position.small_ball_bearing, position.distance, result))
+                self.csvWriter.writerow((position.stage_number, position.blade_number, position.blade_side, position.ball_bearing, position.distance, result))
 
 
 	""" Close the current file """

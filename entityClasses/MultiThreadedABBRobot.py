@@ -7,7 +7,7 @@ import struct
 import threading
 import Queue
 
-TCP_IP = "192.168.125.3" 
+TCP_IP = "192.168.125.4" 
 TCP_PORT = 5515
 MESSAGE = "Hello, World!"
 
@@ -147,10 +147,9 @@ class ABBRobot(object):
 		self.send(message)
 		return self.receive(message)
 
-    """ Send the message to the ABB to move forward more """
+        """ Send the message to the ABB to move forward more """
 	def inspectionPositioning(self):
 
-		self.my_print("move forward more")
 		self.send("EOAT_FORWARD")
 		self.receive("EOAT_FORWARD")
 
@@ -162,19 +161,20 @@ class ABBRobot(object):
 
 		""" See if a value has been recieved """
 		try:
-			ret, message = self.server_thread.reply_q.get_nowait()
+			ret = self.server_thread.reply_q.get_nowait()
 			if ret.data == self.exp_message:
 				""" When complete reenable blocking and set inspecting state to false """
 				print "received expected data in still inspecting!!!!!!!!!!!"
 				return (False, blade_side, distance)
-			elif ret.data == "START_PATH"
+			elif ret.data == "START_PATH":
 				print "START_PATH RECEIVED FROM ABB"
 				return (True, blade_side, distance)
-			elif ret.data == "PAUSE_PATH"
+			elif ret.data == "PAUSE_PATH":
 				print "PAUSE_PATH RECEIVED FROM ABB"
 				return (True, blade_side, distance)
 			else:
 				print "POSITION VALUE RECEIVED FROM ABB"
+				print ret.data
 				return (True, blade_side, distance)
 		except Queue.Empty as e:
 			return (True, blade_side, distance)
@@ -185,7 +185,8 @@ class ABBRobot(object):
 	def startInspectBlade(self, position):
 
 		""" Message Format: INSPECT_BLISK_STAGE_CONCAVE/CONVEX_BB """
-		message = "INSPECT_"
+		#message = "INSPECT_" TODO CHANGEEEEE!!!!
+		message = ""
 		message += position.blisk_string
 		message += "_"
 		message += str(position.stage_number)

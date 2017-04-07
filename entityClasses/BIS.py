@@ -152,11 +152,6 @@ class BIS(object):
 		if(self.circuitCompletor.getContact()):
 			print "ERROR CONTACT WITH BLISK DETECTED"
 			#return
-
-                """ set up the force sensor """
-		self.forceSensor.zeroSensor()
-
-		print "ZERO FS COMPLETE"
 		
 
 	""" Position the arm in between the blades of the current blisk """
@@ -174,7 +169,7 @@ class BIS(object):
 		print "turning blisk until contact is made"
 		while(not self.circuitCompletor.getContact()):
 
-			self.turntable.increment(0)
+			self.turntable.increment(1)
 			time.sleep(0.002)
 		print "contact made turning complete"
 
@@ -255,6 +250,11 @@ class BIS(object):
 		""" Move the Abb Robot to prep for positioning in the fillet """
 		self.position.setPos(self.blisk_num, self.stage_num, self.blade_num, self.blade_side, self.bb_num, self.blade_dist)
 		self.abbRobot.prepInspection(self.position)
+		time.sleep(1)
+
+		""" Zero the force sensor """
+		self.forceSensor.zeroSensor()
+		time.sleep(1)
 
 		""" Move the EOAT forward until force contact is made """
 		self.forceSensor.positionInFillet(self.abbRobot.inspectionPositioning)
@@ -269,6 +269,7 @@ class BIS(object):
 		self.abbRobot.closeComm()
 		self.led.turnOff()
 		self.imageProcessor.shutdown()
+		self.turntable.close()
 
 	
 """ Run the Blisk Application """

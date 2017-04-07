@@ -162,12 +162,12 @@ class ImageProcessor(object):
 
 		while(stillInspecting):
 
-			stillInspecting, blade_side, distance = callFunction(position.blisk_number, position.stage_number)
+			stillInspecting, blade_side, distance = callFunction(position)
 			if ((distance != -1) and (blade_side != -1)):
 				position.update(blade_side,distance)
 
 			""" Inspect the captured image """
-			passValue = self.inspectImageFromCamera(position.small_ball_bearing)
+			passValue = self.inspectImageFromCamera(position.ball_bearing)
 			cv2.imshow('Inspected Camera Image ', self.frame)
 
 			""" Save the inspection results to the file """

@@ -80,8 +80,8 @@ class ForceSensor(object):
             #print(reading)
             #print count, mode, reading
 
-            print "count: " + str(count)
-            print "c: " + str(c)
+            #print "count: " + str(count)
+            #print "c: " + str(c)
 
             if(count != c):
                 last_val = time.time()
@@ -94,7 +94,7 @@ class ForceSensor(object):
                 c,m,r = self.get_reading()
                 last_val = time.time()
             else:
-                print "Getting Reading"
+                #print "Getting Reading"
                 gramsReading = READING_TO_GRAMS  * (reading - self.y_init)
                 print gramsReading
                 readings.append(gramsReading)
@@ -103,15 +103,14 @@ class ForceSensor(object):
                 if(gramsReading < F_THRESH):
                     """ Send the value to the abb """
                     mvCmd_cnt +=1
-                    print "Sending Move Command"
+                    #print "Sending Move Command"
                     callFunc()
 
                 elif(gramsReading >= F_THRESH):
-                    print "Exiting Force Sensing Loop"
+                    print "Force Sensing Threshold Detected, Exiting Force Sensing Loop"
                     break
 
         """ Pause readings when function complete """
-        print "pausing readings"
         self.pauseReadings()
 
         print restartCount
