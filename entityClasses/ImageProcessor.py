@@ -159,6 +159,7 @@ class ImageProcessor(object):
 		stillInspecting = True
 		pic_count = 0
 		image_count = 1
+		start_time = time.time()
 
 		while(stillInspecting):
 

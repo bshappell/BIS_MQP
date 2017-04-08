@@ -7,7 +7,7 @@ import struct
 import threading
 import Queue
 
-TCP_IP = "192.168.125.3" 
+TCP_IP = "192.168.125.4" 
 TCP_PORT = 5515
 MESSAGE = "Hello, World!"
 
@@ -134,8 +134,8 @@ class ABBRobot(object):
 	""" Position the arm for getting force contact with the blisk """
 	def prepInspection(self, position):
 
-		""" Message Format: PREP_INSP_BLISK_STAGE_CONCAVE/CONVEX_BB """
-		message = "PREP_INSP_"
+		""" Message Format: PREP_BLISK_STAGE_CONCAVE/CONVEX_BB """
+		message = "PREP_"
 		message += position.blisk_string
 		message += "_"
 		message += str(position.stage_number)
@@ -168,12 +168,15 @@ class ABBRobot(object):
 				return (False, blade_side, distance)
 			elif ret.data == "START_PATH":
 				print "START_PATH RECEIVED FROM ABB"
+				self.server_thread.cmd_q.put(ServerCommand(ServerCommand.RECEIVE, self.exp_message))
 				return (True, blade_side, distance)
 			elif ret.data == "PAUSE_PATH":
 				print "PAUSE_PATH RECEIVED FROM ABB"
+				self.server_thread.cmd_q.put(ServerCommand(ServerCommand.RECEIVE, self.exp_message))
 				return (True, blade_side, distance)
 			else:
 				print "POSITION VALUE RECEIVED FROM ABB: "
+				self.server_thread.cmd_q.put(ServerCommand(ServerCommand.RECEIVE, self.exp_message))
 				print ret.data
 				return (True, blade_side, distance)
 		except Queue.Empty as e:
@@ -184,8 +187,8 @@ class ABBRobot(object):
 	""" Inspect the current blade """
 	def startInspectBlade(self, position):
 
-		""" Message Format: INSPECT_BLISK_STAGE_CONCAVE/CONVEX_BB """
-		message = "INSPECT_" 
+		""" Message Format: INSP_BLISK_STAGE_CONCAVE/CONVEX_BB """
+		message = "INSP_" 
 		message += position.blisk_string
 		message += "_"
 		message += str(position.stage_number)
@@ -215,6 +218,7 @@ class ABBRobot(object):
 
 		self.my_print('closing connection with client\n')
 		if self.server_thread:
+                        self.send("DISCONNECT")
 			self.server_thread.cmd_q.put(ServerCommand(ServerCommand.CLOSE))
 			self.server_thread.join()
 
