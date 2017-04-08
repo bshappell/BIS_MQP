@@ -134,8 +134,8 @@ class ABBRobot(object):
 	""" Position the arm for getting force contact with the blisk """
 	def prepInspection(self, position):
 
-		""" Message Format: PREP_INSP_BLISK_STAGE_CONCAVE/CONVEX_BB """
-		message = "PREP_INSP_"
+		""" Message Format: PREP_BLISK_STAGE_CONCAVE/CONVEX_BB """
+		message = "PREP_"
 		message += position.blisk_string
 		message += "_"
 		message += str(position.stage_number)
@@ -168,12 +168,15 @@ class ABBRobot(object):
 				return (False, blade_side, distance)
 			elif ret.data == "START_PATH":
 				print "START_PATH RECEIVED FROM ABB"
+				self.server_thread.cmd_q.put(ServerCommand(ServerCommand.RECEIVE, self.exp_message))
 				return (True, blade_side, distance)
 			elif ret.data == "PAUSE_PATH":
 				print "PAUSE_PATH RECEIVED FROM ABB"
+				self.server_thread.cmd_q.put(ServerCommand(ServerCommand.RECEIVE, self.exp_message))
 				return (True, blade_side, distance)
 			else:
-				print "POSITION VALUE RECEIVED FROM ABB"
+				print "POSITION VALUE RECEIVED FROM ABB: "
+				self.server_thread.cmd_q.put(ServerCommand(ServerCommand.RECEIVE, self.exp_message))
 				print ret.data
 				return (True, blade_side, distance)
 		except Queue.Empty as e:
@@ -184,9 +187,8 @@ class ABBRobot(object):
 	""" Inspect the current blade """
 	def startInspectBlade(self, position):
 
-		""" Message Format: INSPECT_BLISK_STAGE_CONCAVE/CONVEX_BB """
-		#message = "INSPECT_" TODO CHANGEEEEE!!!!
-		message = ""
+		""" Message Format: INSP_BLISK_STAGE_CONCAVE/CONVEX_BB """
+		message = "INSP_" 
 		message += position.blisk_string
 		message += "_"
 		message += str(position.stage_number)
@@ -200,7 +202,7 @@ class ABBRobot(object):
 
 		""" Send the message and add the command to receive a response but don't wait for it """
 		self.send(message)
-		self.server_thread.cmd_q.put(ServerCommand(ServerCommand.RECEIVE, "INSPECT_P02_00"))
+		self.server_thread.cmd_q.put(ServerCommand(ServerCommand.RECEIVE, message))
 		self.my_print("Start Inspection Blade Function Complete")
 
 
@@ -216,6 +218,7 @@ class ABBRobot(object):
 
 		self.my_print('closing connection with client\n')
 		if self.server_thread:
+                        self.send("DISCONNECT")
 			self.server_thread.cmd_q.put(ServerCommand(ServerCommand.CLOSE))
 			self.server_thread.join()
 
