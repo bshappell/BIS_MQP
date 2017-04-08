@@ -29,6 +29,40 @@ MIN_RAD_LARGE = 70
 MAX_RAD_LARGE = 80
 WEIGHT = 7 
 
+""" Per blade side and bb size per stage (16 in total) """
+class CvCalibData(object):
+
+	def __init__(self, radius, radius_max, radius_min, x_init, y_init, y_max, y_min, x_max, x_min):
+
+		""" Ball gauge radius dimensions """
+		self.radius = radius
+		self.radius_max = radius_max
+		self.radius_min = radius_min
+
+		""" Ball Gauge location in the image """
+		self.x_init = x_init
+		self.y_init = y_init
+		self.y_max = y_max
+		self.y_min = y_min
+		self.x_max = x_max
+		self.x_min = x_min
+
+	def update(self, radius, radius_max, radius_min, x_init, y_init, y_max, y_min, x_max, x_min):
+
+		""" Ball gauge radius dimensions """
+		self.radius = radius
+		self.radius_max = radius_max
+		self.radius_min = radius_min
+
+		""" Ball Gauge location in the image """
+		self.x_init = x_init
+		self.y_init = y_init
+		self.y_max = y_max
+		self.y_min = y_min
+		self.x_max = x_max
+		self.x_min = x_min
+		
+
 class ImageProcessor(object):
 
 	def __init__(self):
@@ -231,11 +265,9 @@ class ImageProcessor(object):
 		start_time = time.time()
 
 		while(True):
-
-			ret, frame = cap.read()
-
+ 
 			pic_count += 1
-					
+			ret, frame = cap.read()	
 			output = frame.copy()
 			gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 			
