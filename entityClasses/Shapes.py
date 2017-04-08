@@ -54,3 +54,4 @@ class Box(object):
 		cv2.line(frame, self.p00(), self.p10(), self.color)
 		cv2.line(frame, self.p11(), self.p01(), self.color)
 		cv2.line(frame, self.p11(), self.p10(), self.color)
+		

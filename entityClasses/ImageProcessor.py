@@ -19,20 +19,32 @@ SATURATION_HIGH = 255
 VALUE_LOW = 116 #116
 VALUE_HIGH = 255
 
-Y_MAX = 200
-Y_MIN = 130
-X_MAX = 420
-X_MIN = 300
+X_SMALL = 370
+Y_SMALL = 156
+X_LARGE = 370
+Y_LARGE = 156
+Y_MAX_SMALL = 200
+Y_MIN_SMALL = 130
+X_MAX_SMALL = 420
+X_MIN_SMALL = 300
+Y_MAX_LARGE = 200
+Y_MIN_LARGE = 130
+X_MAX_LARGE = 420
+X_MIN_LARGE = 300
 MIN_RAD_SMALL = 50
 MAX_RAD_SMALL = 70 
 MIN_RAD_LARGE = 70
 MAX_RAD_LARGE = 80
+RAD_LARGE = 74
+RAD_SMALL = 64
+CIRC_PARAM_LARGE = 1
+CIRC_PARAM_SMALL = 4
 WEIGHT = 7 
 
 """ Per blade side and bb size per stage (16 in total) """
 class CvCalibData(object):
 
-	def __init__(self, radius, radius_max, radius_min, x_init, y_init, y_max, y_min, x_max, x_min):
+	def __init__(self, radius, radius_max, radius_min, x_init, y_init, y_max, y_min, x_max, x_min, circles_param):
 
 		""" Ball gauge radius dimensions """
 		self.radius = radius
@@ -46,8 +58,14 @@ class CvCalibData(object):
 		self.y_min = y_min
 		self.x_max = x_max
 		self.x_min = x_min
+		self.circles_param = circles_param
 
-	def update(self, radius, radius_max, radius_min, x_init, y_init, y_max, y_min, x_max, x_min):
+		""" Make the Boxes to search for light in """
+		self.box1 = Shapes.Box(400,85,70,70,True)
+		self.box2 = Shapes.Box(285,50,100,50,True)
+		self.box3 = Shapes.Box(220,140,70,70,True)
+
+	def update(self, radius, radius_max, radius_min, x_init, y_init, y_max, y_min, x_max, x_min, circles_param):
 
 		""" Ball gauge radius dimensions """
 		self.radius = radius
@@ -61,7 +79,14 @@ class CvCalibData(object):
 		self.y_min = y_min
 		self.x_max = x_max
 		self.x_min = x_min
-		
+		self.circles_param = circles_param
+
+	def checkCircle(self, x, y, r):
+
+		if(r>self.radius_min) and (r<self.radius_max) and (y<self.y_max) and (y>self.y_min) and (x<self.x_max) and (x>self.x_min):
+			return True
+		return False
+
 
 class ImageProcessor(object):
 
@@ -80,11 +105,18 @@ class ImageProcessor(object):
 		self.lower_green = np.array([HUE_LOW,SATURATION_LOW,VALUE_LOW])
 		self.upper_green = np.array([HUE_HIGH,SATURATION_HIGH,VALUE_HIGH])
 
-		""" The Different Boxes to search for light in """
-		self.box1 = Shapes.Box(400,85,70,70,True)
-		self.box2 = Shapes.Box(285,50,100,50,True)
-		self.box3 = Shapes.Box(220,140,70,70,True)
+		""" Make the different calibrations for each fillet and ball bearing size combo """
+		""" CvCalibData(radius, radius_max, radius_min, x_init, y_init, y_max, y_min, x_max, x_min) """
+		# Large BB size for P02 concave fillet
+		self.calib_P02_0_0_0 = CvCalibData(RAD_LARGE, MAX_RAD_LARGE, MIN_RAD_LARGE, 
+			X_LARGE, Y_LARGE, Y_MAX_LARGE, Y_MIN_LARGE, Y_MAX_LARGE, Y_MIN_LARGE, CIRC_PARAM_LARGE)
+
+		# Small BB size for P02 concave fillet
+		self.calib_P02_0_0_1 = CvCalibData(RAD_SMALL, MAX_RAD_SMALL, MIN_RAD_SMALL, 
+			X_SMALL, Y_SMALL, Y_MAX_SMALL, Y_MIN_SMALL, Y_MAX_SMALL, Y_MIN_SMALL, CIRC_PARAM_SMALL)
 		
+		""" Store the current calibration """
+		self.current_calib = self.calib_P02_0_0_0
 
 	""" Called before inspecting a new blisk """
 	def newBlisk(self,bliskNum):
@@ -99,18 +131,33 @@ class ImageProcessor(object):
 		""" Open new file for inspection results """
 		self.results.openNewFile(bliskStr)
 
+	""" Set the current calibration """
+	def setCalibration(self, pos):
+
+		if pos.blisk_number == 0 and pos.stage_number == 0 and pos.blade_side == 0 and pos.ball_bearing == 0:
+			self.current_calib = self.calib_P02_0_0_0
+		elif pos.blisk_number == 0 and pos.stage_number == 0 and pos.blade_side == 0 and pos.ball_bearing == 1:
+			self.current_calib = self.calib_P02_0_0_1
+		else:
+			print "ERROR IMAGE PROCESSOR CALIBRATION NOT FOUND"
+
 	def inspect(self, callFunction, position):
 
-		stillInspecting = True
-		pic_count = 0
-		image_count = 1
-		start_time = time.time()
+		""" Set the correct calibration """
+		self.setCalibration(position)
 
+		if DEBUG:
+			pic_count = 0
+			start_time = time.time()
+
+		stillInspecting = True
 		while(stillInspecting):
 
+			""" Get the updated position and determine if the bb is still in the fillet """
 			stillInspecting, blade_side, distance = callFunction(position)
 			if ((distance != -1) and (blade_side != -1)):
 				position.update(blade_side,distance)
+				self.setCalibration(position)
 
 			""" Inspect the captured image """
 			passValue = self.inspectImageFromCamera(position.ball_bearing)
@@ -120,31 +167,35 @@ class ImageProcessor(object):
 			self.results.addResult(position, passValue)
 
 			key = cv2.waitKey(1) & 0xFF
-
 			pic_count += 1
 
-		end_time =(time.time())
-		self.my_print("end_time: ")
-		self.my_print(end_time)
-		self.my_print("start_time: ")
-		self.my_print(start_time)
-		self.my_print("elapsed time: ")
-		self.my_print(end_time - start_time)
-		self.my_print("pic_count: ")
-		self.my_print(pic_count)
-		self.my_print("fps: ")
-		self.my_print(pic_count/(end_time - start_time))
+		if DEBUG:
+			end_time =(time.time())
+			self.my_print("end_time: ")
+			self.my_print(end_time)
+			self.my_print("start_time: ")
+			self.my_print(start_time)
+			self.my_print("elapsed time: ")
+			self.my_print(end_time - start_time)
+			self.my_print("pic_count: ")
+			self.my_print(pic_count)
+			self.my_print("fps: ")
+			self.my_print(pic_count/(end_time - start_time))
 
 
 	""" Inspect Camera image """
-	def inspectCameraImage(self):
+	def inspectCameraImage(self, position):
+
+		""" Set the correct calibration """
+		self.setCalibration(position)
 
 		image_count = 1
 		while(True):
 
 			""" Inspect the captured image """
-			passValue = self.inspectImageFromCamera(False)
+			#passValue = self.inspectImageFromCamera(position.ball_bearing)
 			#self.findBBCamera()
+			self.test3()
 
 			cv2.imshow('Inspected Camera Image ',self.frame)
 			key = cv2.waitKey(1) & 0xFF
@@ -254,10 +305,14 @@ class ImageProcessor(object):
 		return imagePasses
 
 
-	def test3(isSmallBB):
+	def test3(self,position):
 
-		x_pos = 370
-		y_pos = 156
+		""" Set the correct calibration """
+		self.setCalibration(position)
+
+		""" Initialize the ball bearing position """
+		x_pos = self.current_calib.x_init
+		y_pos = self.current_calib.x_init
 
 		if VIDEO:
 			video = cv2.VideoWriter('output.avi',-1, 7, (640,480))
@@ -268,7 +323,7 @@ class ImageProcessor(object):
 		while(True):
  
 			pic_count += 1
-			ret, frame = cap.read()	
+			ret, frame = self.capture.read()	
 			output = frame.copy()
 			gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 			
@@ -280,71 +335,39 @@ class ImageProcessor(object):
 			gray = cv2.adaptiveThreshold(gray,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,27,13.5)#29,15.5) working version
 			
 
-			# cv2.HoughCircles(image, method, dp (was 5), minDist (260?)[, circles[, param1[, param2 (65?)[, minRadius[, maxRadius]]]]])
-			if isSmallBB:
-				circles = cv2.HoughCircles(gray, cv2.cv.CV_HOUGH_GRADIENT, 1, 4, param1=30, param2=25, minRadius=40, maxRadius=0)
-			else:
-				circles = cv2.HoughCircles(gray, cv2.cv.CV_HOUGH_GRADIENT, 1, 1, param1=30, param2=25, minRadius=40, maxRadius=0)
+			""" HoughCircles(image, method, dp, minDist[, circles[, param1[, param2 [, minRadius[, maxRadius]]]]]) """
+			circles = cv2.HoughCircles(gray, cv2.cv.CV_HOUGH_GRADIENT, 1, 
+				self.current_calib.circles_param, param1=30, param2=25, minRadius=40, maxRadius=0)
 			
-			# ensure at least some circles were found
 			if circles is not None:
-				# convert the (x, y) coordinates and radius of the circles to integers
+				""" convert the (x, y) coordinates and radius of the circles to integers """
 				circles = np.round(circles[0, :]).astype("int")
-				
-				# loop over the (x, y) coordinates and radius of the circles
+
 				for (x, y, r) in circles:
-					# draw the circle in the output image, then draw a rectangle in the image
-					# corresponding to the center of the circle
-					#if(r > 70): (for larger bb)
-					if isSmallBB:
 
-						if(r > MIN_RAD_SMALL) and (r < MAX_RAD_SMALL) and (y<Y_MAX) and (y>Y_MIN) and (x<X_MAX) and (x>X_MIN): 
-							cv2.circle(output, (x, y), r, (0, 255, 0), 4)
-							cv2.rectangle(output, (x - 5, y - 5), (x + 5, y + 5), (0, 128, 255), -1)
-							#time.sleep(0.5)
-							print "x: " + str(x)
-							print "y: " + str(y)
-							my_print("Radius is: ")
-							my_print(r)
-							my_print("\n")
-
-
-					elif (r > MIN_RAD_LARGE) and (r < MAX_RAD_LARGE) and (y<Y_MAX) and (y>Y_MIN) and (x<X_MAX) and (x>X_MIN):
+					if self.current_calib.checkCircle(x,y,r):
 							
-						#cv2.circle(output, (x, y), r, (0, 255, 0), 4)
-						#cv2.rectangle(output, (x - 5, y - 5), (x + 5, y + 5), (0, 128, 255), -1)
-						#time.sleep(0.5)
-						my_print("x: " + str(x) + '\n')
-						my_print("y: " + str(y) + '\n')				
-						my_print("Radius is: ")
-						my_print(r)
-						my_print("\n")
+						self.my_print("x: " + str(x) + '\n')
+						self.my_print("y: " + str(y) + '\n')				
+						self.my_print("Radius is: " + str(r) + '\n')
 
-						""" Adjust the ball pos based on the received values """
+						""" Adjust the ball position based on the received values """
 						if(x != x_pos):
 							x_pos = ((WEIGHT) * x_pos + x)/(WEIGHT+1) 
 						if(y != y_pos):
 							y_pos = ((WEIGHT) * y_pos + y)/(WEIGHT+1) 
 
-			""" Show expected circle """
-			if isSmallBB:
-				cv2.circle(output, (370, 156), 64, (255, 0, 0), 4)
-				#cv2.rectangle(output, (X_MIN - 80, Y_MIN - 50), (X_MAX + 80, Y_MAX + 50), (0, 128, 255), 1)
-			else:
-				#cv2.circle(output, (370, 156), 74, (255, 0, 0), 4)
-				cv2.circle(output, (x_pos, y_pos), 74, (255, 0, 0), 4)
-				#cv2.rectangle(output, (X_MIN - 80, Y_MIN - 50), (X_MAX + 80, Y_MAX + 50), (0, 128, 255), 1)
+			""" Show current circle """
+			cv2.circle(output, (x_pos, y_pos), self.current_calib.radius, (255, 0, 0), 4)
 
+			if VIDEO:
+				video.write(output) 
 
-			video.write(output) #125 * np.ones((100,100,3), np.uint8)) 
-
-			# Display the resulting frame
-			#cv2.imshow('gray',gray)
+			""" Display the resulting frame """
 			cv2.imshow('frame',output)
 		 	if cv2.waitKey(1) & 0xFF == ord('q'):
 				break
 
-		# When everything done, release the capture
 		end_time = time.time()
 		elapsed_time = end_time - start_time
 		print "number of frames: " + str(pic_count)
@@ -352,8 +375,9 @@ class ImageProcessor(object):
 		print "fps: " 
 		print pic_count/elapsed_time
 
-		video.release()
-		cap.release()
+		if VIDEO:
+			video.release()
+		self.captue.release()
 		cv2.destroyAllWindows()
 
 
@@ -363,28 +387,15 @@ class ImageProcessor(object):
 	    sys.stdout.flush()
 
 
-
-
 """ Used for testing purposes """
 if __name__ == "__main__":
 
+	blade_side = 0
+	ball_bearing = 0 # large
+	pos = InspectionPosition.InspectionPosition()
+	pos.setPos(0, 0, 0, blade_side, ball_bearing, 0)
+
 	ip = ImageProcessor()
-	ip.inspectCameraImage()
-	#ip.findBBCamera()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	ip.test3(pos)
 
 		
