@@ -7,7 +7,7 @@ import struct
 import threading
 import Queue
 
-TCP_IP = "192.168.125.4" 
+TCP_IP = "192.168.125.3" 
 TCP_PORT = 5515
 MESSAGE = "Hello, World!"
 
@@ -173,7 +173,7 @@ class ABBRobot(object):
 				print "PAUSE_PATH RECEIVED FROM ABB"
 				return (True, blade_side, distance)
 			else:
-				print "POSITION VALUE RECEIVED FROM ABB"
+				print "POSITION VALUE RECEIVED FROM ABB: "
 				print ret.data
 				return (True, blade_side, distance)
 		except Queue.Empty as e:
@@ -185,8 +185,7 @@ class ABBRobot(object):
 	def startInspectBlade(self, position):
 
 		""" Message Format: INSPECT_BLISK_STAGE_CONCAVE/CONVEX_BB """
-		#message = "INSPECT_" TODO CHANGEEEEE!!!!
-		message = ""
+		message = "INSPECT_" 
 		message += position.blisk_string
 		message += "_"
 		message += str(position.stage_number)
@@ -200,7 +199,7 @@ class ABBRobot(object):
 
 		""" Send the message and add the command to receive a response but don't wait for it """
 		self.send(message)
-		self.server_thread.cmd_q.put(ServerCommand(ServerCommand.RECEIVE, "INSPECT_P02_00"))
+		self.server_thread.cmd_q.put(ServerCommand(ServerCommand.RECEIVE, message))
 		self.my_print("Start Inspection Blade Function Complete")
 
 
