@@ -189,13 +189,15 @@ class ImageProcessor(object):
 		""" Set the correct calibration """
 		self.setCalibration(position)
 
+		""" Initialize the ball bearing position """
+		self.ball_bearing_x = self.current_calib.x_init
+		self.ball_bearing_y = self.current_calib.y_init
+
 		image_count = 1
 		while(True):
 
 			""" Inspect the captured image """
-			#passValue = self.inspectImageFromCamera(position.ball_bearing)
-			#self.findBBCamera()
-			self.test3()
+			passValue = self.inspectImageFromCamera(position.ball_bearing)
 
 			cv2.imshow('Inspected Camera Image ',self.frame)
 			key = cv2.waitKey(1) & 0xFF
@@ -303,6 +305,44 @@ class ImageProcessor(object):
 			 cv2.putText(self.frame, "Inspection Passes: " + str(imagePasses), (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, self.upper_green, 2)
 
 		return imagePasses
+
+	def findBallBearing(self):
+
+		""" Initialize the ball bearing position """
+		x_pos = self.current_calib.x_init
+		y_pos = self.current_calib.x_init
+
+		ret, frame = self.capture.read()	
+		gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+			
+		""" Apply GuassianBlur to reduce noise. medianBlur is also added for smoothening, reducing noise """
+		gray = cv2.GaussianBlur(gray,(1,1),100,100, 0);
+		gray = cv2.medianBlur(gray,1)
+			
+		""" Adaptive Guassian Threshold is to detect sharp edges in the Image """
+		gray = cv2.adaptiveThreshold(gray,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,27,13.5)#29,15.5) working version
+			
+		""" HoughCircles(image, method, dp, minDist[, circles[, param1[, param2 [, minRadius[, maxRadius]]]]]) """
+		circles = cv2.HoughCircles(gray, cv2.cv.CV_HOUGH_GRADIENT, 1, 
+		self.current_calib.circles_param, param1=30, param2=25, minRadius=40, maxRadius=0)
+			
+		if circles is not None:
+		""" convert the (x, y) coordinates and radius of the circles to integers """
+			circles = np.round(circles[0, :]).astype("int")
+
+			for (x, y, r) in circles:
+				if self.current_calib.checkCircle(x,y,r):
+							
+					self.my_print("x: " + str(x) + '\n')
+					self.my_print("y: " + str(y) + '\n')				
+					self.my_print("Radius is: " + str(r) + '\n')
+
+					""" Adjust the ball position based on the received values """
+					if(x != x_pos):
+						x_pos = ((WEIGHT) * x_pos + x)/(WEIGHT+1) 
+					if(y != y_pos):
+						y_pos = ((WEIGHT) * y_pos + y)/(WEIGHT+1) 
+
 
 
 	def test3(self,position):
