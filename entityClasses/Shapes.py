@@ -1,5 +1,5 @@
 
-
+import cv2
 
 
 """ Box Object to Store 4 points, draw the box and determine if points are within the box """
@@ -19,6 +19,14 @@ class Box(object):
 			self.color = (255,255,255)
 		else:
 			self.color = (0, 0, 255)
+
+	def update(self, x_pos, y_pos, x_width, y_width):
+
+		""" Store the parameter values """
+		self.xPos = x_pos
+		self.yPos = y_pos
+		self.xWidth = x_width
+		self.yWidth = y_width
 
 	""" Return the Upper Left Hand Point on the Box """
 	def p00(self):
@@ -54,4 +62,3 @@ class Box(object):
 		cv2.line(frame, self.p00(), self.p10(), self.color)
 		cv2.line(frame, self.p11(), self.p01(), self.color)
 		cv2.line(frame, self.p11(), self.p10(), self.color)
-		

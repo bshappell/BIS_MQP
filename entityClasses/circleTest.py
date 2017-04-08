@@ -19,10 +19,6 @@ def my_print(text):
     sys.stdout.write(str(text))
     sys.stdout.flush()
 
-
-
-
-
 Y_MAX = 200
 Y_MIN = 130
 X_MAX = 420

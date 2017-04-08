@@ -5,9 +5,10 @@ import InspectionResults
 import InspectionPosition
 import sys
 import time
-import Shapes
+import CvCalibData
+import math
 
-DEBUG = 0 # Toggle to get debug features
+DEBUG = 1 # Toggle to get debug features
 RASP_PI = 0 # Indicates whether the code is running on the Raspberry Pi or not
 CAMERA = 1 # Indicates whether to run the code with the camera
 VIDEO = 0 # Indicates if a video should be recorded
@@ -41,52 +42,6 @@ CIRC_PARAM_LARGE = 1
 CIRC_PARAM_SMALL = 4
 WEIGHT = 7 
 
-""" Per blade side and bb size per stage (16 in total) """
-class CvCalibData(object):
-
-	def __init__(self, radius, radius_max, radius_min, x_init, y_init, y_max, y_min, x_max, x_min, circles_param):
-
-		""" Ball gauge radius dimensions """
-		self.radius = radius
-		self.radius_max = radius_max
-		self.radius_min = radius_min
-
-		""" Ball Gauge location in the image """
-		self.x_init = x_init
-		self.y_init = y_init
-		self.y_max = y_max
-		self.y_min = y_min
-		self.x_max = x_max
-		self.x_min = x_min
-		self.circles_param = circles_param
-
-		""" Make the Boxes to search for light in """
-		self.box1 = Shapes.Box(400,85,70,70,True)
-		self.box2 = Shapes.Box(285,50,100,50,True)
-		self.box3 = Shapes.Box(220,140,70,70,True)
-
-	def update(self, radius, radius_max, radius_min, x_init, y_init, y_max, y_min, x_max, x_min, circles_param):
-
-		""" Ball gauge radius dimensions """
-		self.radius = radius
-		self.radius_max = radius_max
-		self.radius_min = radius_min
-
-		""" Ball Gauge location in the image """
-		self.x_init = x_init
-		self.y_init = y_init
-		self.y_max = y_max
-		self.y_min = y_min
-		self.x_max = x_max
-		self.x_min = x_min
-		self.circles_param = circles_param
-
-	def checkCircle(self, x, y, r):
-
-		if(r>self.radius_min) and (r<self.radius_max) and (y<self.y_max) and (y>self.y_min) and (x<self.x_max) and (x>self.x_min):
-			return True
-		return False
-
 
 class ImageProcessor(object):
 
@@ -107,16 +62,26 @@ class ImageProcessor(object):
 
 		""" Make the different calibrations for each fillet and ball bearing size combo """
 		""" CvCalibData(radius, radius_max, radius_min, x_init, y_init, y_max, y_min, x_max, x_min) """
-		# Large BB size for P02 concave fillet
-		self.calib_P02_0_0_0 = CvCalibData(RAD_LARGE, MAX_RAD_LARGE, MIN_RAD_LARGE, 
+		""" Large BB size for P02 concave fillet """
+		self.calib_P02_0_0_0 = CvCalibData.CvCalibData(RAD_LARGE, MAX_RAD_LARGE, MIN_RAD_LARGE, 
 			X_LARGE, Y_LARGE, Y_MAX_LARGE, Y_MIN_LARGE, Y_MAX_LARGE, Y_MIN_LARGE, CIRC_PARAM_LARGE)
 
-		# Small BB size for P02 concave fillet
-		self.calib_P02_0_0_1 = CvCalibData(RAD_SMALL, MAX_RAD_SMALL, MIN_RAD_SMALL, 
+		""" Set the shape locations for the calibration (x_offset,y_offset,x_width,y_width) """
+		self.calib_P02_0_0_0.setShapes(1, 60,-70,70,70)
+		self.calib_P02_0_0_0.setShapes(2,-50,-120,100,50)
+		self.calib_P02_0_0_0.setShapes(3,-130,-40,70,70)
+
+		""" Small BB size for P02 concave fillet """
+		self.calib_P02_0_0_1 = CvCalibData.CvCalibData(RAD_SMALL, MAX_RAD_SMALL, MIN_RAD_SMALL, 
 			X_SMALL, Y_SMALL, Y_MAX_SMALL, Y_MIN_SMALL, Y_MAX_SMALL, Y_MIN_SMALL, CIRC_PARAM_SMALL)
-		
+		self.calib_P02_0_0_1.setShapes(1, 60,-70,70,70)
+		self.calib_P02_0_0_1.setShapes(2,-50,-120,100,50)
+		self.calib_P02_0_0_1.setShapes(3,-130,-40,70,70)
+
 		""" Store the current calibration """
 		self.current_calib = self.calib_P02_0_0_0
+		self.ball_bearing_x = self.current_calib.x_init
+		self.ball_bearing_y = self.current_calib.y_init
 
 	""" Called before inspecting a new blisk """
 	def newBlisk(self,bliskNum):
@@ -146,60 +111,33 @@ class ImageProcessor(object):
 		""" Set the correct calibration """
 		self.setCalibration(position)
 
-		if DEBUG:
-			pic_count = 0
-			start_time = time.time()
+		""" Initialize the ball bearing position """
+		self.ball_bearing_x = self.current_calib.x_init
+		self.ball_bearing_y = self.current_calib.y_init
+
+		image_count = 1
+		pic_count = 0
+		start_time = time.time()
 
 		stillInspecting = True
 		while(stillInspecting):
 
-			""" Get the updated position and determine if the bb is still in the fillet """
-			stillInspecting, blade_side, distance = callFunction(position)
-			if ((distance != -1) and (blade_side != -1)):
-				position.update(blade_side,distance)
-				self.setCalibration(position)
+			if RASP_PI:
+				""" Get the updated position and determine if the bb is still in the fillet """
+				stillInspecting, blade_side, distance = callFunction(position)
+				if ((distance != -1) and (blade_side != -1)):
+					position.update(blade_side,distance)
+					self.setCalibration(position)
 
 			""" Inspect the captured image """
 			passValue = self.inspectImageFromCamera(position.ball_bearing)
 			cv2.imshow('Inspected Camera Image ', self.frame)
 
 			""" Save the inspection results to the file """
-			self.results.addResult(position, passValue)
+			if RASP_PI:
+				self.results.addResult(position, passValue)
 
-			key = cv2.waitKey(1) & 0xFF
 			pic_count += 1
-
-		if DEBUG:
-			end_time =(time.time())
-			self.my_print("end_time: ")
-			self.my_print(end_time)
-			self.my_print("start_time: ")
-			self.my_print(start_time)
-			self.my_print("elapsed time: ")
-			self.my_print(end_time - start_time)
-			self.my_print("pic_count: ")
-			self.my_print(pic_count)
-			self.my_print("fps: ")
-			self.my_print(pic_count/(end_time - start_time))
-
-
-	""" Inspect Camera image """
-	def inspectCameraImage(self, position):
-
-		""" Set the correct calibration """
-		self.setCalibration(position)
-
-		""" Initialize the ball bearing position """
-		self.ball_bearing_x = self.current_calib.x_init
-		self.ball_bearing_y = self.current_calib.y_init
-
-		image_count = 1
-		while(True):
-
-			""" Inspect the captured image """
-			passValue = self.inspectImageFromCamera(position.ball_bearing)
-
-			cv2.imshow('Inspected Camera Image ',self.frame)
 			key = cv2.waitKey(1) & 0xFF
 			if key == ord('q'):
 				break
@@ -207,9 +145,8 @@ class ImageProcessor(object):
 				image_count += 1
 				img = self.frame
 				cv2.imwrite("../pictures/Capture_" + str(image_count) +".png", img)
-		
-		""" Close all windows currently open """
-		self.shutdown()
+
+		self.my_print("IMAGE PROCESSOR FPS: " + str(pic_count/(time.time() - start_time)) + '\n')
 
 
 	""" Determine if the centroid count in each quadrant passes """
@@ -248,6 +185,12 @@ class ImageProcessor(object):
 		imagePasses = False
 		ret, self.frame = self.capture.read()
 
+		""" Update the location of the ball bearing """
+		self.findBallBearing(self.frame.copy())
+
+		""" Update the box locations based on the ball bearing location """
+		self.current_calib.updateShapeLocations(self.ball_bearing_x, self.ball_bearing_y)
+
 		""" Convert BGR to HSV """
 		hsv = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV)
 
@@ -279,23 +222,28 @@ class ImageProcessor(object):
 			cX = int(M["m10"] / area)
 			cY = int(M["m01"] / area)
 
-			if DEBUG:
+			""" Check if the shape is near the ball bearing """
+			hyp = math.sqrt(((cX - self.ball_bearing_x)**2) + ((cY - self.ball_bearing_y)**2))
+			print hyp
+			if (hyp < 160):
+
 				""" draw the contour and center of the shape on the image """
 				cv2.drawContours(self.frame, [c], -1, (0, 255, 0), 2)
 				cv2.circle(self.frame, (cX, cY), 7, (0, 0, 0), -1)
 
-				""" Draw the Boxes around each of the areas """
-				self.box1.draw(self.frame)
-				self.box2.draw(self.frame)
-				self.box3.draw(self.frame)
+				""" Determine the number of centroids in each quadrant """
+				if self.current_calib.inShape(1,cX,cY):
+					quad1_cnt += 1
+				elif self.current_calib.inShape(2,cX,cY):
+					quad2_cnt += 1
+				elif self.current_calib.inShape(3,cX,cY):
+					quad3_cnt += 1
 
-			""" Determine the number of centroids in each quadrant """
-			if self.box1.inBox(cX,cY):
-				quad1_cnt += 1
-			elif self.box2.inBox(cX,cY):
-				quad2_cnt += 1
-			elif self.box3.inBox(cX,cY):
-				quad3_cnt += 1
+		""" Draw the Boxes around each of the areas """
+		self.current_calib.drawShapes(self.frame)
+
+		""" Show current circle """
+		cv2.circle(self.frame, (self.ball_bearing_x, self.ball_bearing_y), self.current_calib.radius, (255, 0, 0), 4)
 
 		""" Determine if the ball bearing case sizes pass """
 		imagePasses = self.checkImage(isSmallBB,quad1_cnt,quad2_cnt,quad3_cnt)
@@ -306,13 +254,10 @@ class ImageProcessor(object):
 
 		return imagePasses
 
-	def findBallBearing(self):
 
-		""" Initialize the ball bearing position """
-		x_pos = self.current_calib.x_init
-		y_pos = self.current_calib.x_init
+	""" Updates the ball bearing location based on where it currently is """
+	def findBallBearing(self, frame):
 
-		ret, frame = self.capture.read()	
 		gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 			
 		""" Apply GuassianBlur to reduce noise. medianBlur is also added for smoothening, reducing noise """
@@ -320,32 +265,27 @@ class ImageProcessor(object):
 		gray = cv2.medianBlur(gray,1)
 			
 		""" Adaptive Guassian Threshold is to detect sharp edges in the Image """
-		gray = cv2.adaptiveThreshold(gray,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,27,13.5)#29,15.5) working version
+		gray = cv2.adaptiveThreshold(gray,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,27,13.5)
 			
 		""" HoughCircles(image, method, dp, minDist[, circles[, param1[, param2 [, minRadius[, maxRadius]]]]]) """
 		circles = cv2.HoughCircles(gray, cv2.cv.CV_HOUGH_GRADIENT, 1, 
 		self.current_calib.circles_param, param1=30, param2=25, minRadius=40, maxRadius=0)
 			
 		if circles is not None:
-		""" convert the (x, y) coordinates and radius of the circles to integers """
+			""" convert the (x, y) coordinates and radius of the circles to integers """
 			circles = np.round(circles[0, :]).astype("int")
 
 			for (x, y, r) in circles:
 				if self.current_calib.checkCircle(x,y,r):
-							
-					self.my_print("x: " + str(x) + '\n')
-					self.my_print("y: " + str(y) + '\n')				
-					self.my_print("Radius is: " + str(r) + '\n')
 
 					""" Adjust the ball position based on the received values """
-					if(x != x_pos):
-						x_pos = ((WEIGHT) * x_pos + x)/(WEIGHT+1) 
-					if(y != y_pos):
-						y_pos = ((WEIGHT) * y_pos + y)/(WEIGHT+1) 
+					if(x != self.ball_bearing_x):
+						self.ball_bearing_x = ((WEIGHT) * self.ball_bearing_x + x)/(WEIGHT+1) 
+					if(y != self.ball_bearing_y):
+						self.ball_bearing_y = ((WEIGHT) * self.ball_bearing_y + y)/(WEIGHT+1) 
 
 
-
-	def test3(self,position):
+	def testBB(self,position):
 
 		""" Set the correct calibration """
 		self.setCalibration(position)
@@ -417,7 +357,7 @@ class ImageProcessor(object):
 
 		if VIDEO:
 			video.release()
-		self.captue.release()
+		self.capture.release()
 		cv2.destroyAllWindows()
 
 
@@ -436,6 +376,7 @@ if __name__ == "__main__":
 	pos.setPos(0, 0, 0, blade_side, ball_bearing, 0)
 
 	ip = ImageProcessor()
-	ip.test3(pos)
+	#ip.testBB(pos)
+	ip.inspect(None, pos)
 
 		
