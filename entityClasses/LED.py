@@ -15,7 +15,7 @@ class LED(object):
 
 		""" set the pinNumber """
 		self.pinNumber = pinNumber
-		self.brightness = 15
+		self.brightness = 5
 
 		""" set up the GPIO pin specified """
 		GPIO.setmode(GPIO.BCM) # specify naming convention to use

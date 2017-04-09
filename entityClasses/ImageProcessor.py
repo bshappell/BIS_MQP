@@ -1,5 +1,6 @@
 # ImageProcessor Class
 import cv2
+#import cv2.cv
 import numpy as np
 import InspectionResults
 import InspectionPosition
@@ -13,9 +14,9 @@ RASP_PI = 1 # Indicates whether the code is running on the Raspberry Pi or not
 CAMERA = 1 # Indicates whether to run the code with the camera
 VIDEO = 0 # Indicates if a video should be recorded
 
-HUE_LOW = 26
-HUE_HIGH = 71
-SATURATION_LOW = 105
+HUE_LOW = 30 #26
+HUE_HIGH = 78 #71
+SATURATION_LOW = 120 #104
 SATURATION_HIGH = 255
 VALUE_LOW = 116 #116
 VALUE_HIGH = 255
@@ -23,7 +24,7 @@ VALUE_HIGH = 255
 X_SMALL = 370
 Y_SMALL = 156
 X_LARGE = 370
-Y_LARGE = 156
+Y_LARGE = 186
 Y_MAX_SMALL = 200
 Y_MIN_SMALL = 130
 X_MAX_SMALL = 420
@@ -36,8 +37,8 @@ MIN_RAD_SMALL = 50
 MAX_RAD_SMALL = 70 
 MIN_RAD_LARGE = 70
 MAX_RAD_LARGE = 80
-RAD_LARGE = 74
-RAD_SMALL = 64
+RAD_LARGE = 64
+RAD_SMALL = 54
 CIRC_PARAM_LARGE = 1
 CIRC_PARAM_SMALL = 4
 WEIGHT = 7 
@@ -67,9 +68,9 @@ class ImageProcessor(object):
 			X_LARGE, Y_LARGE, Y_MAX_LARGE, Y_MIN_LARGE, Y_MAX_LARGE, Y_MIN_LARGE, CIRC_PARAM_LARGE)
 
 		""" Set the shape locations for the calibration (x_offset,y_offset,x_width,y_width) """
-		self.calib_P02_0_0_0.setShapes(1, 60,-70,70,70)
+		self.calib_P02_0_0_0.setShapes(1, 60,20,70,100)
 		self.calib_P02_0_0_0.setShapes(2,-50,-120,100,50)
-		self.calib_P02_0_0_0.setShapes(3,-130,-40,70,70)
+		self.calib_P02_0_0_0.setShapes(3,-130,-40,70,100)
 
 		""" Small BB size for P02 concave fillet """
 		self.calib_P02_0_0_1 = CvCalibData.CvCalibData(RAD_SMALL, MAX_RAD_SMALL, MIN_RAD_SMALL, 
@@ -186,7 +187,7 @@ class ImageProcessor(object):
 		ret, self.frame = self.capture.read()
 
 		""" Update the location of the ball bearing """
-		self.findBallBearing(self.frame.copy())
+		#self.findBallBearing(self.frame.copy())
 
 		""" Update the box locations based on the ball bearing location """
 		self.current_calib.updateShapeLocations(self.ball_bearing_x, self.ball_bearing_y)
@@ -201,7 +202,7 @@ class ImageProcessor(object):
 		res = cv2.bitwise_and(self.frame,self.frame, mask= mask)
 
 		""" Find the Contours in the Mask """
-		(cnts, _) = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+		(_, cnts, _) = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
 
 		""" Initialize the counts of contours in each section to zero """
 		quad1_cnt = 0
