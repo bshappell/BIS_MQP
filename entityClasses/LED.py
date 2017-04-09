@@ -15,7 +15,6 @@ class LED(object):
 
 		""" set the pinNumber """
 		self.pinNumber = pinNumber
-		self.brightness = 5
 
 		""" set up the GPIO pin specified """
 		GPIO.setmode(GPIO.BCM) # specify naming convention to use
@@ -27,11 +26,11 @@ class LED(object):
 		""" Initially turn the pin off """
 		#self.turnOff()
 
-	def turnOn(self):
+	def turnOn(self, brightness):
 
 		""" code to turn the rasp pi pin on """
 		#GPIO.output(self.pinNumber, GPIO.HIGH)
-		self.pwm.start(self.brightness)
+		self.pwm.start(brightness)
 
 	def turnOff(self):
 
