@@ -9,7 +9,7 @@ import CvCalibData
 import math
 
 DEBUG = 1 # Toggle to get debug features
-RASP_PI = 1 # Indicates whether the code is running on the Raspberry Pi or not
+RASP_PI = 0 # Indicates whether the code is running on the Raspberry Pi or not
 CAMERA = 1 # Indicates whether to run the code with the camera
 VIDEO = 0 # Indicates if a video should be recorded
 
@@ -20,6 +20,8 @@ SATURATION_HIGH = 255
 VALUE_LOW = 116 #116
 VALUE_HIGH = 255
 
+
+""" For P02 """
 X_SMALL = 370
 Y_SMALL = 156
 X_LARGE = 370
@@ -67,9 +69,9 @@ class ImageProcessor(object):
 			X_LARGE, Y_LARGE, Y_MAX_LARGE, Y_MIN_LARGE, Y_MAX_LARGE, Y_MIN_LARGE, CIRC_PARAM_LARGE)
 
 		""" Set the shape locations for the calibration (x_offset,y_offset,x_width,y_width) """
-		self.calib_P02_0_0_0.setShapes(1, 60,-70,70,70)
-		self.calib_P02_0_0_0.setShapes(2,-50,-120,100,50)
-		self.calib_P02_0_0_0.setShapes(3,-130,-40,70,70)
+		self.calib_P02_0_0_0.setShapes(1, 60,-70,70,70,0)
+		self.calib_P02_0_0_0.setShapes(2,-50,-120,100,50,0)
+		self.calib_P02_0_0_0.setShapes(3,-130,-40,70,70,0)
 
 		""" Small BB size for P02 concave fillet """
 		self.calib_P02_0_0_1 = CvCalibData.CvCalibData(RAD_SMALL, MAX_RAD_SMALL, MIN_RAD_SMALL, 
@@ -221,7 +223,7 @@ class ImageProcessor(object):
 
 			""" Check if the shape is near the ball bearing """
 			hyp = math.sqrt(((cX - self.ball_bearing_x)**2) + ((cY - self.ball_bearing_y)**2))
-			if (hyp < 160):
+			if (hyp < 260) and ((area == 0.000001) or (area > 20)):
 
 				""" draw the contour and center of the shape on the image """
 				cv2.drawContours(self.frame, [c], -1, (0, 255, 0), 2)
@@ -267,6 +269,7 @@ class ImageProcessor(object):
                         circles = cv2.HoughCircles(gray, cv2.cv.CV_HOUGH_GRADIENT, 1, self.current_calib.circles_param, param1=30, param2=25, minRadius=40, maxRadius=0)
                 else:
                         circles = cv2.HoughCircles(gray, cv2.cv.CV_HOUGH_GRADIENT, 1, self.current_calib.circles_param, param1=30, param2=25, minRadius=40, maxRadius=0)
+                        print cv2.cv.CV_HOUGH_GRADIENT
 			
 		if circles is not None:
 			""" convert the (x, y) coordinates and radius of the circles to integers """
@@ -368,7 +371,7 @@ class ImageProcessor(object):
 if __name__ == "__main__":
 
 	blade_side = 0
-	ball_bearing = 0 # large
+	ball_bearing = 1 # large
 	pos = InspectionPosition.InspectionPosition()
 	pos.setPos(0, 0, 0, blade_side, ball_bearing, 0)
 
