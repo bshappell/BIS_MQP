@@ -95,7 +95,7 @@ class BIS(object):
 		self.blisks = [blisk_P01, blisk_P02, blisk_G02]
 
 		""" set up an LED """
-		self.led = LED.LED(PIN_LED_SIG)
+		self.led = LED.LED(PIN_LED_SIG, )
 
 		""" set up the ABB Robot """
 		self.abbRobot = MultiThreadedABBRobot.ABBRobot()
@@ -188,7 +188,13 @@ class BIS(object):
 		self.bb_num = 0 # Large BB size first
 
 		""" turn on the LED for inspection """
-		self.led.turnOn()
+		if(self.blisk_num == 0):
+			ledBrightness = 5
+		elif(self.blisk_num == 1):
+			ledBrightness = 15
+		elif(self.blisk_num == 2):
+			ledBrightness = 10
+		self.led.turnOn(ledBrightness)
 
 		""" Indicate to the image processor that a new blisk is going to be inspected """
 		self.imageProcessor.newBlisk(self.blisk_num)

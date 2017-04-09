@@ -4,7 +4,7 @@
 
 READING_TO_GRAMS = -0.00236
 PLOTTING = 0
-F_THRESH = 1750
+F_THRESH = 1000
 
 import FSThread
 import csv
@@ -103,7 +103,7 @@ class ForceSensor(object):
                 if(gramsReading < F_THRESH):
                     """ Send the value to the abb """
                     mvCmd_cnt +=1
-                    #print "Sending Move Command"
+                    print "Sending Move Command"
                     callFunc()
 
                 elif(gramsReading >= F_THRESH):
