@@ -376,7 +376,6 @@ if __name__ == "__main__":
 	pos.setPos(0, 0, 0, blade_side, ball_bearing, 0)
 
 	ip = ImageProcessor()
-	#ip.testBB(pos)
 	ip.inspect(None, pos)
 
 		
