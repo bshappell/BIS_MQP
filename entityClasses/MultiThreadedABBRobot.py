@@ -192,7 +192,8 @@ class ABBRobot(object):
 
 		self.my_print('closing connection with client\n')
 		if self.server_thread:
-                        self.send("DISCONNECT")
+                        if self.server_thread.connection:
+                                self.send("DISCONNECT")
 			self.server_thread.cmd_q.put(ServerCommand(ServerCommand.CLOSE))
 			self.server_thread.join()
 
