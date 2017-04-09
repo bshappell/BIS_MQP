@@ -122,7 +122,7 @@ class ImageProcessor(object):
 		stillInspecting = True
 		while(stillInspecting):
 
-			if RASP_PI:
+			if callFunction:
 				""" Get the updated position and determine if the bb is still in the fillet """
 				stillInspecting, blade_side, distance = callFunction(position)
 				if ((distance != -1) and (blade_side != -1)):
@@ -201,10 +201,7 @@ class ImageProcessor(object):
 		res = cv2.bitwise_and(self.frame,self.frame, mask= mask)
 
 		""" Find the Contours in the Mask """
-		if RASP_PI:
-			(_, cnts, _) = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
-		else:
-			(cnts, _) = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+		(cnts, _) = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
 
 		""" Initialize the counts of contours in each section to zero """
 		quad1_cnt = 0
@@ -224,7 +221,6 @@ class ImageProcessor(object):
 
 			""" Check if the shape is near the ball bearing """
 			hyp = math.sqrt(((cX - self.ball_bearing_x)**2) + ((cY - self.ball_bearing_y)**2))
-			print hyp
 			if (hyp < 160):
 
 				""" draw the contour and center of the shape on the image """
@@ -248,9 +244,8 @@ class ImageProcessor(object):
 		""" Determine if the ball bearing case sizes pass """
 		imagePasses = self.checkImage(isSmallBB,quad1_cnt,quad2_cnt,quad3_cnt)
 
-		if(DEBUG):
-			 """ Indicate Whether the image passes or fails """
-			 cv2.putText(self.frame, "Inspection Passes: " + str(imagePasses), (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, self.upper_green, 2)
+		""" Indicate Whether the image passes or fails """
+		cv2.putText(self.frame, "Inspection Passes: " + str(imagePasses), (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, self.upper_green, 2)
 
 		return imagePasses
 
@@ -268,8 +263,10 @@ class ImageProcessor(object):
 		gray = cv2.adaptiveThreshold(gray,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,27,13.5)
 			
 		""" HoughCircles(image, method, dp, minDist[, circles[, param1[, param2 [, minRadius[, maxRadius]]]]]) """
-		circles = cv2.HoughCircles(gray, cv2.cv.CV_HOUGH_GRADIENT, 1, 
-		self.current_calib.circles_param, param1=30, param2=25, minRadius=40, maxRadius=0)
+		if RASP_PI:
+                        circles = cv2.HoughCircles(gray, cv2.cv.CV_HOUGH_GRADIENT, 1, self.current_calib.circles_param, param1=30, param2=25, minRadius=40, maxRadius=0)
+                else:
+                        circles = cv2.HoughCircles(gray, cv2.cv.CV_HOUGH_GRADIENT, 1, self.current_calib.circles_param, param1=30, param2=25, minRadius=40, maxRadius=0)
 			
 		if circles is not None:
 			""" convert the (x, y) coordinates and radius of the circles to integers """
@@ -376,6 +373,7 @@ if __name__ == "__main__":
 	pos.setPos(0, 0, 0, blade_side, ball_bearing, 0)
 
 	ip = ImageProcessor()
+	ip.newBlisk(0)
 	#ip.testBB(pos)
 	ip.inspect(None, pos)
 
