@@ -44,7 +44,7 @@ class ABBRobot(object):
 			self.my_print('Received Expected Value: "%s"\n' % reply.data)
 			return True
 		else:
-			self.my_print("ERROR Received Incorrect Value: " + reply.data + " Expected: " + expMessage + "\n")
+			self.my_print("ERROR Received Incorrect Value: " + srtr(reply.data) + " Expected: " + expMessage + "\n")
 			return False
 
 
@@ -146,9 +146,9 @@ class ABBRobot(object):
 				return (True, ret.data)
 
 		except Queue.Empty as e:
-			return (True, blade_side, distance)
+			return (True, None)
 
-		return (True, blade_side, distance)
+		return (True, None)
                 
 
 	""" Inspect the current blade """

@@ -9,7 +9,7 @@ import CvCalibData
 import math
 
 DEBUG = 1 # Toggle to get debug features
-RASP_PI = 0 # Indicates whether the code is running on the Raspberry Pi or not
+RASP_PI = 1 # Indicates whether the code is running on the Raspberry Pi or not
 CAMERA = 1 # Indicates whether to run the code with the camera
 VIDEO = 0 # Indicates if a video should be recorded
 
@@ -122,7 +122,7 @@ class ImageProcessor(object):
 		start_time = time.time()
 
 		""" Inspection initially paused until start is received """
-		if RASP_PI:
+		if callFunction:
 			pauseInspection = True
 		else:
 			pauseInspection = False
@@ -143,7 +143,7 @@ class ImageProcessor(object):
 				elif message == PAUSE_PATH:
 					pauseInspection = True
 					self.my_print("PAUSE_PATH RECEIVED")
-				else:
+				elif message:
 					#position.update(distance)
 					#self.setCalibration(position)
 					self.my_print("POSITION RECEIVED: ")

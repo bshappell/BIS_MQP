@@ -1,5 +1,6 @@
 
 import cv2
+import shapely
 from shapely.geometry import Polygon
 from shapely.geometry import Point
 import math
