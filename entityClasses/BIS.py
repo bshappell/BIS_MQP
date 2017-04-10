@@ -118,6 +118,10 @@ class BIS(object):
 		""" set up the force sensor class """
 		self.forceSensor = ForceSensor.ForceSensor(PIN_FS_DATA, PIN_FS_CLK)
 
+		""" Check that the socket is free """
+		if(self.abbRobot.portFree.type == 0):
+			self.shutdown()
+
 	""" Handles the startup of the BIS """
 	def start(self):
 

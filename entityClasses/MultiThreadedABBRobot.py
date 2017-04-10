@@ -22,10 +22,11 @@ class ABBRobot(object):
 
 		self.my_print("setting up server")
 		self.server_thread.cmd_q.put(ServerCommand(ServerCommand.SETUP, self.server_address))
-		reply = self.server_thread.reply_q.get(True)
+		self.portFree = self.server_thread.reply_q.get(True)
 
 		""" Expected response from IRC5 """
 		self.exp_message = ""
+
 
 	""" Send a message to the abb controller """
 	def send(self, message):
@@ -272,12 +273,15 @@ class SocketServerThread(threading.Thread):
     def _handle_SETUP(self, cmd):
 
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.socket.bind((cmd.data[0], cmd.data[1]))
+            try:
+            	self.socket.bind((cmd.data[0], cmd.data[1]))
+            except Exception, e:
+            	self.my_print("Socket in use, close app")
+            	self.reply_q.put(self._error_reply(str(e)))
             self.my_print("Binding to socket complete")
             self.socket.listen(2)
             self.my_print("Listening on socket complete")
             self.my_print("setup")
-
             self.reply_q.put(self._success_reply())
 
     def _handle_CONNECT(self, cmd):
