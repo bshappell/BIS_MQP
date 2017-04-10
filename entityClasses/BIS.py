@@ -120,6 +120,7 @@ class BIS(object):
 
 		""" Check that the socket is free """
 		if(self.abbRobot.portFree.type == 0):
+                        print "SOCKET IN USE"
 			self.shutdown()
 
 	""" Handles the startup of the BIS """
