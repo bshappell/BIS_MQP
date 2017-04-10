@@ -9,7 +9,7 @@ import CvCalibData
 import math
 
 DEBUG = 1 # Toggle to get debug features
-RASP_PI = 1 # Indicates whether the code is running on the Raspberry Pi or not
+RASP_PI = 0 # Indicates whether the code is running on the Raspberry Pi or not
 CAMERA = 1 # Indicates whether to run the code with the camera
 VIDEO = 0 # Indicates if a video should be recorded
 
@@ -20,6 +20,8 @@ SATURATION_HIGH = 255
 VALUE_LOW = 180 #116
 VALUE_HIGH = 255
 
+
+""" For P02 """
 X_SMALL = 370
 Y_SMALL = 156
 X_LARGE = 370
@@ -66,17 +68,17 @@ class ImageProcessor(object):
 		self.calib_P02_0_0_0 = CvCalibData.CvCalibData(RAD_LARGE, MAX_RAD_LARGE, MIN_RAD_LARGE, 
 			X_LARGE, Y_LARGE, Y_MAX_LARGE, Y_MIN_LARGE, Y_MAX_LARGE, Y_MIN_LARGE, CIRC_PARAM_LARGE)
 
-		""" Set the shape locations for the calibration (x_offset,y_offset,x_width,y_width) """
-		self.calib_P02_0_0_0.setShapes(1, 60,20,70,100)
-		self.calib_P02_0_0_0.setShapes(2,-50,-120,100,50)
-		self.calib_P02_0_0_0.setShapes(3,-130,-40,70,100)
+		""" Set the shape locations for the calibration (x_offset,y_offset,x_width,y_width,angle) """
+		self.calib_P02_0_0_0.setShapes(1, 60,20,70,100,20)
+		self.calib_P02_0_0_0.setShapes(2,-50,-120,100,50,45)
+		self.calib_P02_0_0_0.setShapes(3,-130,-40,70,100,0)
 
 		""" Small BB size for P02 concave fillet """
 		self.calib_P02_0_0_1 = CvCalibData.CvCalibData(RAD_SMALL, MAX_RAD_SMALL, MIN_RAD_SMALL, 
 			X_SMALL, Y_SMALL, Y_MAX_SMALL, Y_MIN_SMALL, Y_MAX_SMALL, Y_MIN_SMALL, CIRC_PARAM_SMALL)
-		self.calib_P02_0_0_1.setShapes(1, 60,-70,70,70)
-		self.calib_P02_0_0_1.setShapes(2,-50,-120,100,50)
-		self.calib_P02_0_0_1.setShapes(3,-130,-40,70,70)
+		self.calib_P02_0_0_1.setShapes(1, 60,-70,70,70,20)
+		self.calib_P02_0_0_1.setShapes(2,-50,-120,100,50,40)
+		self.calib_P02_0_0_1.setShapes(3,-130,-40,70,70,45)
 
 		""" Store the current calibration """
 		self.current_calib = self.calib_P02_0_0_0
@@ -119,23 +121,42 @@ class ImageProcessor(object):
 		pic_count = 0
 		start_time = time.time()
 
+		""" Inspection initially paused until start is received """
+		if RASP_PI:
+			pauseInspection = True
+		else:
+			pauseInspection = False
 		stillInspecting = True
+		inspectingUp = True
 		while(stillInspecting):
 
 			if callFunction:
-				""" Get the updated position and determine if the bb is still in the fillet """
-				stillInspecting, blade_side, distance = callFunction(position)
-				if ((distance != -1) and (blade_side != -1)):
-					position.update(blade_side,distance)
-					self.setCalibration(position)
+				stillInspecting, message = callFunction(position)
+				if message == START_PATH_UP:
+					inspectingUp = True
+					pauseInspection = False
+					self.my_print("START_PATH_UP RECEIVED")
+				elif message == START_PATH_DOWN:
+					inspectingUp = False
+					pauseInspection = False
+					self.my_print("START_PATH_DOWN RECEIVED")
+				elif message == PAUSE_PATH:
+					pauseInspection = True
+					self.my_print("PAUSE_PATH RECEIVED")
+				else:
+					#position.update(distance)
+					#self.setCalibration(position)
+					self.my_print("POSITION RECEIVED: ")
+					self.my_print(message)
 
 			""" Inspect the captured image """
-			passValue = self.inspectImageFromCamera(position.ball_bearing)
-			cv2.imshow('Inspected Camera Image ', self.frame)
+			if(not pauseInspection):
+				passValue = self.inspectImageFromCamera(position.ball_bearing, inspectingUp)
+				cv2.imshow('Inspected Camera Image ', self.frame)
 
-			""" Save the inspection results to the file """
-			if RASP_PI:
-				self.results.addResult(position, passValue)
+				""" Save the inspection results to the file """
+				if RASP_PI:
+					self.results.addResult(position, passValue)
 
 			pic_count += 1
 			key = cv2.waitKey(1) & 0xFF
@@ -180,13 +201,13 @@ class ImageProcessor(object):
 			self.capture.release()
 
 	""" Inspect the current image to see if it passes """
-	def inspectImageFromCamera(self, isSmallBB):
+	def inspectImageFromCamera(self, isSmallBB, inspectingUp):
 
 		imagePasses = False
 		ret, self.frame = self.capture.read()
 
 		""" Update the location of the ball bearing """
-		#self.findBallBearing(self.frame.copy())
+		self.findBallBearing(self.frame.copy())
 
 		""" Update the box locations based on the ball bearing location """
 		self.current_calib.updateShapeLocations(self.ball_bearing_x, self.ball_bearing_y)
@@ -201,7 +222,10 @@ class ImageProcessor(object):
 		res = cv2.bitwise_and(self.frame,self.frame, mask= mask)
 
 		""" Find the Contours in the Mask """
-		(_, cnts, _) = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+		if RASP_PI:
+			(_, cnts, _) = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+		else:
+			(cnts, _) = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
 
 		""" Initialize the counts of contours in each section to zero """
 		quad1_cnt = 0
@@ -221,7 +245,7 @@ class ImageProcessor(object):
 
 			""" Check if the shape is near the ball bearing """
 			hyp = math.sqrt(((cX - self.ball_bearing_x)**2) + ((cY - self.ball_bearing_y)**2))
-			if (hyp < 160):
+			if (hyp < 260) and ((area == 0.000001) or (area > 20)):
 
 				""" draw the contour and center of the shape on the image """
 				cv2.drawContours(self.frame, [c], -1, (0, 255, 0), 2)
@@ -267,6 +291,7 @@ class ImageProcessor(object):
                         circles = cv2.HoughCircles(gray, 3, 1, self.current_calib.circles_param, param1=30, param2=25, minRadius=40, maxRadius=0)
                 else:
                         circles = cv2.HoughCircles(gray, cv2.cv.CV_HOUGH_GRADIENT, 1, self.current_calib.circles_param, param1=30, param2=25, minRadius=40, maxRadius=0)
+
 			
 		if circles is not None:
 			""" convert the (x, y) coordinates and radius of the circles to integers """
@@ -368,7 +393,7 @@ class ImageProcessor(object):
 if __name__ == "__main__":
 
 	blade_side = 0
-	ball_bearing = 0 # large
+	ball_bearing = 1 # large
 	pos = InspectionPosition.InspectionPosition()
 	pos.setPos(0, 0, 0, blade_side, ball_bearing, 0)
 

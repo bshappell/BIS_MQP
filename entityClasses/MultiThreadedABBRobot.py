@@ -22,10 +22,11 @@ class ABBRobot(object):
 
 		self.my_print("setting up server")
 		self.server_thread.cmd_q.put(ServerCommand(ServerCommand.SETUP, self.server_address))
-		reply = self.server_thread.reply_q.get(True)
+		self.portFree = self.server_thread.reply_q.get(True)
 
 		""" Expected response from IRC5 """
 		self.exp_message = ""
+
 
 	""" Send a message to the abb controller """
 	def send(self, message):
@@ -139,22 +140,14 @@ class ABBRobot(object):
 			if ret.data == self.exp_message:
 				""" When complete reenable blocking and set inspecting state to false """
 				print "received expected data in still inspecting!!!!!!!!!!!"
-				return (False, blade_side, distance)
-			elif ret.data == "START_PATH":
-				print "START_PATH RECEIVED FROM ABB"
-				self.server_thread.cmd_q.put(ServerCommand(ServerCommand.RECEIVE, self.exp_message))
-				return (True, blade_side, distance)
-			elif ret.data == "PAUSE_PATH":
-				print "PAUSE_PATH RECEIVED FROM ABB"
-				self.server_thread.cmd_q.put(ServerCommand(ServerCommand.RECEIVE, self.exp_message))
-				return (True, blade_side, distance)
+				return (False, ret.data)
 			else:
-				print "POSITION VALUE RECEIVED FROM ABB: "
 				self.server_thread.cmd_q.put(ServerCommand(ServerCommand.RECEIVE, self.exp_message))
-				print ret.data
-				return (True, blade_side, distance)
+				return (True, ret.data)
+
 		except Queue.Empty as e:
 			return (True, blade_side, distance)
+
 		return (True, blade_side, distance)
                 
 
@@ -280,12 +273,15 @@ class SocketServerThread(threading.Thread):
     def _handle_SETUP(self, cmd):
 
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.socket.bind((cmd.data[0], cmd.data[1]))
+            try:
+            	self.socket.bind((cmd.data[0], cmd.data[1]))
+            except Exception, e:
+            	self.my_print("Socket in use, close app")
+            	self.reply_q.put(self._error_reply(str(e)))
             self.my_print("Binding to socket complete")
             self.socket.listen(2)
             self.my_print("Listening on socket complete")
             self.my_print("setup")
-
             self.reply_q.put(self._success_reply())
 
     def _handle_CONNECT(self, cmd):

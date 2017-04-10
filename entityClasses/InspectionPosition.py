@@ -11,6 +11,7 @@ class InspectionPosition(object):
 		self.ball_bearing = 0
 		self.distance = 0
 		self.blisk_string = ""
+		self.inspecting_up = 1
 
 	def setPos(self, blisk_number, stage_number, blade_number, blade_side, ball_bearing, distance):
 
@@ -38,7 +39,6 @@ class InspectionPosition(object):
 		self.ball_bearing = ball_bearing
 		self.distance = distance
 
-	def update(self, blade_side, distance):
+	def update(self, distance):
 
-		self.blade_side = blade_side
 		self.distance = distance
