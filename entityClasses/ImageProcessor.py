@@ -207,7 +207,7 @@ class ImageProcessor(object):
 		ret, self.frame = self.capture.read()
 
 		""" Update the location of the ball bearing """
-		self.findBallBearing(self.frame.copy())
+		#self.findBallBearing(self.frame.copy())
 
 		""" Update the box locations based on the ball bearing location """
 		self.current_calib.updateShapeLocations(self.ball_bearing_x, self.ball_bearing_y)
