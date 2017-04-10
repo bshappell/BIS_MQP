@@ -1,6 +1,6 @@
 
 import cv2
-import Shapely
+import shapely
 import math
 
 
@@ -76,8 +76,8 @@ class AngledBox(object):
 		""" Store the parameter values """
 		self.xPos = x_pos
 		self.yPos = y_pos
-		self.xWidth = x_width
-		self.yWidth = y_width
+		self.x_width = x_width
+		self.y_width = y_width
 		""" angle should be between 0 and 90"""
 		self.angle = angle
 		self.color = (255,255,255)
@@ -97,21 +97,21 @@ class AngledBox(object):
 
 	""" Return the Lower Left Hand Point on the Box """
 	def p01(self):
-		newX = self.xPos - (self.y_width * math.sin(math.radians(angle)))
-		newY = self.yPos - (self.y_width * math.cos(math.radians(angle)))
-		return (newX, newY)
+		newX = self.xPos - (self.y_width * math.sin(math.radians(self.angle)))
+		newY = self.yPos - (self.y_width * math.cos(math.radians(self.angle)))
+		return (int(newX), int(newY))
 
 	""" Return the Upper Right Hand Point on the Box """
 	def p10(self):
-		newX = self.xPos + (self.x_width * math.cos(math.radians(angle)))
-		newY = self.yPos - (self.x_width * math.sin(math.radians(angle)))
-		return (newX, newY)
+		newX = self.xPos + (self.x_width * math.cos(math.radians(self.angle)))
+		newY = self.yPos - (self.x_width * math.sin(math.radians(self.angle)))
+		return (int(newX), int(newY))
 
 	""" Return the Lower Right Hand Point on the Box """
 	def p11(self):
-		newX = self.xPos - (self.y_width * math.cos(math.radians(angle))) + (self.x_width * math.cos(math.radians(angle)))
-		newY = self.yPos - (self.y_width * math.cos(math.radians(angle))) - (self.x_width * math.sin(math.radians(angle)))
-		return (self.xPos + self.xWidth, self.yPos + self.yWidth)
+		newX = self.xPos - (self.y_width * math.cos(math.radians(self.angle))) + (self.x_width * math.cos(math.radians(self.angle)))
+		newY = self.yPos - (self.y_width * math.cos(math.radians(self.angle))) - (self.x_width * math.sin(math.radians(self.angle)))
+		return (int(self.xPos + self.xWidth), int(self.yPos + self.yWidth))
 
 	""" Returns a Boolean Indicating whether the given x,y coordinates are within the box """
 	def inBox(self, x_pos, y_pos):

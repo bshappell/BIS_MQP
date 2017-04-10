@@ -46,7 +46,7 @@ class CvCalibData(object):
 		self.shap1 = None
 		self.shape2 = None
 		self.shape3 = None
-		
+
 	def setShapes(self,shapeNum,x_offset,y_offset,x_width,y_width, angle):
 
 		if shapeNum == 1:
@@ -55,21 +55,21 @@ class CvCalibData(object):
 			self.shape1_width = x_width
 			self.shape1_height = y_width
 			self.shape1_angle = angle
-			self.shape1 = Shapes.AngledBox(x_init + self.shape1_x, y_init + self.shape1_y, self.shape1_width, self.shape1_height, angle)
+			self.shape1 = Shapes.AngledBox(self.x_init + self.shape1_x, self.y_init + self.shape1_y, self.shape1_width, self.shape1_height, angle)
 		elif shapeNum == 2:
 			self.shape2_x = x_offset
 			self.shape2_y = y_offset
 			self.shape2_width = x_width
 			self.shape2_height = y_width
 			self.shape2_angle = angle
-			self.shape2 = Shapes.AngledBox(x_init + self.shape2_x, y_init + self.shape2_y, self.shape2_width, self.shape2_height, angle)
+			self.shape2 = Shapes.AngledBox(self.x_init + self.shape2_x, self.y_init + self.shape2_y, self.shape2_width, self.shape2_height, angle)
 		elif shapeNum == 3:
 			self.shape3_x = x_offset
 			self.shape3_y = y_offset
 			self.shape3_width = x_width
 			self.shape3_height = y_width
 			self.shape3_angle = angle
-			self.shape3 = Shapes.AngledBox(x_init + self.shape3_x, y_init + self.shape3_y, self.shape3_width, self.shape3_height, angle)
+			self.shape3 = Shapes.AngledBox(self.x_init + self.shape3_x, self.y_init + self.shape3_y, self.shape3_width, self.shape3_height, angle)
 		else:
 			print "ERROR INCORRECT SHAPE NUMBER RECEIVED IN SET SHAPES"
 

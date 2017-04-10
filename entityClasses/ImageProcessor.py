@@ -76,9 +76,9 @@ class ImageProcessor(object):
 		""" Small BB size for P02 concave fillet """
 		self.calib_P02_0_0_1 = CvCalibData.CvCalibData(RAD_SMALL, MAX_RAD_SMALL, MIN_RAD_SMALL, 
 			X_SMALL, Y_SMALL, Y_MAX_SMALL, Y_MIN_SMALL, Y_MAX_SMALL, Y_MIN_SMALL, CIRC_PARAM_SMALL)
-		self.calib_P02_0_0_1.setShapes(1, 60,-70,70,70)
-		self.calib_P02_0_0_1.setShapes(2,-50,-120,100,50)
-		self.calib_P02_0_0_1.setShapes(3,-130,-40,70,70)
+		self.calib_P02_0_0_1.setShapes(1, 60,-70,70,70,0)
+		self.calib_P02_0_0_1.setShapes(2,-50,-120,100,50,0)
+		self.calib_P02_0_0_1.setShapes(3,-130,-40,70,70,0)
 
 		""" Store the current calibration """
 		self.current_calib = self.calib_P02_0_0_0
@@ -203,7 +203,10 @@ class ImageProcessor(object):
 		res = cv2.bitwise_and(self.frame,self.frame, mask= mask)
 
 		""" Find the Contours in the Mask """
-		(_, cnts, _) = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+		if RASP_PI:
+			(_, cnts, _) = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+		else:
+			(cnts, _) = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
 
 		""" Initialize the counts of contours in each section to zero """
 		quad1_cnt = 0
