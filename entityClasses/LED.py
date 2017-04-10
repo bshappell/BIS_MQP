@@ -45,5 +45,5 @@ if __name__ == "__main__":
         """ for LED testing purposes """
         led = LED(22)
         while(1):
-                led.turnOn()
+                led.turnOn(15)
         

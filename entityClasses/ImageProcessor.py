@@ -1,6 +1,5 @@
 # ImageProcessor Class
 import cv2
-#import cv2.cv
 import numpy as np
 import InspectionResults
 import InspectionPosition
@@ -15,10 +14,10 @@ CAMERA = 1 # Indicates whether to run the code with the camera
 VIDEO = 0 # Indicates if a video should be recorded
 
 HUE_LOW = 30 #26
-HUE_HIGH = 78 #71
-SATURATION_LOW = 120 #104
+HUE_HIGH = 90 #71
+SATURATION_LOW = 150 #104
 SATURATION_HIGH = 255
-VALUE_LOW = 116 #116
+VALUE_LOW = 180 #116
 VALUE_HIGH = 255
 
 X_SMALL = 370
@@ -265,7 +264,7 @@ class ImageProcessor(object):
 			
 		""" HoughCircles(image, method, dp, minDist[, circles[, param1[, param2 [, minRadius[, maxRadius]]]]]) """
 		if RASP_PI:
-                        circles = cv2.HoughCircles(gray, cv2.cv.CV_HOUGH_GRADIENT, 1, self.current_calib.circles_param, param1=30, param2=25, minRadius=40, maxRadius=0)
+                        circles = cv2.HoughCircles(gray, 3, 1, self.current_calib.circles_param, param1=30, param2=25, minRadius=40, maxRadius=0)
                 else:
                         circles = cv2.HoughCircles(gray, cv2.cv.CV_HOUGH_GRADIENT, 1, self.current_calib.circles_param, param1=30, param2=25, minRadius=40, maxRadius=0)
 			
