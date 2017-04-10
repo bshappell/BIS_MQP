@@ -263,7 +263,7 @@ class BIS(object):
 		self.abbRobot.prepInspection(self.position)
 		#time.sleep(1)
 
-		if self.blade_num == 1:
+		if self.blade_num == 0:
                         """ Zero the force sensor """
                         self.forceSensor.zeroSensor()
                         time.sleep(1)
