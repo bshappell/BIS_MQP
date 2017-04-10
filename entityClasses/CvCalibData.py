@@ -41,23 +41,26 @@ class CvCalibData(object):
 		self.shape2 = Shapes.Box(x_init + self.shape2_x, y_init + self.shape2_y, self.shape2_width, self.shape2_height, True)
 		self.shape3 = Shapes.Box(x_init + self.shape3_x, y_init + self.shape3_y, self.shape3_width, self.shape3_height, True)
 
-	def setShapes(self,shapeNum,x_offset,y_offset,x_width,y_width):
+	def setShapes(self,shapeNum,x_offset,y_offset,x_width,y_width, angle):
 
 		if shapeNum == 1:
 			self.shape1_x = x_offset
 			self.shape1_y = y_offset
 			self.shape1_width = x_width
 			self.shape1_height = y_width
+			self.shape1_angle = angle
 		elif shapeNum == 2:
 			self.shape2_x = x_offset
 			self.shape2_y = y_offset
 			self.shape2_width = x_width
 			self.shape2_height = y_width
+			self.shape1_angle = angle
 		elif shapeNum == 3:
 			self.shape3_x = x_offset
 			self.shape3_y = y_offset
 			self.shape3_width = x_width
 			self.shape3_height = y_width
+			self.shape1_angle = angle
 		else:
 			print "ERROR INCORRECT SHAPE NUMBER RECEIVED IN SET SHAPES"
 
