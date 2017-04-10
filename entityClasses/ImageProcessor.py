@@ -67,11 +67,18 @@ class ImageProcessor(object):
 		""" Large BB size for P02 concave fillet """
 		self.calib_P02_0_0_0 = CvCalibData.CvCalibData(RAD_LARGE, MAX_RAD_LARGE, MIN_RAD_LARGE, 
 			X_LARGE, Y_LARGE, Y_MAX_LARGE, Y_MIN_LARGE, Y_MAX_LARGE, Y_MIN_LARGE, CIRC_PARAM_LARGE)
-
 		""" Set the shape locations for the calibration (x_offset,y_offset,x_width,y_width,angle) """
 		self.calib_P02_0_0_0.setShapes(1, 60,20,70,100,20)
 		self.calib_P02_0_0_0.setShapes(2,-50,-120,100,50,45)
 		self.calib_P02_0_0_0.setShapes(3,-130,-40,70,100,0)
+
+		""" Large BB size for P02 convex fillet """
+		""" Set the shape locations for the calibration (x_offset,y_offset,x_width,y_width,angle) """
+		self.calib_P02_0_1_0 = CvCalibData.CvCalibData(RAD_LARGE, MAX_RAD_LARGE, MIN_RAD_LARGE, 
+			X_LARGE, Y_LARGE, Y_MAX_LARGE, Y_MIN_LARGE, Y_MAX_LARGE, Y_MIN_LARGE, CIRC_PARAM_LARGE)
+		self.calib_P02_0_1_0.setShapes(1, 60,20,70,100,20)
+		self.calib_P02_0_1_0.setShapes(2,-50,-120,100,50,45)
+		self.calib_P02_0_1_0.setShapes(3,-130,-40,70,100,0)
 
 		""" Small BB size for P02 concave fillet """
 		self.calib_P02_0_0_1 = CvCalibData.CvCalibData(RAD_SMALL, MAX_RAD_SMALL, MIN_RAD_SMALL, 
@@ -80,11 +87,20 @@ class ImageProcessor(object):
 		self.calib_P02_0_0_1.setShapes(2,-50,-120,100,50,40)
 		self.calib_P02_0_0_1.setShapes(3,-130,-40,70,70,45)
 
+		""" Small BB size for P02 convex fillet """
+		self.calib_P02_0_1_1 = CvCalibData.CvCalibData(RAD_SMALL, MAX_RAD_SMALL, MIN_RAD_SMALL, 
+			X_SMALL, Y_SMALL, Y_MAX_SMALL, Y_MIN_SMALL, Y_MAX_SMALL, Y_MIN_SMALL, CIRC_PARAM_SMALL)
+		self.calib_P02_0_1_1.setShapes(1, 60,-70,70,70,20)
+		self.calib_P02_0_1_1.setShapes(2,-50,-120,100,50,40)
+		self.calib_P02_0_1_1.setShapes(3,-130,-40,70,70,45)
+
+
 		""" Store the current calibration """
 		self.current_calib = self.calib_P02_0_0_0
 		self.ball_bearing_x = self.current_calib.x_init
 		self.ball_bearing_y = self.current_calib.y_init
 
+		
 	""" Called before inspecting a new blisk """
 	def newBlisk(self,bliskNum):
 
@@ -101,10 +117,15 @@ class ImageProcessor(object):
 	""" Set the current calibration """
 	def setCalibration(self, pos):
 
-		if pos.blisk_number == 0 and pos.stage_number == 0 and pos.blade_side == 0 and pos.ball_bearing == 0:
+                """ The P02 blisk calibrations """
+		if pos.blisk_number == 1 and pos.stage_number == 0 and pos.blade_side == 0 and pos.ball_bearing == 0:
 			self.current_calib = self.calib_P02_0_0_0
-		elif pos.blisk_number == 0 and pos.stage_number == 0 and pos.blade_side == 0 and pos.ball_bearing == 1:
+		elif pos.blisk_number == 1 and pos.stage_number == 0 and pos.blade_side == 1 and pos.ball_bearing == 0:
+			self.current_calib = self.calib_P02_0_1_0
+		elif pos.blisk_number == 1 and pos.stage_number == 0 and pos.blade_side == 0 and pos.ball_bearing == 1:
 			self.current_calib = self.calib_P02_0_0_1
+		elif pos.blisk_number == 1 and pos.stage_number == 0 and pos.blade_side == 1 and pos.ball_bearing == 1:
+			self.current_calib = self.calib_P02_0_1_1
 		else:
 			print "ERROR IMAGE PROCESSOR CALIBRATION NOT FOUND"
 
@@ -132,22 +153,23 @@ class ImageProcessor(object):
 
 			if callFunction:
 				stillInspecting, message = callFunction(position)
-				if message == START_PATH_UP:
+				if message == "START_PATH_UP":
 					inspectingUp = True
 					pauseInspection = False
-					self.my_print("START_PATH_UP RECEIVED")
-				elif message == START_PATH_DOWN:
+					self.my_print("START_PATH_UP RECEIVED\n")
+				elif message == "START_PATH_DOWN":
 					inspectingUp = False
 					pauseInspection = False
-					self.my_print("START_PATH_DOWN RECEIVED")
-				elif message == PAUSE_PATH:
+					self.my_print("START_PATH_DOWN RECEIVED\n")
+				elif message == "PAUSE_PATH":
 					pauseInspection = True
-					self.my_print("PAUSE_PATH RECEIVED")
+					self.my_print("PAUSE_PATH RECEIVED\n")
 				elif message:
 					#position.update(distance)
 					#self.setCalibration(position)
 					self.my_print("POSITION RECEIVED: ")
 					self.my_print(message)
+					self.my_print("\n")
 
 			""" Inspect the captured image """
 			if(not pauseInspection):
