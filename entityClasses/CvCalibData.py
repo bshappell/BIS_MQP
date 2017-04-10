@@ -21,26 +21,32 @@ class CvCalibData(object):
 		self.x_min = x_min
 		self.circles_param = circles_param
 
-		""" Shape positions """
-		self.shape1_width = 70
-		self.shape1_height = 70
-		self.shape2_width = 100
-		self.shape2_height = 50
-		self.shape3_width = 70
-		self.shape3_height = 70
+		""" Shape width and heights """
+		self.shape1_width = 0
+		self.shape1_height = 0
+		self.shape2_width = 0
+		self.shape2_height = 0
+		self.shape3_width = 0
+		self.shape3_height = 0
 
-		self.shape1_x = -30
-		self.shape1_y = -70
-		self.shape2_x = -120
-		self.shape2_y = -100
-		self.shape3_x = -180
-		self.shape3_y = 20
+		""" Shape x and y coordinates """
+		self.shape1_x = 0
+		self.shape1_y = 0
+		self.shape2_x = 0
+		self.shape2_y = 0
+		self.shape3_x = 0
+		self.shape3_y = 0
+
+		""" Shape angles """
+		self.shape1_angle = 0
+		self.shape2_angle = 0
+		self.shape3_angle = 0
 
 		""" Make the Boxes to search for light in """
-		self.shape1 = Shapes.Box(x_init + self.shape1_x, y_init + self.shape1_y, self.shape1_width, self.shape1_height, True)
-		self.shape2 = Shapes.Box(x_init + self.shape2_x, y_init + self.shape2_y, self.shape2_width, self.shape2_height, True)
-		self.shape3 = Shapes.Box(x_init + self.shape3_x, y_init + self.shape3_y, self.shape3_width, self.shape3_height, True)
-
+		self.shap1 = None
+		self.shape2 = None
+		self.shape3 = None
+		
 	def setShapes(self,shapeNum,x_offset,y_offset,x_width,y_width, angle):
 
 		if shapeNum == 1:
@@ -49,18 +55,21 @@ class CvCalibData(object):
 			self.shape1_width = x_width
 			self.shape1_height = y_width
 			self.shape1_angle = angle
+			self.shape1 = Shapes.AngledBox(x_init + self.shape1_x, y_init + self.shape1_y, self.shape1_width, self.shape1_height, angle)
 		elif shapeNum == 2:
 			self.shape2_x = x_offset
 			self.shape2_y = y_offset
 			self.shape2_width = x_width
 			self.shape2_height = y_width
-			self.shape1_angle = angle
+			self.shape2_angle = angle
+			self.shape2 = Shapes.AngledBox(x_init + self.shape2_x, y_init + self.shape2_y, self.shape2_width, self.shape2_height, angle)
 		elif shapeNum == 3:
 			self.shape3_x = x_offset
 			self.shape3_y = y_offset
 			self.shape3_width = x_width
 			self.shape3_height = y_width
-			self.shape1_angle = angle
+			self.shape3_angle = angle
+			self.shape3 = Shapes.AngledBox(x_init + self.shape3_x, y_init + self.shape3_y, self.shape3_width, self.shape3_height, angle)
 		else:
 			print "ERROR INCORRECT SHAPE NUMBER RECEIVED IN SET SHAPES"
 
