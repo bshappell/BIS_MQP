@@ -146,9 +146,9 @@ class ABBRobot(object):
 				return (True, ret.data)
 
 		except Queue.Empty as e:
-			return (True, blade_side, distance)
+			return (True, None)
 
-		return (True, blade_side, distance)
+		return (True, None)
                 
 
 	""" Inspect the current blade """

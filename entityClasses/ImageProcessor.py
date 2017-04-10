@@ -143,7 +143,7 @@ class ImageProcessor(object):
 				elif message == PAUSE_PATH:
 					pauseInspection = True
 					self.my_print("PAUSE_PATH RECEIVED")
-				else:
+				elif message:
 					#position.update(distance)
 					#self.setCalibration(position)
 					self.my_print("POSITION RECEIVED: ")
