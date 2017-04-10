@@ -122,13 +122,14 @@ class ImageProcessor(object):
 	""" Set the current calibration """
 	def setCalibration(self, pos):
 
-		if pos.blisk_number == 0 and pos.stage_number == 0 and pos.blade_side == 0 and pos.ball_bearing == 0:
+                """ The P02 blisk calibrations """
+		if pos.blisk_number == 1 and pos.stage_number == 0 and pos.blade_side == 0 and pos.ball_bearing == 0:
 			self.current_calib = self.calib_P02_0_0_0
-		elif pos.blisk_number == 0 and pos.stage_number == 0 and pos.blade_side == 1 and pos.ball_bearing == 0:
+		elif pos.blisk_number == 1 and pos.stage_number == 0 and pos.blade_side == 1 and pos.ball_bearing == 0:
 			self.current_calib = self.calib_P02_0_1_0
-		elif pos.blisk_number == 0 and pos.stage_number == 0 and pos.blade_side == 0 and pos.ball_bearing == 1:
+		elif pos.blisk_number == 1 and pos.stage_number == 0 and pos.blade_side == 0 and pos.ball_bearing == 1:
 			self.current_calib = self.calib_P02_0_0_1
-		elif pos.blisk_number == 0 and pos.stage_number == 0 and pos.blade_side == 1 and pos.ball_bearing == 1:
+		elif pos.blisk_number == 1 and pos.stage_number == 0 and pos.blade_side == 1 and pos.ball_bearing == 1:
 			self.current_calib = self.calib_P02_0_1_1
 		else:
 			print "ERROR IMAGE PROCESSOR CALIBRATION NOT FOUND"
@@ -160,19 +161,20 @@ class ImageProcessor(object):
 				if message == "START_PATH_UP":
 					inspectingUp = True
 					pauseInspection = False
-					self.my_print("START_PATH_UP RECEIVED")
+					self.my_print("START_PATH_UP RECEIVED\n")
 				elif message == "START_PATH_DOWN":
 					inspectingUp = False
 					pauseInspection = False
-					self.my_print("START_PATH_DOWN RECEIVED")
+					self.my_print("START_PATH_DOWN RECEIVED\n")
 				elif message == "PAUSE_PATH":
 					pauseInspection = True
-					self.my_print("PAUSE_PATH RECEIVED")
+					self.my_print("PAUSE_PATH RECEIVED\n")
 				elif message:
 					#position.update(distance)
 					#self.setCalibration(position)
 					self.my_print("POSITION RECEIVED: ")
 					self.my_print(message)
+					self.my_print("\n")
 
 			""" Inspect the captured image """
 			if(not pauseInspection):
