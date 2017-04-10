@@ -261,11 +261,12 @@ class BIS(object):
 		""" Move the Abb Robot to prep for positioning in the fillet """
 		self.position.setPos(self.blisk_num, self.stage_num, self.blade_num, self.blade_side, self.bb_num, self.blade_dist)
 		self.abbRobot.prepInspection(self.position)
-		time.sleep(1)
+		#time.sleep(1)
 
-		""" Zero the force sensor """
-		self.forceSensor.zeroSensor()
-		time.sleep(1)
+		if self.blade_num == 1:
+                        """ Zero the force sensor """
+                        self.forceSensor.zeroSensor()
+                        time.sleep(1)
 
 		""" Move the EOAT forward until force contact is made """
 		self.forceSensor.positionInFillet(self.abbRobot.inspectionPositioning)
