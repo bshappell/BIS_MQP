@@ -139,22 +139,14 @@ class ABBRobot(object):
 			if ret.data == self.exp_message:
 				""" When complete reenable blocking and set inspecting state to false """
 				print "received expected data in still inspecting!!!!!!!!!!!"
-				return (False, blade_side, distance)
-			elif ret.data == "START_PATH":
-				print "START_PATH RECEIVED FROM ABB"
-				self.server_thread.cmd_q.put(ServerCommand(ServerCommand.RECEIVE, self.exp_message))
-				return (True, blade_side, distance)
-			elif ret.data == "PAUSE_PATH":
-				print "PAUSE_PATH RECEIVED FROM ABB"
-				self.server_thread.cmd_q.put(ServerCommand(ServerCommand.RECEIVE, self.exp_message))
-				return (True, blade_side, distance)
+				return (False, ret.data)
 			else:
-				print "POSITION VALUE RECEIVED FROM ABB: "
 				self.server_thread.cmd_q.put(ServerCommand(ServerCommand.RECEIVE, self.exp_message))
-				print ret.data
-				return (True, blade_side, distance)
+				return (True, ret.data)
+
 		except Queue.Empty as e:
 			return (True, blade_side, distance)
+
 		return (True, blade_side, distance)
                 
 

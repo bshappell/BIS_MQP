@@ -1,6 +1,7 @@
 
 import cv2
-import shapely
+from shapely.geometry import Polygon
+from shapely.geometry import Point
 import math
 
 
@@ -98,31 +99,32 @@ class AngledBox(object):
 	""" Return the Lower Left Hand Point on the Box """
 	def p01(self):
 		newX = self.xPos - (self.y_width * math.sin(math.radians(self.angle)))
-		newY = self.yPos - (self.y_width * math.cos(math.radians(self.angle)))
+		newY = self.yPos + (self.y_width * math.cos(math.radians(self.angle)))
 		return (int(newX), int(newY))
 
 	""" Return the Upper Right Hand Point on the Box """
 	def p10(self):
 		newX = self.xPos + (self.x_width * math.cos(math.radians(self.angle)))
-		newY = self.yPos - (self.x_width * math.sin(math.radians(self.angle)))
+		newY = self.yPos + (self.x_width * math.sin(math.radians(self.angle)))
 		return (int(newX), int(newY))
 
 	""" Return the Lower Right Hand Point on the Box """
 	def p11(self):
-		newX = self.xPos - (self.y_width * math.cos(math.radians(self.angle))) + (self.x_width * math.cos(math.radians(self.angle)))
-		newY = self.yPos - (self.y_width * math.cos(math.radians(self.angle))) - (self.x_width * math.sin(math.radians(self.angle)))
-		return (int(self.xPos + self.xWidth), int(self.yPos + self.yWidth))
+		newX = self.xPos - (self.y_width * math.sin(math.radians(self.angle))) + (self.x_width * math.cos(math.radians(self.angle)))
+		newY = self.yPos + (self.y_width * math.cos(math.radians(self.angle))) + (self.x_width * math.sin(math.radians(self.angle)))
+		return (int(newX), int(newY))
 
 	""" Returns a Boolean Indicating whether the given x,y coordinates are within the box """
 	def inBox(self, x_pos, y_pos):
 
-		polygon = Shapely.Polygon(self.p00(), self.p10(), self.p11(), self.p01())
-		point = Shapely.Point(x_pos, y_pos)
+		coords = [self.p00(), self.p01(), self.p11(), self.p10()]
+
+		polygon = Polygon(coords)
+		point = Point(x_pos, y_pos)
 		return polygon.contains(point)
 
 	""" Draw the Box from the Points on the given image """
 	def draw(self, frame):
-
 		cv2.line(frame, self.p00(), self.p01(), self.color)
 		cv2.line(frame, self.p00(), self.p10(), self.color)
 		cv2.line(frame, self.p11(), self.p01(), self.color)

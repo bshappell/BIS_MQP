@@ -69,16 +69,16 @@ class ImageProcessor(object):
 			X_LARGE, Y_LARGE, Y_MAX_LARGE, Y_MIN_LARGE, Y_MAX_LARGE, Y_MIN_LARGE, CIRC_PARAM_LARGE)
 
 		""" Set the shape locations for the calibration (x_offset,y_offset,x_width,y_width,angle) """
-		self.calib_P02_0_0_0.setShapes(1, 60,20,70,100,0)
-		self.calib_P02_0_0_0.setShapes(2,-50,-120,100,50,0)
+		self.calib_P02_0_0_0.setShapes(1, 60,20,70,100,20)
+		self.calib_P02_0_0_0.setShapes(2,-50,-120,100,50,45)
 		self.calib_P02_0_0_0.setShapes(3,-130,-40,70,100,0)
 
 		""" Small BB size for P02 concave fillet """
 		self.calib_P02_0_0_1 = CvCalibData.CvCalibData(RAD_SMALL, MAX_RAD_SMALL, MIN_RAD_SMALL, 
 			X_SMALL, Y_SMALL, Y_MAX_SMALL, Y_MIN_SMALL, Y_MAX_SMALL, Y_MIN_SMALL, CIRC_PARAM_SMALL)
-		self.calib_P02_0_0_1.setShapes(1, 60,-70,70,70,0)
-		self.calib_P02_0_0_1.setShapes(2,-50,-120,100,50,0)
-		self.calib_P02_0_0_1.setShapes(3,-130,-40,70,70,0)
+		self.calib_P02_0_0_1.setShapes(1, 60,-70,70,70,20)
+		self.calib_P02_0_0_1.setShapes(2,-50,-120,100,50,40)
+		self.calib_P02_0_0_1.setShapes(3,-130,-40,70,70,45)
 
 		""" Store the current calibration """
 		self.current_calib = self.calib_P02_0_0_0
@@ -121,23 +121,42 @@ class ImageProcessor(object):
 		pic_count = 0
 		start_time = time.time()
 
+		""" Inspection initially paused until start is received """
+		if RASP_PI:
+			pauseInspection = True
+		else:
+			pauseInspection = False
 		stillInspecting = True
+		inspectingUp = True
 		while(stillInspecting):
 
 			if callFunction:
-				""" Get the updated position and determine if the bb is still in the fillet """
-				stillInspecting, blade_side, distance = callFunction(position)
-				if ((distance != -1) and (blade_side != -1)):
-					position.update(blade_side,distance)
-					self.setCalibration(position)
+				stillInspecting, message = callFunction(position)
+				if message == START_PATH_UP:
+					inspectingUp = True
+					pauseInspection = False
+					self.my_print("START_PATH_UP RECEIVED")
+				elif message == START_PATH_DOWN:
+					inspectingUp = False
+					pauseInspection = False
+					self.my_print("START_PATH_DOWN RECEIVED")
+				elif message == PAUSE_PATH:
+					pauseInspection = True
+					self.my_print("PAUSE_PATH RECEIVED")
+				else:
+					#position.update(distance)
+					#self.setCalibration(position)
+					self.my_print("POSITION RECEIVED: ")
+					self.my_print(message)
 
 			""" Inspect the captured image """
-			passValue = self.inspectImageFromCamera(position.ball_bearing)
-			cv2.imshow('Inspected Camera Image ', self.frame)
+			if(not pauseInspection):
+				passValue = self.inspectImageFromCamera(position.ball_bearing, inspectingUp)
+				cv2.imshow('Inspected Camera Image ', self.frame)
 
-			""" Save the inspection results to the file """
-			if RASP_PI:
-				self.results.addResult(position, passValue)
+				""" Save the inspection results to the file """
+				if RASP_PI:
+					self.results.addResult(position, passValue)
 
 			pic_count += 1
 			key = cv2.waitKey(1) & 0xFF
@@ -182,13 +201,13 @@ class ImageProcessor(object):
 			self.capture.release()
 
 	""" Inspect the current image to see if it passes """
-	def inspectImageFromCamera(self, isSmallBB):
+	def inspectImageFromCamera(self, isSmallBB, inspectingUp):
 
 		imagePasses = False
 		ret, self.frame = self.capture.read()
 
 		""" Update the location of the ball bearing """
-		#self.findBallBearing(self.frame.copy())
+		self.findBallBearing(self.frame.copy())
 
 		""" Update the box locations based on the ball bearing location """
 		self.current_calib.updateShapeLocations(self.ball_bearing_x, self.ball_bearing_y)
@@ -269,10 +288,9 @@ class ImageProcessor(object):
 			
 		""" HoughCircles(image, method, dp, minDist[, circles[, param1[, param2 [, minRadius[, maxRadius]]]]]) """
 		if RASP_PI:
-                        circles = cv2.HoughCircles(gray, cv2.cv.CV_HOUGH_GRADIENT, 1, self.current_calib.circles_param, param1=30, param2=25, minRadius=40, maxRadius=0)
-                else:
-                        circles = cv2.HoughCircles(gray, cv2.cv.CV_HOUGH_GRADIENT, 1, self.current_calib.circles_param, param1=30, param2=25, minRadius=40, maxRadius=0)
-                        print cv2.cv.CV_HOUGH_GRADIENT
+			circles = cv2.HoughCircles(gray, cv2.cv.CV_HOUGH_GRADIENT, 1, self.current_calib.circles_param, param1=30, param2=25, minRadius=40, maxRadius=0)
+		else:
+			circles = cv2.HoughCircles(gray, cv2.cv.CV_HOUGH_GRADIENT, 1, self.current_calib.circles_param, param1=30, param2=25, minRadius=40, maxRadius=0)
 			
 		if circles is not None:
 			""" convert the (x, y) coordinates and radius of the circles to integers """
