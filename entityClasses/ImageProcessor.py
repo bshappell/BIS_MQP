@@ -11,11 +11,12 @@ import math
 DEBUG = 1 # Toggle to get debug features
 RASP_PI = 1 # Indicates whether the code is running on the Raspberry Pi or not
 CAMERA = 1 # Indicates whether to run the code with the camera
-VIDEO = 0 # Indicates if a video should be recorded
+VIDEO = 1 # Indicates if a video should be recorded
+IMAGE_CAPTURE = 1
 
 HUE_LOW = 30 #26
-HUE_HIGH = 90 #71
-SATURATION_LOW = 150 #104
+HUE_HIGH = 90
+SATURATION_LOW = 150
 SATURATION_HIGH = 255
 VALUE_LOW = 180 #116
 VALUE_HIGH = 255
@@ -54,6 +55,11 @@ class ImageProcessor(object):
 		else:
 			self.capture = cv2.VideoCapture(1)
 		self.frame = None
+
+		if IMAGE_CAPTURE:
+			self.frame1 = None
+			self.frame2 = None
+			self.frame3 = None
 
 		""" Inspection Results Class """
 		self.results = InspectionResults.InspectionResults()
@@ -134,6 +140,9 @@ class ImageProcessor(object):
 
 	def inspect(self, callFunction, position):
 
+		if VIDEO:
+			video = cv2.VideoWriter('output.avi',-1, 7, (640,480))
+
 		""" Set the correct calibration """
 		self.setCalibration(position)
 
@@ -179,6 +188,10 @@ class ImageProcessor(object):
 				passValue = self.inspectImageFromCamera(position.ball_bearing, inspectingUp)
 				cv2.imshow('Inspected Camera Image ', self.frame)
 
+				if VIDEO:
+					output = self.frame.copy()
+					video.write(output)
+
 				""" Save the inspection results to the file """
 				if RASP_PI:
 					self.results.addResult(position, passValue)
@@ -188,11 +201,25 @@ class ImageProcessor(object):
 			if key == ord('q'):
 				break
 			elif key == ord('s'):
-				image_count += 1
-				img = self.frame
-				cv2.imwrite("../pictures/Capture_" + str(image_count) +".png", img)
+
+				if IMAGE_CAPTURE:
+					image_count += 1
+					img = self.frame1
+					cv2.imwrite("../pictures/Poster_1_" + str(image_count) +".png", img)
+					img = self.frame2
+					cv2.imwrite("../pictures/Poster_2_" + str(image_count) +".png", img)
+					img = self.frame3
+					cv2.imwrite("../pictures/Poster_3_" + str(image_count) +".png", img)
+
+				else:
+					image_count += 1
+					img = self.frame
+					cv2.imwrite("../pictures/Capture_" + str(image_count) +".png", img) 
 
 		self.my_print("IMAGE PROCESSOR FPS: " + str(pic_count/(time.time() - start_time)) + '\n')
+
+		if VIDEO:
+			video.release()
 
 
 	""" Determine if the centroid count in each quadrant passes """
@@ -230,6 +257,11 @@ class ImageProcessor(object):
 
 		imagePasses = False
 		ret, self.frame = self.capture.read()
+
+		if IMAGE_CAPTURE:
+			self.frame1 = self.frame.copy()
+			self.frame2 = self.frame.copy()
+			self.frame3 = self.frame.copy()
 
 		""" Update the location of the ball bearing """
 		#self.findBallBearing(self.frame.copy())
@@ -276,6 +308,15 @@ class ImageProcessor(object):
 				cv2.drawContours(self.frame, [c], -1, (0, 255, 0), 2)
 				cv2.circle(self.frame, (cX, cY), 7, (0, 0, 0), -1)
 
+				if IMAGE_CAPTURE:
+					cv2.drawContours(self.frame1, [c], -1, (0, 0, 255), 2)
+					cv2.circle(self.frame1, (cX, cY), 7, (0, 0, 0), -1)
+					cv2.drawContours(self.frame2, [c], -1, (0, 0, 255), 2)
+					cv2.circle(self.frame2, (cX, cY), 7, (0, 0, 0), -1)
+					cv2.drawContours(self.frame3, [c], -1, (0, 0, 255), 2)
+					cv2.circle(self.frame3, (cX, cY), 7, (0, 0, 0), -1)
+
+
 				""" Determine the number of centroids in each quadrant """
 				if self.current_calib.inShape(1,cX,cY):
 					quad1_cnt += 1
@@ -292,6 +333,13 @@ class ImageProcessor(object):
 
 		""" Determine if the ball bearing case sizes pass """
 		imagePasses = self.checkImage(isSmallBB,quad1_cnt,quad2_cnt,quad3_cnt)
+
+		if IMAGE_CAPTURE:
+			self.current_calib.drawShapes(self.frame3)
+			cv2.circle(self.frame2, (self.ball_bearing_x, self.ball_bearing_y), self.current_calib.radius, (255, 0, 0), 2)
+			cv2.circle(self.frame3, (self.ball_bearing_x, self.ball_bearing_y), self.current_calib.radius, (255, 0, 0), 2)
+			cv2.putText(self.frame3, "Inspection Passes: " + str(imagePasses), (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, self.upper_green, 2)
+
 
 		""" Indicate Whether the image passes or fails """
 		cv2.putText(self.frame, "Inspection Passes: " + str(imagePasses), (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, self.upper_green, 2)
@@ -413,6 +461,25 @@ class ImageProcessor(object):
 	    sys.stdout.write(str(text))
 	    sys.stdout.flush()
 
+	def imageCapture(self):
+
+		image_count = 0
+
+		while(True):
+
+			ret, self.frame = self.capture.read()
+			cv2.imshow('Inspected Camera Image ', self.frame)
+
+			key = cv2.waitKey(1) & 0xFF
+			if key == ord('q'):
+				break
+			elif key == ord('s'):
+
+				image_count += 1
+				img = self.frame
+				cv2.imwrite("../pictures/BlankPic_" + str(image_count) +".png", img) 
+
+
 
 """ Used for testing purposes """
 if __name__ == "__main__":
@@ -430,6 +497,7 @@ if __name__ == "__main__":
 	if RASP_PI:
 		ip.newBlisk(0)
 
-	ip.inspect(None, pos)
+	#ip.inspect(None, pos)
+	ip.imageCapture()
 
 		
