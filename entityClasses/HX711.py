@@ -49,7 +49,7 @@ class HX711:
     pi.write(CLOCK, 1) # Pause the sensor.
 
     pi.wave_add_generic(
-       [pigpio.pulse(1<<CLOCK, 0, 10), pigpio.pulse(0, 1<<CLOCK, 60)]) #was 20 and 20 not 2 and 2
+       [pigpio.pulse(1<<CLOCK, 0, 20), pigpio.pulse(0, 1<<CLOCK, 20)]) #was 20 and 20 not 2 and 2
 
     self._wid = pi.wave_create()
 

@@ -73,7 +73,7 @@ class ForceSensor(object):
         
         """ Collect multiple readings to be averaged """
         while(time.time()-start_time < 20):
-
+            time.sleep(0.1)
             count, mode, reading = self.get_reading()
             #c+=1
             #print "Reading = "

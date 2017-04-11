@@ -24,8 +24,8 @@ VALUE_HIGH = 255
 """ For P02 """
 X_SMALL = 370
 Y_SMALL = 156
-X_LARGE = 370
-Y_LARGE = 186
+X_LARGE = 350
+Y_LARGE = 162
 Y_MAX_SMALL = 200
 Y_MIN_SMALL = 130
 X_MAX_SMALL = 420
@@ -38,7 +38,7 @@ MIN_RAD_SMALL = 50
 MAX_RAD_SMALL = 70 
 MIN_RAD_LARGE = 70
 MAX_RAD_LARGE = 80
-RAD_LARGE = 64
+RAD_LARGE = 69
 RAD_SMALL = 54
 CIRC_PARAM_LARGE = 1
 CIRC_PARAM_SMALL = 4
@@ -68,16 +68,19 @@ class ImageProcessor(object):
 		self.calib_P02_0_0_0 = CvCalibData.CvCalibData(RAD_LARGE, MAX_RAD_LARGE, MIN_RAD_LARGE, 
 			X_LARGE, Y_LARGE, Y_MAX_LARGE, Y_MIN_LARGE, Y_MAX_LARGE, Y_MIN_LARGE, CIRC_PARAM_LARGE)
 		""" Set the shape locations for the calibration (x_offset,y_offset,x_width,y_width,angle) """
-		self.calib_P02_0_0_0.setShapes(1, 60,20,70,100,20)
-		self.calib_P02_0_0_0.setShapes(2,-50,-120,100,50,45)
-		self.calib_P02_0_0_0.setShapes(3,-130,-40,70,100,0)
+		self.calib_P02_0_0_0.setShapes(1, 50,20,50,100,0)
+		self.calib_P02_0_0_0.setShapes(2,38,-95,80,35,45)
+		self.calib_P02_0_0_0.setShapes(3,-125,-60,90,70,-45)
+
+
+		
 
 		""" Large BB size for P02 convex fillet """
 		""" Set the shape locations for the calibration (x_offset,y_offset,x_width,y_width,angle) """
 		self.calib_P02_0_1_0 = CvCalibData.CvCalibData(RAD_LARGE, MAX_RAD_LARGE, MIN_RAD_LARGE, 
 			X_LARGE, Y_LARGE, Y_MAX_LARGE, Y_MIN_LARGE, Y_MAX_LARGE, Y_MIN_LARGE, CIRC_PARAM_LARGE)
 		self.calib_P02_0_1_0.setShapes(1, 60,20,70,100,20)
-		self.calib_P02_0_1_0.setShapes(2,-50,-120,100,50,45)
+		self.calib_P02_0_1_0.setShapes(2,0,0,100,50,0)
 		self.calib_P02_0_1_0.setShapes(3,-130,-40,70,100,0)
 
 		""" Small BB size for P02 concave fillet """
@@ -285,7 +288,7 @@ class ImageProcessor(object):
 		self.current_calib.drawShapes(self.frame)
 
 		""" Show current circle """
-		cv2.circle(self.frame, (self.ball_bearing_x, self.ball_bearing_y), self.current_calib.radius, (255, 0, 0), 4)
+		cv2.circle(self.frame, (self.ball_bearing_x, self.ball_bearing_y), self.current_calib.radius, (255, 0, 0), 2)
 
 		""" Determine if the ball bearing case sizes pass """
 		imagePasses = self.checkImage(isSmallBB,quad1_cnt,quad2_cnt,quad3_cnt)
@@ -414,10 +417,14 @@ class ImageProcessor(object):
 """ Used for testing purposes """
 if __name__ == "__main__":
 
+        blisk_num = 1
+        stage_num = 0
+        blade_num = 0
 	blade_side = 0
-	ball_bearing = 1 # large
+	ball_bearing = 0 # 0 = large
+	distance = 0
 	pos = InspectionPosition.InspectionPosition()
-	pos.setPos(0, 0, 0, blade_side, ball_bearing, 0)
+	pos.setPos(blisk_num, stage_num, blade_num, blade_side, ball_bearing, distance)
 
 	ip = ImageProcessor()
 	if RASP_PI:
