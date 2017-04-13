@@ -1,41 +1,36 @@
 import Shapes
 
 
-
-
-""" For P02 """
-X_SMALL = 370
-Y_SMALL = 156
-X_LARGE = 350
-Y_LARGE = 162
-Y_MAX_SMALL = 200
-Y_MIN_SMALL = 130
-X_MAX_SMALL = 420
-X_MIN_SMALL = 300
-Y_MAX_LARGE = 200
-Y_MIN_LARGE = 130
-X_MAX_LARGE = 420
-X_MIN_LARGE = 300
-MIN_RAD_SMALL = 50
-MAX_RAD_SMALL = 70 
-MIN_RAD_LARGE = 70
-MAX_RAD_LARGE = 80
-RAD_LARGE = 69
-RAD_SMALL = 54
-CIRC_PARAM_LARGE = 1
-CIRC_PARAM_SMALL = 4
-
-
 """ Per blade side and bb size per stage (16 in total) """
 class Calibrations(object):
 
 	def __init__(self):
 
 
-
                 """ ***************************** P02 Blisk Configurations ***************************** """
 		""" CvCalibData(radius, radius_max, radius_min, x_init, y_init, y_max, y_min, x_max, x_min) """
 		""" Set the shape locations for the calibration (x_offset,y_offset,x_width,y_width,angle) """
+
+		X_SMALL = 370
+                Y_SMALL = 156
+                X_LARGE = 350
+                Y_LARGE = 162
+                Y_MAX_SMALL = 200
+                Y_MIN_SMALL = 130
+                X_MAX_SMALL = 420
+                X_MIN_SMALL = 300
+                Y_MAX_LARGE = 200
+                Y_MIN_LARGE = 130
+                X_MAX_LARGE = 420
+                X_MIN_LARGE = 300
+                MIN_RAD_SMALL = 50
+                MAX_RAD_SMALL = 70 
+                MIN_RAD_LARGE = 70
+                MAX_RAD_LARGE = 80
+                RAD_LARGE = 69
+                RAD_SMALL = 54
+                CIRC_PARAM_LARGE = 1
+                CIRC_PARAM_SMALL = 4
 		
 		""" Large BB size for P02 concave fillet """
 		self.calib_P02_0_0_0 = CvCalibData(RAD_LARGE, MAX_RAD_LARGE, MIN_RAD_LARGE, 
@@ -70,6 +65,27 @@ class Calibrations(object):
                 """ ***************************** P01 Blisk Configurations ***************************** """
                 """ CvCalibData(radius, radius_max, radius_min, x_init, y_init, y_max, y_min, x_max, x_min) """
 		""" Set the shape locations for the calibration (x_offset,y_offset,x_width,y_width,angle) """
+
+		X_SMALL = 370
+                Y_SMALL = 156
+                X_LARGE = 350
+                Y_LARGE = 162
+                Y_MAX_SMALL = 200
+                Y_MIN_SMALL = 130
+                X_MAX_SMALL = 420
+                X_MIN_SMALL = 300
+                Y_MAX_LARGE = 200
+                Y_MIN_LARGE = 130
+                X_MAX_LARGE = 420
+                X_MIN_LARGE = 300
+                MIN_RAD_SMALL = 50
+                MAX_RAD_SMALL = 70 
+                MIN_RAD_LARGE = 70
+                MAX_RAD_LARGE = 80
+                RAD_LARGE = 69
+                RAD_SMALL = 54
+                CIRC_PARAM_LARGE = 1
+                CIRC_PARAM_SMALL = 4
 		
                 """ Large BB size for P01 concave fillet """
 		self.calib_P01_0_0_0 = CvCalibData(RAD_LARGE, MAX_RAD_LARGE, MIN_RAD_LARGE, 
@@ -104,6 +120,27 @@ class Calibrations(object):
 		""" ***************************** G02 Blisk Stage 0 Configurations ***************************** """
                 """ CvCalibData(radius, radius_max, radius_min, x_init, y_init, y_max, y_min, x_max, x_min) """
 		""" Set the shape locations for the calibration (x_offset,y_offset,x_width,y_width,angle) """
+
+		X_SMALL = 370
+                Y_SMALL = 156
+                X_LARGE = 350
+                Y_LARGE = 162
+                Y_MAX_SMALL = 200
+                Y_MIN_SMALL = 130
+                X_MAX_SMALL = 420
+                X_MIN_SMALL = 300
+                Y_MAX_LARGE = 200
+                Y_MIN_LARGE = 130
+                X_MAX_LARGE = 420
+                X_MIN_LARGE = 300
+                MIN_RAD_SMALL = 50
+                MAX_RAD_SMALL = 70 
+                MIN_RAD_LARGE = 70
+                MAX_RAD_LARGE = 80
+                RAD_LARGE = 69
+                RAD_SMALL = 54
+                CIRC_PARAM_LARGE = 1
+                CIRC_PARAM_SMALL = 4
                 
                 """ Large BB size for G02 Stage 0 concave fillet """
 		self.calib_G02_0_0_0 = CvCalibData(RAD_LARGE, MAX_RAD_LARGE, MIN_RAD_LARGE, 
@@ -139,6 +176,27 @@ class Calibrations(object):
 		""" ***************************** G02 Blisk Stage 1 Configurations ***************************** """
                 """ CvCalibData(radius, radius_max, radius_min, x_init, y_init, y_max, y_min, x_max, x_min) """
 		""" Set the shape locations for the calibration (x_offset,y_offset,x_width,y_width,angle) """
+
+		X_SMALL = 370
+                Y_SMALL = 156
+                X_LARGE = 350
+                Y_LARGE = 162
+                Y_MAX_SMALL = 200
+                Y_MIN_SMALL = 130
+                X_MAX_SMALL = 420
+                X_MIN_SMALL = 300
+                Y_MAX_LARGE = 200
+                Y_MIN_LARGE = 130
+                X_MAX_LARGE = 420
+                X_MIN_LARGE = 300
+                MIN_RAD_SMALL = 50
+                MAX_RAD_SMALL = 70 
+                MIN_RAD_LARGE = 70
+                MAX_RAD_LARGE = 80
+                RAD_LARGE = 69
+                RAD_SMALL = 54
+                CIRC_PARAM_LARGE = 1
+                CIRC_PARAM_SMALL = 4
                 
                 """ Large BB size for G02 Stage 1 concave fillet """
 		self.calib_G02_1_0_0 = CvCalibData(RAD_LARGE, MAX_RAD_LARGE, MIN_RAD_LARGE, 
