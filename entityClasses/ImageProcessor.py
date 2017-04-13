@@ -68,44 +68,11 @@ class ImageProcessor(object):
 		self.lower_green = np.array([HUE_LOW,SATURATION_LOW,VALUE_LOW])
 		self.upper_green = np.array([HUE_HIGH,SATURATION_HIGH,VALUE_HIGH])
 
-		""" Make the different calibrations for each fillet and ball bearing size combo """
-		""" CvCalibData(radius, radius_max, radius_min, x_init, y_init, y_max, y_min, x_max, x_min) """
-		""" Large BB size for P02 concave fillet """
-		self.calib_P02_0_0_0 = CvCalibData.CvCalibData(RAD_LARGE, MAX_RAD_LARGE, MIN_RAD_LARGE, 
-			X_LARGE, Y_LARGE, Y_MAX_LARGE, Y_MIN_LARGE, Y_MAX_LARGE, Y_MIN_LARGE, CIRC_PARAM_LARGE)
-		""" Set the shape locations for the calibration (x_offset,y_offset,x_width,y_width,angle) """
-		self.calib_P02_0_0_0.setShapes(1, 50,20,50,100,0)
-		self.calib_P02_0_0_0.setShapes(2,38,-95,80,35,45)
-		self.calib_P02_0_0_0.setShapes(3,-125,-60,90,70,-45)
-
-
-		
-
-		""" Large BB size for P02 convex fillet """
-		""" Set the shape locations for the calibration (x_offset,y_offset,x_width,y_width,angle) """
-		self.calib_P02_0_1_0 = CvCalibData.CvCalibData(RAD_LARGE, MAX_RAD_LARGE, MIN_RAD_LARGE, 
-			X_LARGE, Y_LARGE, Y_MAX_LARGE, Y_MIN_LARGE, Y_MAX_LARGE, Y_MIN_LARGE, CIRC_PARAM_LARGE)
-		self.calib_P02_0_1_0.setShapes(1, 60,20,70,100,20)
-		self.calib_P02_0_1_0.setShapes(2,0,0,100,50,0)
-		self.calib_P02_0_1_0.setShapes(3,-130,-40,70,100,0)
-
-		""" Small BB size for P02 concave fillet """
-		self.calib_P02_0_0_1 = CvCalibData.CvCalibData(RAD_SMALL, MAX_RAD_SMALL, MIN_RAD_SMALL, 
-			X_SMALL, Y_SMALL, Y_MAX_SMALL, Y_MIN_SMALL, Y_MAX_SMALL, Y_MIN_SMALL, CIRC_PARAM_SMALL)
-		self.calib_P02_0_0_1.setShapes(1, 60,-70,70,70,20)
-		self.calib_P02_0_0_1.setShapes(2,-50,-120,100,50,40)
-		self.calib_P02_0_0_1.setShapes(3,-130,-40,70,70,45)
-
-		""" Small BB size for P02 convex fillet """
-		self.calib_P02_0_1_1 = CvCalibData.CvCalibData(RAD_SMALL, MAX_RAD_SMALL, MIN_RAD_SMALL, 
-			X_SMALL, Y_SMALL, Y_MAX_SMALL, Y_MIN_SMALL, Y_MAX_SMALL, Y_MIN_SMALL, CIRC_PARAM_SMALL)
-		self.calib_P02_0_1_1.setShapes(1, 60,-70,70,70,20)
-		self.calib_P02_0_1_1.setShapes(2,-50,-120,100,50,40)
-		self.calib_P02_0_1_1.setShapes(3,-130,-40,70,70,45)
-
+		""" Calibrations stores each of the blisk configs """
+                self.calibs = CvCalibData.Calibrations()
 
 		""" Store the current calibration """
-		self.current_calib = self.calib_P02_0_0_0
+		self.current_calib = self.calibs.calib_P02_0_0_0
 		self.ball_bearing_x = self.current_calib.x_init
 		self.ball_bearing_y = self.current_calib.y_init
 
@@ -128,13 +95,45 @@ class ImageProcessor(object):
 
                 """ The P02 blisk calibrations """
 		if pos.blisk_number == 1 and pos.stage_number == 0 and pos.blade_side == 0 and pos.ball_bearing == 0:
-			self.current_calib = self.calib_P02_0_0_0
+			self.current_calib = self.calibs.calib_P02_0_0_0
 		elif pos.blisk_number == 1 and pos.stage_number == 0 and pos.blade_side == 1 and pos.ball_bearing == 0:
-			self.current_calib = self.calib_P02_0_1_0
+			self.current_calib = self.calibs.calib_P02_0_1_0
 		elif pos.blisk_number == 1 and pos.stage_number == 0 and pos.blade_side == 0 and pos.ball_bearing == 1:
-			self.current_calib = self.calib_P02_0_0_1
+			self.current_calib = self.calibs.calib_P02_0_0_1
 		elif pos.blisk_number == 1 and pos.stage_number == 0 and pos.blade_side == 1 and pos.ball_bearing == 1:
-			self.current_calib = self.calib_P02_0_1_1
+			self.current_calib = self.calibs.calib_P02_0_1_1
+
+                        """ The P01 blisk calibrations """
+		elif pos.blisk_number == 0 and pos.stage_number == 0 and pos.blade_side == 0 and pos.ball_bearing == 0:
+			self.current_calib = self.calibs.calib_P01_0_0_0
+		elif pos.blisk_number == 0 and pos.stage_number == 0 and pos.blade_side == 1 and pos.ball_bearing == 0:
+			self.current_calib = self.calibs.calib_P01_0_1_0
+		elif pos.blisk_number == 0 and pos.stage_number == 0 and pos.blade_side == 0 and pos.ball_bearing == 1:
+			self.current_calib = self.calibs.calib_P01_0_0_1
+		elif pos.blisk_number == 0 and pos.stage_number == 0 and pos.blade_side == 1 and pos.ball_bearing == 1:
+			self.current_calib = self.calibs.calib_P01_0_1_1
+
+                        """ The G02 blisk stage 0 calibrations """
+		elif pos.blisk_number == 2 and pos.stage_number == 0 and pos.blade_side == 0 and pos.ball_bearing == 0:
+			self.current_calib = self.calibs.calib_G02_0_0_0
+		elif pos.blisk_number == 2 and pos.stage_number == 0 and pos.blade_side == 1 and pos.ball_bearing == 0:
+			self.current_calib = self.calibs.calib_G02_0_1_0
+		elif pos.blisk_number == 2 and pos.stage_number == 0 and pos.blade_side == 0 and pos.ball_bearing == 1:
+			self.current_calib = self.calibs.calib_G02_0_0_1
+		elif pos.blisk_number == 2 and pos.stage_number == 0 and pos.blade_side == 1 and pos.ball_bearing == 1:
+			self.current_calib = self.calibs.calib_G02_0_1_1
+
+                        """ The G02 blisk stage 1 calibrations """
+		elif pos.blisk_number == 2 and pos.stage_number == 1 and pos.blade_side == 0 and pos.ball_bearing == 0:
+			self.current_calib = self.calibs.calib_G02_1_0_0
+		elif pos.blisk_number == 2 and pos.stage_number == 1 and pos.blade_side == 1 and pos.ball_bearing == 0:
+			self.current_calib = self.calibs.calib_G02_1_1_0
+		elif pos.blisk_number == 2 and pos.stage_number == 1 and pos.blade_side == 0 and pos.ball_bearing == 1:
+			self.current_calib = self.calibs.calib_G02_1_0_1
+		elif pos.blisk_number == 2 and pos.stage_number == 1 and pos.blade_side == 1 and pos.ball_bearing == 1:
+			self.current_calib = self.calibs.calib_G02_1_1_1
+
+			
 		else:
 			print "ERROR IMAGE PROCESSOR CALIBRATION NOT FOUND"
 
