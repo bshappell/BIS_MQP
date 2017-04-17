@@ -30,7 +30,7 @@ IT_BLISK_G02 = 20
 
 """ Number of Blades per Stage """
 BN_STAGE_P01 =  1 #56
-BN_STAGE_P02 = 34
+BN_STAGE_P02 = 1 #34
 BN_STAGE_G02_1 = 49
 BN_STAGE_G02_2 = 39
 
@@ -79,9 +79,9 @@ class BIS(object):
                                     861,862,861,862,861,862]
 
 		""" Make the different stages Stage(numberBlades, smallBBRadius, largeBBRadius, stepsArray) """
-		stage_P01 = [Stage.Stage(56, 0.05, 0.07, stepsArray_P01)]
-		stage_G02 = [Stage.Stage(49, 0.09, 0.11, stepsArray_G02_1), Stage.Stage(39, 0.105, 0.125, stepsArray_G02_2)]
-		stage_P02 = [Stage.Stage(34, 0.122, 0.142, stepsArray_P02)]
+		stage_P01 = [Stage.Stage(BN_STAGE_P01, 0.05, 0.07, stepsArray_P01)]
+		stage_G02 = [Stage.Stage(BN_STAGE_G02_1, 0.09, 0.11, stepsArray_G02_1), Stage.Stage(BN_STAGE_G02_2, 0.105, 0.125, stepsArray_G02_2)]
+		stage_P02 = [Stage.Stage(BN_STAGE_P02, 0.122, 0.142, stepsArray_P02)]
 
 		""" The Blisks composed of the different stages Blisk(bliskID, inspectionTime, firstStage, secondStage) """
 		blisk_P01 = Blisk.Blisk(ID_BLISK_P01, IT_BLISK_P01, stage_P01)
@@ -207,11 +207,11 @@ class BIS(object):
 
 		print "begin blade inspection"
 		""" Inspect all Stages of the blisk """
+		self.stage_num = 0
 		for stage in self.currBlisk.stages:
 
                         """ Select the correct stage """
-                        self.currStage = self.currBlisk.stages[stage]
-			self.stage_num = stage
+                        self.currStage = stage
 			print "Inspecting Stage"
 
 			""" Use the large BB size first (0 is large) """
@@ -224,6 +224,8 @@ class BIS(object):
 				""" Increment over every blade """
 				for blade in range(stage.numberBlades):
 					self.blade_num = blade
+
+					print "number of blades: " + str(stage.numberBlades)
 
 					print "inspect blade: " + str(blade)
 
@@ -240,6 +242,9 @@ class BIS(object):
 
 				""" Switch to the larger BB size """
 				self.toolSwitch.largeBB()
+
+			""" Change to the second stage """
+			self.stage_num = 1
 
 		""" Turn off the led when the inspection is complete """
 		self.led.turnOff()

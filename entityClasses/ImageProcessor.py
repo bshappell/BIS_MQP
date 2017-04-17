@@ -475,7 +475,7 @@ if __name__ == "__main__":
 	if RASP_PI:
 		ip.newBlisk(0)
 
-	#ip.inspect(None, pos)
-	ip.imageCapture()
+	ip.inspect(None, pos)
+	#ip.imageCapture()
 
 		
