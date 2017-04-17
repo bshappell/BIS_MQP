@@ -11,7 +11,7 @@ import math
 DEBUG = 1 # Toggle to get debug features
 RASP_PI = 1 # Indicates whether the code is running on the Raspberry Pi or not
 CAMERA = 1 # Indicates whether to run the code with the camera
-VIDEO = 1 # Indicates if a video should be recorded
+VIDEO = 0 # Indicates if a video should be recorded
 IMAGE_CAPTURE = 1
 
 HUE_LOW = 30 #26
@@ -21,28 +21,6 @@ SATURATION_HIGH = 255
 VALUE_LOW = 180 #116
 VALUE_HIGH = 255
 
-
-""" For P02 """
-X_SMALL = 370
-Y_SMALL = 156
-X_LARGE = 350
-Y_LARGE = 162
-Y_MAX_SMALL = 200
-Y_MIN_SMALL = 130
-X_MAX_SMALL = 420
-X_MIN_SMALL = 300
-Y_MAX_LARGE = 200
-Y_MIN_LARGE = 130
-X_MAX_LARGE = 420
-X_MIN_LARGE = 300
-MIN_RAD_SMALL = 50
-MAX_RAD_SMALL = 70 
-MIN_RAD_LARGE = 70
-MAX_RAD_LARGE = 80
-RAD_LARGE = 69
-RAD_SMALL = 54
-CIRC_PARAM_LARGE = 1
-CIRC_PARAM_SMALL = 4
 WEIGHT = 7 
 
 
@@ -198,7 +176,8 @@ class ImageProcessor(object):
 			pic_count += 1
 			key = cv2.waitKey(1) & 0xFF
 			if key == ord('q'):
-				break
+                                if IMAGE_CAPTURE:
+                                        break
 			elif key == ord('s'):
 
 				if IMAGE_CAPTURE:

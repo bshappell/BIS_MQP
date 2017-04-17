@@ -29,7 +29,7 @@ IT_BLISK_P02 = 10
 IT_BLISK_G02 = 20
 
 """ Number of Blades per Stage """
-BN_STAGE_P01 = 56
+BN_STAGE_P01 =  1 #56
 BN_STAGE_P02 = 34
 BN_STAGE_G02_1 = 49
 BN_STAGE_G02_2 = 39
