@@ -145,6 +145,7 @@ class BIS(object):
 			return
 		self.blisk_num = currBlisk
 		self.currBlisk = self.blisks[currBlisk]
+		self.currStage = self.currBlisk.getFirstStage()
 
 	""" Position the arm far from the turntable for the current blisk """
 	def positionArmFar(self):
@@ -207,6 +208,9 @@ class BIS(object):
 		print "begin blade inspection"
 		""" Inspect all Stages of the blisk """
 		for stage in self.currBlisk.stages:
+
+                        """ Select the correct stage """
+                        self.currStage = self.currBlisk.stages[stage]
 			self.stage_num = stage
 			print "Inspecting Stage"
 
