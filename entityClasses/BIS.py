@@ -132,6 +132,9 @@ class BIS(object):
 		else:
 			print "Connection failed"
 
+	""" Handles moving the ABB arm home """
+	def moveArmHome(self):
+
 		""" Home the Abb Robot arm """
 		self.abbRobot.pullArmBack()
 
