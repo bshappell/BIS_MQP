@@ -5,8 +5,8 @@ import RPi.GPIO as GPIO
 import time
 import pigpio
 
-LARGE_DC = 8.2
-SMALL_DC = 3.0
+LARGE_DC = 11.5
+SMALL_DC = 4.5
 
 WIRING_PI = False
 

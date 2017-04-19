@@ -7,7 +7,7 @@ import struct
 import threading
 import Queue
  
-TCP_IP = "192.168.125.3" #"169.254.118.154" 
+TCP_IP = "192.168.125.4" #"169.254.118.154" 
 TCP_PORT = 5515
 
 class ABBRobot(object):

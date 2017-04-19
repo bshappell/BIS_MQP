@@ -61,7 +61,7 @@ if __name__=="__main__":
 	
 	myTurn = TurnTable(20,16)
         
-	stepsArray_P02 = [4667]
+	stepsArray_P02 = [988]
 
 	""" Make the different stages Stage(numberBlades, smallBBRadius, largeBBRadius, stepsArray) """
         stage_P02 = Stage.Stage(BN_STAGE_P02, 0.122, 0.142, stepsArray_P02)
