@@ -1,4 +1,4 @@
-RASP_PI = 0 # used to toggle between working on the pi and on a PC
+RASP_PI = 1 # used to toggle between working on the pi and on a PC
 
 from Tkinter import *
 import tkMessageBox
