@@ -695,7 +695,7 @@ class InspectionResultsView(object):
         self.frame.grid(row=0, column=0, sticky='news')
 
         """ Page Instructions """
-        explanation = "The inspection results can be found in results.csv \nSelect the Finish Button to start a new inspection, otherwise select the Quit Application Button"
+        explanation = "The inspection results can be found in the csv file located at /home/pi/Documents/BIS_MQP/results. \n The inspection file will be labeled with the date and time that the inspection was started at and indicate which blisk was inspected. \nSelect the Finish Button to start a new inspection, otherwise select the Quit Application Button"
         Label(self.frame, compound = CENTER, text=explanation, fg = "black",font = 16).pack(pady=20)
 
         """ Instructions Button """
