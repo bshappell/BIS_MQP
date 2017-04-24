@@ -44,7 +44,7 @@ class ABBRobot(object):
 			self.my_print('Received Expected Value: "%s"\n' % reply.data)
 			return True
 		else:
-			self.my_print("ERROR Received Incorrect Value: " + srtr(reply.data) + " Expected: " + expMessage + "\n")
+			self.my_print("ERROR Received Incorrect Value: " + str(reply.data) + " Expected: " + expMessage + "\n")
 			return False
 
 
