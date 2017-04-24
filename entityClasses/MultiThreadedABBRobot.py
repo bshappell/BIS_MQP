@@ -7,7 +7,7 @@ import struct
 import threading
 import Queue
  
-TCP_IP = "192.168.125.3" #"169.254.118.154" 
+TCP_IP = "192.168.125.4" #"169.254.118.154" 
 TCP_PORT = 5515
 
 class ABBRobot(object):
@@ -44,7 +44,7 @@ class ABBRobot(object):
 			self.my_print('Received Expected Value: "%s"\n' % reply.data)
 			return True
 		else:
-			self.my_print("ERROR Received Incorrect Value: " + srtr(reply.data) + " Expected: " + expMessage + "\n")
+			self.my_print("ERROR Received Incorrect Value: " + str(reply.data) + " Expected: " + expMessage + "\n")
 			return False
 
 

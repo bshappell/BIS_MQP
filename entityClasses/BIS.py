@@ -52,7 +52,7 @@ class BIS(object):
 		self.stage_num = 0
 		self.blade_side = 0
 		self.blade_dist = 0
-		self.bb_num = 0 # small bb first
+		self.bb_num = 0 # big bb first
 
 		""" The arrays of steps between blades for the different stages """
 		stepsArray_P01 = [600,600,600,600,600,600,600,600,600,600,

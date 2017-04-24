@@ -4,7 +4,7 @@
 
 READING_TO_GRAMS = -0.00236
 PLOTTING = 0
-F_THRESH = 250
+F_THRESH = 500
 
 import FSThread
 import csv
