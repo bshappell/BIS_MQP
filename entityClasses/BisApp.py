@@ -655,7 +655,18 @@ class InstructionsView(object):
         self.frame.grid(row=0, column=0, sticky='news')
 
         """ Display the Instructions """
-        explanation = "The Blisk Inspection System Application is used to inspect parts numbers 2468M19P01, 2468M17P02, and 2468M18G02"
+        explanation = """This application can be used to inspect the following GE Bladed Disks (Blisks): 2468M19P01, 2468M17P02, and 2468M18G02. 
+        Ensure that the IRC5 Controller for the ABB Robotic Arm IRB1600T is powered on. 
+        The Raspberry Pi must be on and the wiring must be set up according to the wiring diagram. 
+        The End of Arm Tooling (EOAT) must be mounted to the ABB Robot with the correct ball gauge attached. 
+        When viewed from the camera side (the camera is on top, looking down onto the EOAT) the small ball gauge is the left arm. 
+        Once everything is connected, start up the blisk inspection application.  
+        Click the button to home the arm and select a blisk to inspect. Place the blisk on the turntable, but do not tighten it down. 
+        Select the button in the application to position the tooling just outside of the blisk. 
+        Ensure that the arm is lined up between the blades, with the blade to its right being the first to be inspected. 
+        Ensure that the grounding clip is on the blisk before turning the turntable with the application, and remove it afterwards. 
+        After this the inspection process will run, and when it is complete the application will identify where the results CSV file can be found. """
+
         Label(self.frame, compound = CENTER, text=explanation, fg = "black",font = 16).pack(pady=20)
 
         """ Back Button """
@@ -684,7 +695,7 @@ class InspectionResultsView(object):
         self.frame.grid(row=0, column=0, sticky='news')
 
         """ Page Instructions """
-        explanation = "The inspection results can be found in results.csv \nSelect the Finish Button to start a new inspection, otherwise select the Quit Application Button"
+        explanation = "The inspection results can be found in the csv file located at /home/pi/Documents/BIS_MQP/results. \n The inspection file will be labeled with the date and time that the inspection was started at and indicate which blisk was inspected. \nSelect the Finish Button to start a new inspection, otherwise select the Quit Application Button"
         Label(self.frame, compound = CENTER, text=explanation, fg = "black",font = 16).pack(pady=20)
 
         """ Instructions Button """
